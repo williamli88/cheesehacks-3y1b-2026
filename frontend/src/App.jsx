@@ -25,7 +25,7 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <span className="logo">👕 SwapU</span>
+        <span className="logo">👕 STYLR</span>
         <span className="campus-badge">{user.campus}</span>
       </header>
 

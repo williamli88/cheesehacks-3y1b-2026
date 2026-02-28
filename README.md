@@ -1,4 +1,4 @@
-# SwapU — Campus AI Clothing Swap Platform
+# STYLR — Campus AI Clothing Swap Platform
 
 A mobile-responsive web application for campus-based AI clothing swapping. Built with a Java Spring Boot backend and a React + Vite frontend.
 
