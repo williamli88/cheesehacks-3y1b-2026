@@ -1,0 +1,62 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+.logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.campus-badge {
+  background: rgba(255,255,255,0.25);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  height: calc(100vh - 56px - 60px);
+}
+
+.app-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  height: 60px;
+}
+
+.app-nav button {
+  flex: 1;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #aaa;
+  transition: color 0.2s;
+}
+
+.app-nav button span { font-size: 1.4rem; }
+.app-nav button small { font-size: 0.65rem; }
+
+.app-nav button.active {
+  color: #2ecc71;
+}
