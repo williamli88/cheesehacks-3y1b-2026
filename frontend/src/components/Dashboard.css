@@ -1,0 +1,124 @@
+.dashboard-page {
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.dash-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 10px;
+  color: #888;
+}
+
+.dash-hero {
+  text-align: center;
+  padding: 20px 0 16px;
+}
+
+.dash-hero-icon {
+  font-size: 2.5rem;
+  margin-bottom: 6px;
+}
+
+.dash-hero h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.dash-hero p {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.impact-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.impact-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.impact-card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+
+.impact-card-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.1;
+}
+
+.impact-card-value .unit {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #888;
+}
+
+.impact-card-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.stat-bar-bg {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.impact-equiv {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.dash-cta {
+  text-align: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #e8f8f0, #fff);
+  border-radius: 14px;
+  border: 1px dashed #2ecc71;
+  margin-bottom: 12px;
+}
+
+.dash-cta p {
+  color: #27ae60;
+  font-size: 0.9rem;
+}
+
+.dash-summary {
+  text-align: center;
+  padding: 14px;
+  background: linear-gradient(135deg, #fff9e8, #fff);
+  border-radius: 14px;
+  border: 1px solid #f0e0a0;
+}
+
+.dash-summary p {
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
