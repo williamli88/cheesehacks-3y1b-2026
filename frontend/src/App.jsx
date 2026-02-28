@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Login from './components/Login';
+import Register from './components/Register';
 import SwipeCard from './components/SwipeCard';
 import Matches from './components/Matches';
 import Dashboard from './components/Dashboard';
@@ -8,11 +9,15 @@ import './App.css';
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('swipe'); // swipe | matches | dashboard
+  const [authView, setAuthView] = useState('login'); // login | register
 
   if (!user) {
     return (
       <div className="app-container">
-        <Login onLogin={setUser} />
+        {authView === 'login' && <Login onLogin={setUser} onShowRegister={() => setAuthView('register')} />}
+        {authView === 'register' && (
+          <Register onRegister={(data) => { setUser(data); setAuthView('login'); }} onCancel={() => setAuthView('login')} />
+        )}
       </div>
     );
   }
