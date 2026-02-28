@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { login, getUsers } from '../api';
 import './Login.css';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, onShowRegister }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -79,6 +79,11 @@ export default function Login({ onLogin }) {
           </div>
         </div>
       )}
+      
+      <div className="register-cta">
+        <p style={{ textAlign: 'center', marginTop: 14 }}>New here?</p>
+        <button className="register-btn" onClick={onShowRegister}>Create an account</button>
+      </div>
     </div>
   );
 }
