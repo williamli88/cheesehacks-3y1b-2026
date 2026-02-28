@@ -16,6 +16,7 @@ export default function SwipeCard({ user, onMatch }) {
   const [loading, setLoading] = useState(true);
   const [swiping, setSwiping] = useState(null); // 'left' | 'right' | null
   const [matchNotif, setMatchNotif] = useState(null);
+  const [feedError, setFeedError] = useState(false);
   const cardRef = useRef(null);
   const hammerRef = useRef(null);
 
@@ -26,7 +27,7 @@ export default function SwipeCard({ user, onMatch }) {
         setItems(res.data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setFeedError(true); setLoading(false); });
   }, [user.userId]);
 
   const handleSwipe = useCallback(async (action) => {
@@ -91,6 +92,16 @@ export default function SwipeCard({ user, onMatch }) {
       <div className="swipe-loading">
         <div className="spinner" />
         <p>Loading your feed...</p>
+      </div>
+    );
+  }
+
+  if (feedError) {
+    return (
+      <div className="swipe-empty">
+        <div style={{ fontSize: '3rem' }}>⚠️</div>
+        <h3>Could not load feed</h3>
+        <p>Check your connection and try again.</p>
       </div>
     );
   }

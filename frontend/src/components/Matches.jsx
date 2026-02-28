@@ -5,15 +5,26 @@ import './Matches.css';
 export default function Matches({ user }) {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     getMatches(user.userId)
       .then(res => { setMatches(res.data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setError(true); setLoading(false); });
   }, [user.userId]);
 
   if (loading) {
     return <div className="matches-loading"><div className="spinner" />Loading matches...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="no-matches">
+        <div style={{ fontSize: '2.5rem' }}>⚠️</div>
+        <h3>Could not load matches</h3>
+        <p>Check your connection and try again.</p>
+      </div>
+    );
   }
 
   return (

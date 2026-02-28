@@ -38,7 +38,7 @@ export default function Dashboard({ user }) {
   useEffect(() => {
     getImpact(user.userId)
       .then(res => { setImpact(res.data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setLoading(false); });
   }, [user.userId]);
 
   if (loading) {

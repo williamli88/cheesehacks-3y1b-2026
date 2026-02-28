@@ -70,6 +70,7 @@ export default function Login({ onLogin }) {
                 className="demo-user-btn"
                 onClick={() => handleLogin(u.username, 'password123')}
               >
+                {/* Demo accounts use a fixed password for quick access — not for production */}
                 <span>👤</span>
                 <span>{u.username}</span>
                 <small>{u.campus}</small>
