@@ -34,8 +34,8 @@ export default function Login({ onLogin, onShowRegister }) {
   return (
     <div className="login-screen">
       <div className="login-hero">
-        <div className="login-icon">👕</div>
-        <h1>SwapU</h1>
+        <div className="login-icon"></div>
+        <h1>STYLR</h1>
         <p>Campus Clothing Exchange</p>
       </div>
 
@@ -62,7 +62,7 @@ export default function Login({ onLogin, onShowRegister }) {
 
       {demoUsers.length > 0 && (
         <div className="demo-section">
-          <p className="demo-label">⚡ Quick Demo Login</p>
+          <p className="demo-label">Quick Demo Login</p>
           <div className="demo-users">
             {demoUsers.map(u => (
               <button
