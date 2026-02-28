@@ -4,6 +4,7 @@ import com.clothingswap.model.ClothingItem;
 import com.clothingswap.model.User;
 import com.clothingswap.repository.ClothingItemRepository;
 import com.clothingswap.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class DataSeederService {
 
     private final UserRepository userRepo;
     private final ClothingItemRepository itemRepo;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public DataSeederService(UserRepository userRepo, ClothingItemRepository itemRepo) {
         this.userRepo = userRepo;
@@ -40,7 +42,7 @@ public class DataSeederService {
             User user = new User();
             user.setUsername(firstNames[i].toLowerCase() + (1000 + rng.nextInt(9000)));
             user.setEmail(user.getUsername() + "@campus.edu");
-            user.setPassword("password123");
+            user.setPassword(passwordEncoder.encode("password123"));
             user.setCampus(campuses[rng.nextInt(campuses.length)]);
             users.add(userRepo.save(user));
         }

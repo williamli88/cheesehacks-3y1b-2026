@@ -3,6 +3,7 @@ package com.clothingswap.controller;
 import com.clothingswap.model.User;
 import com.clothingswap.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserRepository userRepo;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthController(UserRepository userRepo) {
         this.userRepo = userRepo;
@@ -30,7 +32,7 @@ public class AuthController {
         }
 
         User user = userOpt.get();
-        if (!password.equals(user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
 
@@ -53,7 +55,7 @@ public class AuthController {
         User user = new User();
         user.setUsername(username);
         user.setEmail(request.get("email"));
-        user.setPassword(request.get("password"));
+        user.setPassword(passwordEncoder.encode(request.get("password")));
         user.setCampus(request.getOrDefault("campus", "MIT"));
 
         User saved = userRepo.save(user);
@@ -74,3 +76,4 @@ public class AuthController {
             .toList());
     }
 }
+
