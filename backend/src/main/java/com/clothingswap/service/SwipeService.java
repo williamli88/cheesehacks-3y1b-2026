@@ -79,24 +79,44 @@ public class SwipeService {
 
     @Transactional
     private void processMatch(Long userIdFrom, Long itemIdTo) {
-        Optional<ClothingItem> itemOpt = itemRepo.findById(itemIdTo);
-        if (itemOpt.isEmpty()) return;
+        // 1. Get the item User A just liked (Item B)
+        Optional<ClothingItem> itemBOpt = itemRepo.findById(itemIdTo);
+        if (itemBOpt.isEmpty()) return;
+        ClothingItem itemB = itemBOpt.get();
+        Long userIdTo = itemB.getUserId();
 
-        ClothingItem item = itemOpt.get();
-        Long userIdTo = item.getUserId();
+        // 2. Find the item User B liked from User A to complete the swap logic
+        // We look for a RIGHT swipe from User B to any item owned by User A
+        List<ClothingItem> userAItems = itemRepo.findByUserId(userIdFrom);
+        Set<Long> userAItemIds = userAItems.stream().map(ClothingItem::getId).collect(Collectors.toSet());
+        
+        Optional<SwipeLedger> reverseSwipe = swipeRepo.findByUserIdFromAndAction(userIdTo, "RIGHT")
+                .stream()
+                .filter(s -> userAItemIds.contains(s.getItemIdTo()))
+                .findFirst();
 
-        LcaService.LcaResult lca = lcaService.calculateSavings(item.getCategory());
+        if (reverseSwipe.isEmpty()) return; // Should not happen if checkForMatch passed
 
-        userRepo.findById(userIdFrom).ifPresent(user -> {
-            user.setTotalWaterSaved(user.getTotalWaterSaved() + lca.waterSaved());
-            user.setTotalCo2Saved(user.getTotalCo2Saved() + lca.co2Saved());
-            user.setTotalSwapsCompleted(user.getTotalSwapsCompleted() + 1);
-            userRepo.save(user);
-        });
+        // 3. Calculate combined savings for BOTH items
+        LcaService.LcaResult lcaItemB = lcaService.calculateSavings(itemB.getCategory());
+        
+        // Get the category of the item User A is giving away
+        ClothingItem itemA = itemRepo.findById(reverseSwipe.get().getItemIdTo()).get();
+        LcaService.LcaResult lcaItemA = lcaService.calculateSavings(itemA.getCategory());
 
-        userRepo.findById(userIdTo).ifPresent(user -> {
-            user.setTotalWaterSaved(user.getTotalWaterSaved() + lca.waterSaved());
-            user.setTotalCo2Saved(user.getTotalCo2Saved() + lca.co2Saved());
+        double totalWater = lcaItemA.waterSaved() + lcaItemB.waterSaved();
+        double totalCo2 = lcaItemA.co2Saved() + lcaItemB.co2Saved();
+
+        // 4. Update both users with the TOTAL swap impact
+        updateUserImpact(userIdFrom, totalWater, totalCo2);
+        updateUserImpact(userIdTo, totalWater, totalCo2);
+    }
+
+    // Helper method to keep code clean
+    private void updateUserImpact(Long userId, double water, double co2) {
+        userRepo.findById(userId).ifPresent(user -> {
+            user.setTotalWaterSaved(user.getTotalWaterSaved() + water);
+            user.setTotalCo2Saved(user.getTotalCo2Saved() + co2);
             user.setTotalSwapsCompleted(user.getTotalSwapsCompleted() + 1);
             userRepo.save(user);
         });

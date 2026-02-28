@@ -21,19 +21,24 @@ public class RecommendationService {
     }
 
     public List<ClothingItem> getRankedFeed(Long userId, String campus, String size) {
-        List<ClothingItem> candidates = itemRepo.findByCampusAndUserIdNot(campus, userId);
+        // 1. Get all items on campus NOT owned by the current user
+        List<ClothingItem> allItems = itemRepo.findByCampusAndUserIdNot(campus, userId);
 
-        Map<String, Double> userVector = buildUserVector(userId);
+        // 2. Get IDs of every item this user has ALREADY swiped (Like or Dislike)
+        Set<Long> swipedItemIds = swipeRepo.findByUserIdFrom(userId).stream()
+            .map(SwipeLedger::getItemIdTo)
+            .collect(Collectors.toSet());
 
-        if (userVector.isEmpty()) {
-            return candidates;
-        }
-
-        return candidates.stream()
-            .sorted((a, b) -> Double.compare(
-                cosineSimilarity(userVector, buildItemVector(b)),
-                cosineSimilarity(userVector, buildItemVector(a))
-            ))
+        // 3. Filter: Only keep items that haven't been swiped yet
+        return allItems.stream()
+            .filter(item -> !swipedItemIds.contains(item.getId()))
+            .sorted((a, b) -> {
+                Map<String, Double> userVector = buildUserVector(userId);
+                return Double.compare(
+                    cosineSimilarity(userVector, buildItemVector(b)),
+                    cosineSimilarity(userVector, buildItemVector(a))
+                );
+            })
             .collect(Collectors.toList());
     }
 
