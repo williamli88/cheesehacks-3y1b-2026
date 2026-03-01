@@ -175,7 +175,11 @@ public class SwipeService {
                 match.put("itemId", targetItem.getId()); 
                 match.put("matchedItem", targetItem);
                 match.put("matchedWithUserId", targetUserId);
-                userRepo.findById(targetUserId).ifPresent(u -> match.put("matchedWithUsername", u.getUsername()));
+                userRepo.findById(targetUserId).ifPresent(u -> {
+                    match.put("matchedWithUsername", u.getUsername());
+                    match.put("matchedWithEmail", u.getEmail());
+                    match.put("matchedWithContactUrl", u.getContactUrl());
+                });
                 
                 matches.add(match);
                 matchedUserIds.add(targetUserId);
