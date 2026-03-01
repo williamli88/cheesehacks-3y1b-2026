@@ -41,6 +41,8 @@ export default function Profile({ user, onUpload, viewer }) {
       .catch(() => setLoadingItems(false));
   }, [user, viewMode]);
 
+  const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
+
   const contactUrl = user.contactUrl || (user.email ? `mailto:${user.email}` : null);
   // Determine if the profile being viewed is the current logged-in user
   const viewerId = viewer ? (viewer.userId || viewer.id) : null;
@@ -122,7 +124,11 @@ export default function Profile({ user, onUpload, viewer }) {
           <div className={`item-list ${viewMode === 'listings' ? 'gallery' : ''}`}>
             {items.map(i => (
               <div key={i.id} className="item-card">
-                <img src={i.imageUrl} alt={i.title} />
+                {imageSrc(i.imageUrl) ? (
+                  <img src={imageSrc(i.imageUrl)} alt={i.title} />
+                ) : (
+                  <div className="item-image-placeholder">No image</div>
+                )}
                 <div className="item-info">
                   <strong>{i.title}</strong>
                   <small>{i.category} • {i.condition}</small>

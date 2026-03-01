@@ -15,6 +15,8 @@ export default function Matches({ user, openProfile }) {
       .catch(() => { setError(true); setLoading(false); });
   }, [user.userId]);
 
+  const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
+
   if (loading) {
     return <div className="matches-loading"><div className="spinner" />Loading matches...</div>;
   }
@@ -46,7 +48,11 @@ export default function Matches({ user, openProfile }) {
         <div className="matches-list">
           {matches.map((match, i) => (
             <div key={match.id || i} className="match-card">
-              <img src={match.matchedItem.imageUrl} alt={match.matchedItem.title} />
+              {imageSrc(match?.matchedItem?.imageUrl) ? (
+                <img src={imageSrc(match.matchedItem.imageUrl)} alt={match.matchedItem.title} />
+              ) : (
+                <div className="match-image-placeholder">No image</div>
+              )}
               <div className="match-card-info">
                 <h3>{match.matchedItem.title}</h3>
                 <p>Size {match.matchedItem.size} · {match.matchedItem.condition}</p>

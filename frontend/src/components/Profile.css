@@ -188,12 +188,29 @@
   object-fit: cover;
 }
 
+.item-image-placeholder {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
 .item-list.gallery .item-card {
   flex-direction: column;
   gap: 0;
 }
 
 .item-list.gallery .item-card img {
+  width: 100%;
+  height: 140px;
+}
+
+.item-list.gallery .item-image-placeholder {
   width: 100%;
   height: 140px;
 }

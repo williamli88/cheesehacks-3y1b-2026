@@ -110,6 +110,7 @@ export default function SwipeCard({ user, onMatch }) {
   }, [handleSwipe]);
 
   const closeMatch = () => setMatchNotif(null);
+  const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
 
   if (loading) {
     return (
@@ -160,7 +161,11 @@ export default function SwipeCard({ user, onMatch }) {
         {/* Preview of next card */}
         {items[currentIdx + 1] && (
           <div className="card card-behind">
-            <img src={items[currentIdx + 1].imageUrl} alt="next" />
+            {imageSrc(items[currentIdx + 1].imageUrl) ? (
+              <img src={imageSrc(items[currentIdx + 1].imageUrl)} alt="next item" />
+            ) : (
+              <div className="card-image-placeholder">No image</div>
+            )}
           </div>
         )}
 
@@ -170,7 +175,11 @@ export default function SwipeCard({ user, onMatch }) {
           className={`card card-front ${swiping ? `swiping-${swiping}` : ''}`}
         >
           <div className="card-image-wrap">
-            <img src={current.imageUrl} alt={current.title} />
+            {imageSrc(current.imageUrl) ? (
+              <img src={imageSrc(current.imageUrl)} alt={current.title} />
+            ) : (
+              <div className="card-image-placeholder">No image</div>
+            )}
             <div className="card-condition" style={{ background: CONDITION_COLORS[current.condition] || '#aaa' }}>
               {current.condition}
             </div>
