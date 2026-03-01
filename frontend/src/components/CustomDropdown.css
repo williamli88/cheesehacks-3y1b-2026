@@ -1,0 +1,90 @@
+.custom-select {
+  position: relative;
+}
+
+.custom-select-trigger {
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-surface);
+  outline: none;
+  width: 100%;
+  font-size: 0.86rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.custom-select.open .custom-select-trigger {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.custom-select-trigger:hover {
+  background: var(--surface-strong);
+}
+
+.custom-select-value.placeholder {
+  color: var(--text-muted);
+}
+
+.custom-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-select-chevron {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  transition: transform 0.2s ease;
+}
+
+.custom-select.open .custom-select-chevron {
+  transform: rotate(180deg);
+}
+
+.custom-select-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-soft);
+  z-index: 120;
+  overflow: hidden;
+  max-height: 156px;
+  overflow-y: auto;
+  animation: fade-up 0.18s ease;
+}
+
+.custom-select-option {
+  width: 100%;
+  border: none;
+  text-align: left;
+  background: transparent;
+  color: var(--text-surface);
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.custom-select-option:hover {
+  background: var(--surface-muted);
+}
+
+.custom-select-option.selected {
+  background: linear-gradient(130deg, rgba(8, 26, 58, 0.1), rgba(23, 63, 131, 0.14));
+  color: var(--accent-strong);
+  font-weight: 600;
+}
