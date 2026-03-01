@@ -247,6 +247,7 @@
   overflow: hidden;
   box-shadow: var(--shadow-soft);
   animation: fade-up 0.28s ease;
+  position: relative;
 }
 
 .item-card img {
@@ -301,4 +302,69 @@
 .small-loading {
   color: var(--text-muted);
   font-size: 0.83rem;
+}
+
+.listing-menu-button {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 12;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-surface);
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listing-menu-wrapper {
+  position: absolute;
+  top: 34px;
+  left: 6px;
+  z-index: 15;
+}
+
+.listing-menu {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.listing-menu-item {
+  border: none;
+  background: transparent;
+  color: var(--text-surface);
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.listing-menu-item:hover {
+  background: var(--surface-muted);
+}
+
+.listing-menu-item.danger {
+  color: #a43333;
+}
+
+.listing-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
 }

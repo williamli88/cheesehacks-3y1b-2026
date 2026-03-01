@@ -55,6 +55,11 @@ export default function Dashboard({ user }) {
   const miles = impact.milesNotDriven || 0;
   const impactRank = getImpactRank(co2);
   const nextRank = IMPACT_RANKS.find((rank) => rank.minCo2 > co2) || null;
+  const avgCo2PerSwap = swaps > 0 ? (co2 / swaps) : 2.5;
+  const remainingCo2ForNextRank = nextRank ? Math.max(0, nextRank.minCo2 - co2) : 0;
+  const swapsToNextRank = nextRank
+    ? Math.max(1, Math.ceil(remainingCo2ForNextRank / Math.max(avgCo2PerSwap, 0.5)))
+    : 0;
   const carbonMilestones = [5, 15, 30, 50, 75, 100, 150, 200];
   const waterMilestones = [5000, 15000, 30000, 50000, 75000, 100000, 150000, 200000];
   const milesMilestones = [10, 40, 100, 200, 350, 500, 750, 1000];
@@ -69,9 +74,9 @@ export default function Dashboard({ user }) {
         <p>{user.username} · {swaps} swap{swaps !== 1 ? 's' : ''} completed</p>
         <div className="dash-next-rank">
           {nextRank ? (
-            <span>Next Rank: {nextRank.icon} {nextRank.label}</span>
+            <span>{swapsToNextRank} swap{swapsToNextRank !== 1 ? 's' : ''} to {nextRank.label} {nextRank.icon}</span>
           ) : (
-            <span>Next Rank: 🌳 Max Rank Achieved</span>
+            <span>Max rank achieved ({impactRank.icon} {impactRank.label})</span>
           )}
         </div>
       </div>

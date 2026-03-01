@@ -9,4 +9,5 @@ public interface SwipeLedgerRepository extends JpaRepository<SwipeLedger, Long> 
     List<SwipeLedger> findByUserIdFromAndAction(Long userIdFrom, String action);
     Optional<SwipeLedger> findByUserIdFromAndItemIdTo(Long userIdFrom, Long itemIdTo);
     List<SwipeLedger> findByUserIdFrom(Long userIdFrom);
+    void deleteByItemIdTo(Long itemIdTo);
 }
