@@ -161,6 +161,12 @@
   gap: 12px;
 }
 
+.item-list.gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .item-card {
   display: flex;
   gap: 10px;
@@ -176,6 +182,20 @@
   width: 80px;
   height: 80px;
   object-fit: cover;
+}
+
+.item-list.gallery .item-card {
+  flex-direction: column;
+  gap: 0;
+}
+
+.item-list.gallery .item-card img {
+  width: 100%;
+  height: 140px;
+}
+
+.item-list.gallery .item-info {
+  padding: 10px;
 }
 
 .item-info {

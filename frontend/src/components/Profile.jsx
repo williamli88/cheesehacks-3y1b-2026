@@ -119,7 +119,7 @@ export default function Profile({ user, onUpload, viewer }) {
         ) : items.length === 0 ? (
           <p>No items listed yet.</p>
         ) : (
-          <div className="item-list">
+          <div className={`item-list ${viewMode === 'listings' ? 'gallery' : ''}`}>
             {items.map(i => (
               <div key={i.id} className="item-card">
                 <img src={i.imageUrl} alt={i.title} />
