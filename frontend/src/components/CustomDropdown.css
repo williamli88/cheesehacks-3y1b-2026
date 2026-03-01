@@ -84,7 +84,7 @@
 }
 
 .custom-select-option.selected {
-  background: linear-gradient(130deg, rgba(8, 26, 58, 0.1), rgba(23, 63, 131, 0.14));
+  background: var(--accent-soft);
   color: var(--accent-strong);
   font-weight: 600;
 }

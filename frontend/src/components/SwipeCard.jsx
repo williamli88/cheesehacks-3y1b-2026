@@ -10,7 +10,7 @@ const CATEGORY_ICONS = {
   TOPS: '👕', BOTTOMS: '👖', OUTERWEAR: '🧥', FOOTWEAR: '👟', ACCESSORIES: '👜'
 };
 
-const CONDITION_COLORS = { NEW: '#102a5c', GOOD: '#1c4388', FAIR: '#45567a' };
+const CONDITION_COLORS = { NEW: '#245f2d', GOOD: '#2f7d38', FAIR: '#5d6f4a' };
 const FILTER_GENDER_OPTIONS = [
   { value: '', label: 'Gender (All)' },
   { value: 'MEN', label: 'Men' },
@@ -257,6 +257,9 @@ export default function SwipeCard({ user, onGoToMatches }) {
 
   const current = items[currentIdx];
   const noFilteredResults = items.length === 0 && hasAnyFilter;
+  const currentMatchPercent = current && Number.isFinite(Number(current.matchScore))
+    ? Math.round(Number(current.matchScore) * 100)
+    : null;
 
   return (
     <div className="swipe-container">
@@ -390,6 +393,9 @@ export default function SwipeCard({ user, onGoToMatches }) {
                   <img src={imageSrc(current.imageUrl)} alt={current.title} />
                 ) : (
                   <div className="card-image-placeholder">No image</div>
+                )}
+                {currentMatchPercent !== null && (
+                  <div className="card-match-prob">{currentMatchPercent}% match</div>
                 )}
                 <div className="card-condition" style={{ background: CONDITION_COLORS[current.condition] || '#aaa' }}>
                   {current.condition}

@@ -14,11 +14,11 @@
   --text-surface: #0b1735;
   --text-muted: #516084;
   --text-inverse: #f8faff;
-  --border-color: rgba(12, 32, 72, 0.14);
-  --border-strong: rgba(12, 32, 72, 0.3);
-  --accent: #102a5c;
-  --accent-strong: #1a3e82;
-  --accent-soft: #dfe8ff;
+  --border-color: rgba(20, 60, 28, 0.14);
+  --border-strong: rgba(20, 60, 28, 0.3);
+  --accent: #245f2d;
+  --accent-strong: #2e7d32;
+  --accent-soft: #def2e0;
   --shadow-soft: 0 10px 28px rgba(8, 15, 34, 0.14);
   --shadow-strong: 0 22px 48px rgba(3, 8, 20, 0.25);
 }
@@ -31,11 +31,11 @@
   --text-surface: #f6f9ff;
   --text-muted: #a7b5d7;
   --text-inverse: #f8faff;
-  --border-color: rgba(170, 196, 255, 0.2);
-  --border-strong: rgba(210, 224, 255, 0.45);
-  --accent: #aec5ff;
-  --accent-strong: #dbe7ff;
-  --accent-soft: rgba(174, 197, 255, 0.2);
+  --border-color: rgba(167, 222, 176, 0.2);
+  --border-strong: rgba(199, 240, 206, 0.45);
+  --accent: #b8e5c0;
+  --accent-strong: #ddf7e3;
+  --accent-soft: rgba(184, 229, 192, 0.2);
   --shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.52);
   --shadow-strong: 0 22px 52px rgba(0, 0, 0, 0.68);
 }
@@ -47,20 +47,14 @@ body,
 }
 
 body {
-  background:
-    radial-gradient(circle at 18% 12%, rgba(41, 75, 144, 0.45), transparent 42%),
-    radial-gradient(circle at 88% 88%, rgba(18, 38, 86, 0.35), transparent 38%),
-    linear-gradient(160deg, #000 0%, #04132b 56%, #000 100%);
+  background: #08140a;
   color: var(--text-surface);
   font-family: 'Outfit', 'Avenir Next', 'Trebuchet MS', sans-serif;
   line-height: 1.4;
 }
 
 .dark-mode body {
-  background:
-    radial-gradient(circle at 20% 10%, rgba(90, 122, 189, 0.22), transparent 42%),
-    radial-gradient(circle at 84% 85%, rgba(34, 59, 115, 0.25), transparent 35%),
-    linear-gradient(165deg, #000 0%, #020612 52%, #000 100%);
+  background: #040b05;
 }
 
 button,

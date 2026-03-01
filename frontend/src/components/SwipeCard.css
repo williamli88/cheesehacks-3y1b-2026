@@ -4,9 +4,7 @@
   flex-direction: column;
   align-items: center;
   padding: 12px 12px 0;
-  background:
-    radial-gradient(circle at 90% 5%, rgba(19, 53, 114, 0.12), transparent 40%),
-    transparent;
+  background: transparent;
 }
 
 .swipe-loading,
@@ -168,6 +166,20 @@
   letter-spacing: 0.04em;
 }
 
+.card-match-prob {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.86);
+  color: #245f2d;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
 .card-info {
   padding: 12px 14px;
   color: var(--text-surface);
@@ -228,8 +240,8 @@
 }
 
 .tag-gender {
-  background: rgba(16, 42, 92, 0.12);
-  color: #102a5c;
+  background: rgba(36, 95, 45, 0.12);
+  color: #245f2d;
 }
 
 .swipe-actions {
@@ -271,7 +283,7 @@
 }
 
 .btn-like {
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  background: var(--accent-strong);
   color: var(--text-inverse);
   border-color: transparent;
 }
@@ -299,7 +311,7 @@
 }
 
 .match-popup {
-  background: linear-gradient(160deg, var(--surface-strong), var(--surface));
+  background: var(--surface-strong);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-strong);
   border-radius: 24px;
@@ -334,7 +346,7 @@
 }
 
 .match-btn {
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  background: var(--accent-strong);
   color: var(--text-inverse);
   border: none;
   padding: 11px 22px;

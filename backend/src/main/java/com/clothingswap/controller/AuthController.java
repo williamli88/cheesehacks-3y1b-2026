@@ -25,8 +25,16 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         String username = request.get("username");
         String password = request.get("password");
+        String loginId = username == null ? "" : username.trim();
 
-        Optional<User> userOpt = userRepo.findByUsername(username);
+        if (loginId.isBlank() || password == null || password.isBlank()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        }
+
+        Optional<User> userOpt = userRepo.findByUsername(loginId);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepo.findByEmail(loginId.toLowerCase());
+        }
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
@@ -55,16 +63,20 @@ public class AuthController {
         String password = request.get("password");
         String phoneNumber = request.get("phoneNumber");
 
-        if (username == null || username.isBlank()
-                || email == null || email.isBlank()
-                || password == null || password.isBlank()
+        String normalizedUsername = username == null ? null : username.trim();
+        String normalizedEmail = email == null ? null : email.trim().toLowerCase();
+        String normalizedPassword = password == null ? null : password;
+
+        if (normalizedUsername == null || normalizedUsername.isBlank()
+                || normalizedEmail == null || normalizedEmail.isBlank()
+                || normalizedPassword == null || normalizedPassword.isBlank()
                 || phoneNumber == null || phoneNumber.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of(
                 "error", "Username, password, university email, and phone number are required"
             ));
         }
 
-        if (!email.toLowerCase().endsWith(".edu")) {
+        if (!normalizedEmail.endsWith(".edu")) {
             return ResponseEntity.badRequest().body(Map.of(
                 "error", "You must register with a valid university (.edu) email"
             ));
@@ -77,19 +89,22 @@ public class AuthController {
             ));
         }
 
-        if (userRepo.findByUsername(username).isPresent()) {
+        if (userRepo.findByUsername(normalizedUsername).isPresent()) {
             return ResponseEntity.status(409).body(Map.of("error", "Username already exists"));
+        }
+        if (userRepo.findByEmail(normalizedEmail).isPresent()) {
+            return ResponseEntity.status(409).body(Map.of("error", "Email already exists"));
         }
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
+        user.setUsername(normalizedUsername);
+        user.setEmail(normalizedEmail);
         user.setPhoneNumber(normalizedPhone);
-        user.setContactUrl(request.getOrDefault("contactUrl", "mailto:" + email));
-        user.setPassword(passwordEncoder.encode(password));
+        user.setContactUrl(request.getOrDefault("contactUrl", "mailto:" + normalizedEmail));
+        user.setPassword(passwordEncoder.encode(normalizedPassword));
         
         // This MUST be the only place the campus is set
-        user.setCampusFromEmail(email); 
+        user.setCampusFromEmail(normalizedEmail); 
 
         User saved = userRepo.save(user);
 

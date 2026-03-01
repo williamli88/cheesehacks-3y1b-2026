@@ -38,15 +38,52 @@ public class RecommendationService {
         // FIX: Calculate user vector ONCE outside the loop to stop lag
         Map<String, Double> userVector = buildUserVector(userId);
 
-        return allItems.stream()
+        List<ClothingItem> candidates = allItems.stream()
             .filter(ClothingItem::isActive) // FIX: Ignore items that have been swapped
             .filter(item -> !swipedItemIds.contains(item.getId()))
             .filter(item -> matchesFilters(item, gender, type, size, color, style))
+            .collect(Collectors.toList());
+
+        Map<ClothingItem, Double> rawByItem = new IdentityHashMap<>();
+        double maxRaw = 0.0;
+        for (ClothingItem item : candidates) {
+            double raw = cosineSimilarity(userVector, buildItemVector(item));
+            rawByItem.put(item, raw);
+            maxRaw = Math.max(maxRaw, raw);
+        }
+
+        for (ClothingItem item : candidates) {
+            double raw = rawByItem.getOrDefault(item, 0.0);
+            double normalized = maxRaw > 0 ? (raw / maxRaw) : 0.0;
+
+            // Calibrated "match %" for UX:
+            // - keeps ordering from similarity
+            // - avoids showing almost all cards under 50%
+            double calibratedBase = 0.28 + (normalized * 0.62); // 28%..90%
+            double score = Math.max(0.12, Math.min(0.99, calibratedBase + conditionBonus(item.getCondition())));
+            item.setMatchScore(round3(score));
+        }
+
+        return candidates.stream()
             .sorted((a, b) -> Double.compare(
-                    cosineSimilarity(userVector, buildItemVector(b)),
-                    cosineSimilarity(userVector, buildItemVector(a))
+                    b.getMatchScore() != null ? b.getMatchScore() : 0.0,
+                    a.getMatchScore() != null ? a.getMatchScore() : 0.0
             ))
             .collect(Collectors.toList());
+    }
+
+    private double conditionBonus(String condition) {
+        if (condition == null || condition.isBlank()) return 0.0;
+        return switch (condition.trim().toUpperCase()) {
+            case "NEW" -> 0.05;
+            case "GOOD" -> 0.02;
+            case "FAIR" -> 0.0;
+            default -> -0.02;
+        };
+    }
+
+    private double round3(double value) {
+        return Math.round(value * 1000.0) / 1000.0;
     }
 
     private boolean matchesFilters(
