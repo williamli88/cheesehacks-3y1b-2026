@@ -294,6 +294,18 @@
   justify-content: center;
 }
 
+.item-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.liked-item-info {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .item-info strong {
   color: var(--text-surface);
 }
@@ -302,6 +314,68 @@
 .small-loading {
   color: var(--text-muted);
   font-size: 0.83rem;
+}
+
+.liked-remove-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: #000;
+  font-size: 0.9rem;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.liked-remove-btn:hover {
+  background: var(--surface-muted);
+}
+
+.liked-remove-btn:active {
+  transform: scale(0.92);
+}
+
+.undo-like-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 78px;
+  transform: translateX(-50%);
+  width: min(92vw, 390px);
+  background: linear-gradient(150deg, #081a3a, #112e63);
+  color: var(--text-inverse);
+  border: 1px solid rgba(215, 228, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: var(--shadow-strong);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 260;
+  animation: fade-up 0.22s ease;
+}
+
+.undo-like-toast span {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.undo-like-toast button {
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  cursor: pointer;
 }
 
 .listing-menu-button {

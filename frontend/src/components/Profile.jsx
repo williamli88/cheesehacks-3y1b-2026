@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getUserItems, getLikedItems, getImpact, deleteItem } from '../api';
+import { useState, useEffect, useRef } from 'react';
+import { getUserItems, getLikedItems, getImpact, deleteItem, postSwipe } from '../api';
 import { IMPACT_RANKS, getImpactRank } from '../impactRank';
 import Dashboard from './Dashboard';
 import './Profile.css';
@@ -13,6 +13,8 @@ export default function Profile({ user, viewer, profileSource, onBack, onEditLis
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [deletingItemId, setDeletingItemId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [undoLike, setUndoLike] = useState(null);
+  const undoTimerRef = useRef(null);
 
   // Determine if the profile being viewed is the current logged-in user
   const viewerId = viewer ? (viewer.userId || viewer.id) : null;
@@ -69,6 +71,25 @@ export default function Profile({ user, viewer, profileSource, onBack, onEditLis
       .catch(() => setLoadingItems(false));
   }, [user, viewMode, isOwn, refreshKey]);
 
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) {
+        window.clearTimeout(undoTimerRef.current);
+        undoTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'liked' && undoLike) {
+      if (undoTimerRef.current) {
+        window.clearTimeout(undoTimerRef.current);
+        undoTimerRef.current = null;
+      }
+      setUndoLike(null);
+    }
+  }, [viewMode, undoLike]);
+
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
   const profileImageSrc = imageSrc(user.profileImageUrl || user.avatarUrl);
   const profileInitial = (user.username || 'U').trim().charAt(0).toUpperCase();
@@ -115,6 +136,85 @@ export default function Profile({ user, viewer, profileSource, onBack, onEditLis
     } finally {
       setDeletingItemId(null);
       setOpenMenuFor(null);
+    }
+  };
+
+  const syncRecentLikedCache = (itemId, liked) => {
+    try {
+      const raw = localStorage.getItem('recentLiked') || '[]';
+      const parsed = JSON.parse(raw);
+      const arr = Array.isArray(parsed) ? parsed : [];
+
+      if (liked) {
+        const next = [itemId, ...arr.filter((id) => id !== itemId)];
+        localStorage.setItem('recentLiked', JSON.stringify(next.slice(0, 50)));
+      } else {
+        const next = arr.filter((id) => id !== itemId);
+        localStorage.setItem('recentLiked', JSON.stringify(next));
+      }
+    } catch (e) {
+      // ignore localStorage issues
+    }
+  };
+
+  const handleUnlike = async (item) => {
+    if (viewMode !== 'liked') return;
+    const itemId = item?.id;
+    if (!itemId) return;
+
+    const currentIndex = items.findIndex((i) => i.id === itemId);
+    if (currentIndex < 0) return;
+
+    setItems((prev) => prev.filter((i) => i.id !== itemId));
+    syncRecentLikedCache(itemId, false);
+
+    if (undoTimerRef.current) {
+      window.clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
+
+    setUndoLike({ item, index: currentIndex });
+    undoTimerRef.current = window.setTimeout(() => {
+      setUndoLike(null);
+      undoTimerRef.current = null;
+    }, 5000);
+
+    const id = user?.userId || user?.id;
+    if (!id) return;
+
+    try {
+      await postSwipe(id, itemId, 'LEFT');
+    } catch (e) {
+      console.error('Failed to unlike item', e);
+    }
+  };
+
+  const handleUndoUnlike = async () => {
+    if (!undoLike) return;
+
+    const restore = undoLike;
+    setUndoLike(null);
+    if (undoTimerRef.current) {
+      window.clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
+
+    setItems((prev) => {
+      if (prev.some((i) => i.id === restore.item.id)) return prev;
+      const next = [...prev];
+      const insertAt = Math.min(Math.max(restore.index, 0), next.length);
+      next.splice(insertAt, 0, restore.item);
+      return next;
+    });
+    syncRecentLikedCache(restore.item.id, true);
+
+    const id = user?.userId || user?.id;
+    if (!id) return;
+
+    try {
+      await postSwipe(id, restore.item.id, 'RIGHT');
+    } catch (e) {
+      console.error('Failed to restore liked item', e);
     }
   };
 
@@ -248,9 +348,22 @@ export default function Profile({ user, viewer, profileSource, onBack, onEditLis
                   ) : (
                     <div className="item-image-placeholder">No image</div>
                   )}
-                  <div className="item-info">
-                    <strong>{i.title}</strong>
-                    <small>{i.category} • {i.condition}</small>
+                  <div className={`item-info ${viewMode === 'liked' ? 'liked-item-info' : ''}`}>
+                    <div className="item-meta">
+                      <strong>{i.title}</strong>
+                      <small>{i.category} • {i.condition}</small>
+                    </div>
+                    {viewMode === 'liked' && (
+                      <button
+                        type="button"
+                        className="liked-remove-btn"
+                        aria-label={`Unlike ${i.title}`}
+                        title="Unlike"
+                        onClick={() => handleUnlike(i)}
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -264,6 +377,13 @@ export default function Profile({ user, viewer, profileSource, onBack, onEditLis
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {undoLike && (
+        <div className="undo-like-toast" role="status" aria-live="polite">
+          <span>Removed from liked items</span>
+          <button type="button" onClick={handleUndoUnlike}>Undo</button>
         </div>
       )}
     </div>

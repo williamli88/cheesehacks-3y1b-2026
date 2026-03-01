@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react';
 import { getMatches, confirmMatch, postSwipe } from '../api';
 import './Matches.css';
 
+function toNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatMetric(value, digits = 2) {
+  return toNumber(value).toFixed(digits);
+}
+
 export default function Matches({ user, openProfile }) {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,11 +47,26 @@ export default function Matches({ user, openProfile }) {
       {tradeSummary && (
         <div className="trade-summary-overlay" onClick={() => setTradeSummary(null)}>
           <div className="trade-summary-card" onClick={(e) => e.stopPropagation()}>
-            <h3>Trade Confirmed</h3>
+            <h3>Swap Successful!</h3>
             <p>
               You confirmed a trade with <strong>{tradeSummary.username}</strong>.
             </p>
             <p className="trade-summary-item">{tradeSummary.itemTitle}</p>
+            <p className="trade-summary-stats-title">You saved:</p>
+            <div className="trade-summary-stats">
+              <div className="trade-stat">
+                <span className="label">Water</span>
+                <strong>{formatMetric(tradeSummary.waterSaved)} L</strong>
+              </div>
+              <div className="trade-stat">
+                <span className="label">Carbon</span>
+                <strong>{formatMetric(tradeSummary.co2Saved)} kg CO2</strong>
+              </div>
+              <div className="trade-stat">
+                <span className="label">Miles</span>
+                <strong>{formatMetric(tradeSummary.milesNotDriven)} mi</strong>
+              </div>
+            </div>
             <button type="button" onClick={() => setTradeSummary(null)}>
               Close
             </button>
@@ -133,18 +157,26 @@ export default function Matches({ user, openProfile }) {
 
     setConfirmingKey(matchKey);
     try {
-      await confirmMatch(user.userId || user.id, itemId);
+      const res = await confirmMatch(user.userId || user.id, itemId);
+      const data = res?.data || {};
       setTradeSummary({
         username: match.matchedWithUsername || 'User',
-        itemTitle: match?.matchedItem?.title || 'Trade item'
+        itemTitle: match?.matchedItem?.title || 'Trade item',
+        waterSaved: data.waterSaved,
+        co2Saved: data.co2Saved,
+        milesNotDriven: data.milesNotDriven
       });
       // remove confirmed match locally
       setMatches(prev => prev.filter(m => m !== match));
     } catch (e) {
       if (e?.response?.status === 409) {
+        const data = e?.response?.data || {};
         setTradeSummary({
           username: match.matchedWithUsername || 'User',
-          itemTitle: match?.matchedItem?.title || 'Trade item'
+          itemTitle: match?.matchedItem?.title || 'Trade item',
+          waterSaved: data.waterSaved,
+          co2Saved: data.co2Saved,
+          milesNotDriven: data.milesNotDriven
         });
         // already confirmed on server; also drop locally
         setMatches(prev => prev.filter(m => m !== match));

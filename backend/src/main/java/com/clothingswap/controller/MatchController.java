@@ -32,12 +32,11 @@ public class MatchController {
             return ResponseEntity.badRequest().body(Map.of("error", "userId and itemId are required"));
         }
 
-        boolean recorded = swipeService.confirmSwap(userId, itemId);
+        Map<String, Object> result = swipeService.confirmSwap(userId, itemId);
+        boolean recorded = Boolean.TRUE.equals(result.get("recorded"));
         if (!recorded) {
-            return ResponseEntity.status(409).body(Map.of(
-                    "message", "Swap confirmation did not change impact (already confirmed or no valid pair)"
-            ));
+            return ResponseEntity.status(409).body(result);
         }
-        return ResponseEntity.ok(Map.of("message", "Swap confirmed and impact recorded!"));
+        return ResponseEntity.ok(result);
     }
 }

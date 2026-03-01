@@ -56,6 +56,21 @@ public class SwipeService {
         return result;
     }
 
+    private Map<String, Object> buildConfirmResult(boolean recorded, String message, double waterSaved, double co2Saved) {
+        double milesNotDriven = co2Saved / 0.404;
+        return Map.of(
+                "recorded", recorded,
+                "message", message,
+                "waterSaved", round2(Math.max(0, waterSaved)),
+                "co2Saved", round2(Math.max(0, co2Saved)),
+                "milesNotDriven", round2(Math.max(0, milesNotDriven))
+        );
+    }
+
+    private double round2(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
     private boolean checkForMatch(Long userIdFrom, Long itemIdTo) {
         Optional<ClothingItem> targetItem = itemRepo.findById(itemIdTo);
         // Ensure the item is still active
@@ -73,17 +88,23 @@ public class SwipeService {
     }
 
     @Transactional
-    public boolean confirmSwap(Long userIdFrom, Long itemIdTo) {
+    public Map<String, Object> confirmSwap(Long userIdFrom, Long itemIdTo) {
         Optional<ClothingItem> itemBOpt = itemRepo.findById(itemIdTo);
-        if (itemBOpt.isEmpty() || !itemBOpt.get().isActive()) return false;
+        if (itemBOpt.isEmpty() || !itemBOpt.get().isActive()) {
+            return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
+        }
         ClothingItem itemB = itemBOpt.get();
         Long userIdTo = itemB.getUserId();
 
         Optional<SwipeLedger> forwardSwipeOpt = swipeRepo.findByUserIdFromAndItemIdTo(userIdFrom, itemIdTo);
-        if (forwardSwipeOpt.isEmpty() || !"RIGHT".equals(forwardSwipeOpt.get().getAction())) return false;
+        if (forwardSwipeOpt.isEmpty() || !"RIGHT".equals(forwardSwipeOpt.get().getAction())) {
+            return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
+        }
         
         SwipeLedger forwardSwipe = forwardSwipeOpt.get();
-        if (forwardSwipe.isConfirmed()) return false;
+        if (forwardSwipe.isConfirmed()) {
+            return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
+        }
 
         List<ClothingItem> userAItems = itemRepo.findByUserId(userIdFrom);
         Set<Long> userAItemIds = userAItems.stream().map(ClothingItem::getId).collect(Collectors.toSet());
@@ -93,8 +114,13 @@ public class SwipeService {
                 .filter(s -> userAItemIds.contains(s.getItemIdTo()) && !s.isConfirmed())
                 .findFirst();
 
-        if (reverseSwipeOpt.isEmpty()) return false;
+        if (reverseSwipeOpt.isEmpty()) {
+            return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
+        }
         SwipeLedger reverseSwipe = reverseSwipeOpt.get();
+
+        double totalWater = 0.0;
+        double totalCo2 = 0.0;
 
         // 1. Mark Items as Inactive (Removes from feed and matches)
         itemB.setActive(false);
@@ -109,8 +135,16 @@ public class SwipeService {
             // Calculate Savings
             LcaService.LcaResult lcaItemB = lcaService.calculateSavings(itemB.getCategory(), itemB.getClothingType());
             LcaService.LcaResult lcaItemA = lcaService.calculateSavings(itemA.getCategory(), itemA.getClothingType());
-            double totalWater = lcaItemA.waterSaved() + lcaItemB.waterSaved();
-            double totalCo2 = lcaItemA.co2Saved() + lcaItemB.co2Saved();
+            totalWater = lcaItemA.waterSaved() + lcaItemB.waterSaved();
+            totalCo2 = lcaItemA.co2Saved() + lcaItemB.co2Saved();
+            updateUserImpact(userIdFrom, totalWater / 2, totalCo2 / 2);
+            updateUserImpact(userIdTo, totalWater / 2, totalCo2 / 2);
+        } else {
+            // Fallback for legacy data anomalies where reverse item is missing:
+            // still provide impact based on the confirmed target item.
+            LcaService.LcaResult lcaItemB = lcaService.calculateSavings(itemB.getCategory(), itemB.getClothingType());
+            totalWater = lcaItemB.waterSaved();
+            totalCo2 = lcaItemB.co2Saved();
             updateUserImpact(userIdFrom, totalWater / 2, totalCo2 / 2);
             updateUserImpact(userIdTo, totalWater / 2, totalCo2 / 2);
         }
@@ -121,7 +155,7 @@ public class SwipeService {
         swipeRepo.save(forwardSwipe);
         swipeRepo.save(reverseSwipe);
 
-        return true;
+        return buildConfirmResult(true, "Swap confirmed and impact recorded!", totalWater, totalCo2);
     }
 
     @Transactional
