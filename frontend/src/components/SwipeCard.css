@@ -56,16 +56,12 @@
   gap: 8px;
 }
 
-.filter-grid select,
-.filter-grid input {
+.filter-grid .custom-select {
   width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--surface-strong);
-  color: var(--text-surface);
-  padding: 8px 10px;
-  font-size: 0.8rem;
-  outline: none;
+}
+
+.filter-grid .custom-select-menu {
+  z-index: 180;
 }
 
 .spinner {

@@ -222,7 +222,6 @@ export default function App() {
           disabled={demoTutorialOpen}
         >
           <span className="add-listing-fab-icon" aria-hidden="true">+</span>
-          <span>Add Listing</span>
         </button>
       )}
 
