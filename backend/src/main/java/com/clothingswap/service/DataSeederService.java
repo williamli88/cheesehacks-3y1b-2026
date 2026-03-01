@@ -30,18 +30,18 @@ public class DataSeederService {
     private static final int TARGET_SEED_ITEM_COUNT = 100;
 
     private static final String[][] DEMO_USERS = {
-            {"demo_mit", "mit.edu", "+16175550101"},
-            {"demo_mit_2", "mit.edu", "+16175550111"},
-            {"demo_harvard", "harvard.edu", "+16175550102"},
-            {"demo_harvard_2", "harvard.edu", "+16175550112"},
-            {"demo_stanford", "stanford.edu", "+16505550103"},
-            {"demo_stanford_2", "stanford.edu", "+16505550113"},
-            {"demo_wisc", "wisc.edu", "+16085550104"},
-            {"demo_wisc_2", "wisc.edu", "+16085550114"},
-            {"demo_berkeley", "berkeley.edu", "+15105550105"},
-            {"demo_berkeley_2", "berkeley.edu", "+15105550115"},
-            {"demo_ucla", "ucla.edu", "+13105550106"},
-            {"demo_ucla_2", "ucla.edu", "+13105550116"}
+            {"demo_mit_orbit", "mit.edu", "+16175550121"},
+            {"demo_mit_forge", "mit.edu", "+16175550122"},
+            {"demo_harvard_nova", "harvard.edu", "+16175550123"},
+            {"demo_harvard_ember", "harvard.edu", "+16175550124"},
+            {"demo_stanford_flux", "stanford.edu", "+16505550125"},
+            {"demo_stanford_lumen", "stanford.edu", "+16505550126"},
+            {"demo_wisc_pivot", "wisc.edu", "+16085550127"},
+            {"demo_wisc_echo", "wisc.edu", "+16085550128"},
+            {"demo_berkeley_vector", "berkeley.edu", "+15105550129"},
+            {"demo_berkeley_spark", "berkeley.edu", "+15105550130"},
+            {"demo_ucla_prism", "ucla.edu", "+13105550131"},
+            {"demo_ucla_wave", "ucla.edu", "+13105550132"}
     };
 
     private static final String[] DEMO_IMAGE_URLS = {

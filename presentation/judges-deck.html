@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STYLR | Cheesehacks Judge Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-0: #061420;
+      --bg-1: #0c2333;
+      --bg-2: #12374c;
+      --accent-a: #6ee7d8;
+      --accent-b: #f59e0b;
+      --accent-c: #38bdf8;
+      --text: #e9f4fb;
+      --muted: #a7c2d3;
+      --card: rgba(9, 27, 40, 0.78);
+      --border: rgba(110, 231, 216, 0.24);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 12% 20%, #17495f 0%, var(--bg-1) 28%, var(--bg-0) 68%),
+                  linear-gradient(130deg, var(--bg-2), var(--bg-0));
+      color: var(--text);
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+    }
+
+    .grain::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.05) 0.4px, transparent 0.4px),
+        radial-gradient(rgba(255,255,255,0.03) 0.5px, transparent 0.5px);
+      background-size: 3px 3px, 4px 4px;
+      background-position: 0 0, 1px 1px;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(4px);
+      opacity: 0.35;
+      animation: drift 14s ease-in-out infinite alternate;
+    }
+
+    .orb.a {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(110,231,216,0.45), rgba(110,231,216,0.04));
+      top: -80px;
+      right: -70px;
+    }
+
+    .orb.b {
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(245,158,11,0.4), rgba(245,158,11,0.04));
+      bottom: -90px;
+      left: -90px;
+      animation-delay: 2s;
+    }
+
+    .orb.c {
+      width: 190px;
+      height: 190px;
+      background: radial-gradient(circle, rgba(56,189,248,0.45), rgba(56,189,248,0.05));
+      top: 45%;
+      right: 35%;
+      animation-delay: 4s;
+    }
+
+    @keyframes drift {
+      from { transform: translateY(-12px) translateX(8px) scale(1); }
+      to { transform: translateY(14px) translateX(-8px) scale(1.08); }
+    }
+
+    .deck {
+      position: relative;
+      z-index: 2;
+      width: min(1200px, 94vw);
+      height: min(760px, 92vh);
+      margin: 4vh auto;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, rgba(9, 25, 36, 0.92), rgba(7, 18, 29, 0.94));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(90deg, rgba(110,231,216,0.12), rgba(56,189,248,0.08) 50%, rgba(245,158,11,0.12));
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .logo {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.05rem;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--accent-a), var(--accent-c) 60%, var(--accent-b));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .slide-count {
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .slides {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: clamp(22px, 3vw, 36px);
+      opacity: 0;
+      transform: translateX(22px) scale(0.985);
+      transition: opacity 0.34s ease, transform 0.34s ease;
+      pointer-events: none;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 18px;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .kicker {
+      color: var(--accent-a);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      font-weight: 600;
+    }
+
+    .kicker-image-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    .kicker-image {
+      width: min(760px, 100%);
+      height: auto;
+      max-height: 84px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    h1, h2 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: 0.01em;
+      line-height: 1.08;
+    }
+
+    h1 { font-size: clamp(2rem, 4.6vw, 3.7rem); max-width: 11ch; }
+    h2 { font-size: clamp(1.4rem, 3vw, 2.3rem); }
+
+    p, li {
+      color: var(--muted);
+      font-size: clamp(0.95rem, 1.5vw, 1.13rem);
+      line-height: 1.52;
+      margin: 0;
+    }
+
+    .lead {
+      font-size: clamp(1rem, 1.7vw, 1.2rem);
+      max-width: 62ch;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(14px, 2vw, 20px);
+      align-content: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(14px, 1.8vw, 20px);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1rem, 1.6vw, 1.22rem);
+      color: var(--text);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      background: linear-gradient(165deg, rgba(16,47,66,0.8), rgba(10,30,45,0.92));
+      border: 1px solid rgba(56,189,248,0.22);
+      border-radius: 18px;
+      padding: 12px 14px;
+    }
+
+    .stat .v {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.28rem;
+      color: #bff8ff;
+    }
+
+    .stat .l {
+      font-size: 0.82rem;
+      color: #8fc1db;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .list {
+      margin: 0;
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(245,158,11,0.36);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      color: #ffd38a;
+      background: rgba(245,158,11,0.09);
+      letter-spacing: 0.03em;
+    }
+
+    .demo-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .demo-step {
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(110,231,216,0.3);
+      background: rgba(11, 34, 50, 0.85);
+      min-height: 116px;
+    }
+
+    .demo-step .n {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.1rem;
+      color: #89f2e1;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .demo-step p {
+      font-size: 0.88rem;
+      color: #b6d1df;
+      line-height: 1.42;
+    }
+
+    .footer {
+      height: 58px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 0 16px 0 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      gap: 16px;
+    }
+
+    .progress {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent-a), var(--accent-c), var(--accent-b));
+      transition: width 0.28s ease;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button.nav {
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text);
+      background: rgba(12, 30, 42, 0.8);
+      border-radius: 11px;
+      min-width: 40px;
+      height: 34px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
+    button.nav:hover {
+      border-color: rgba(110,231,216,0.55);
+      color: #d4fff8;
+      transform: translateY(-1px);
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: #8fb0c4;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      height: 100%;
+      align-content: start;
+    }
+
+    .wire {
+      border-radius: 18px;
+      border: 1px solid rgba(56,189,248,0.3);
+      background: linear-gradient(180deg, rgba(6,24,37,0.9), rgba(6,20,30,0.94));
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .wire .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(110,231,216,0.85), rgba(56,189,248,0.9));
+      width: 56%;
+      box-shadow: 0 0 18px rgba(56,189,248,0.5);
+    }
+
+    .wire .cell {
+      border-radius: 13px;
+      border: 1px solid rgba(255,255,255,0.11);
+      background: rgba(13, 35, 49, 0.75);
+      padding: 10px;
+      font-size: 0.86rem;
+      color: #b1ccda;
+    }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .q-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      align-content: start;
+    }
+
+    .q {
+      border: 1px solid rgba(110,231,216,0.28);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(8,28,41,0.86);
+    }
+
+    .q strong {
+      display: block;
+      color: #d4fff8;
+      margin-bottom: 4px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.98rem;
+    }
+
+    .q span {
+      color: #9fc5d8;
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
+    .show { animation: rise 0.42s ease both; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .deck { height: 95vh; width: 96vw; }
+      .grid-2, .stage, .q-grid { grid-template-columns: 1fr; }
+      .demo-flow { grid-template-columns: 1fr 1fr; }
+      .stat-row { grid-template-columns: 1fr; }
+      .slide { overflow: auto; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 0 14px; }
+      .slide { padding: 16px; }
+      .demo-flow { grid-template-columns: 1fr; }
+      .footer { grid-template-columns: 1fr; height: auto; padding: 10px 12px; }
+      .controls { justify-content: space-between; }
+    }
+  </style>
+</head>
+<body class="grain">
+  <div class="ambient" aria-hidden="true">
+    <div class="orb a"></div>
+    <div class="orb b"></div>
+    <div class="orb c"></div>
+  </div>
+
+  <div class="deck" role="application" aria-label="STYLR Cheesehacks judge presentation slideshow">
+    <header class="topbar">
+      <div class="brand"><span class="logo">STYLR</span> Cheesehacks Demo Deck</div>
+      <div class="slide-count" id="slideCount">1 / 9</div>
+    </header>
+
+    <section class="slides">
+      <article class="slide active" data-title="Title">
+        <div class="kicker-image-wrap show">
+          <img class="kicker-image" src="./assets/cheesehacks-2026-banner.svg" alt="Cheesehacks 2026" />
+        </div>
+        <h1 class="show">Closets are full. Landfills are fuller.</h1>
+        <div class="stage show" style="animation-delay: .08s;">
+          <div class="card">
+            <h3>What We Built</h3>
+            <p class="lead">A campus swap app. Swipe clothes. Mutual likes create matches. Impact updates after swaps.</p>
+            <div class="pill-row">
+              <span class="pill">Discover</span>
+              <span class="pill">Match</span>
+              <span class="pill">Impact</span>
+            </div>
+          </div>
+          <div class="wire">
+            <div class="bar"></div>
+            <div class="matrix">
+              <div class="cell">React + Vite frontend</div>
+              <div class="cell">Spring Boot API</div>
+              <div class="cell">SQLite / Postgres</div>
+              <div class="cell">Campus-only matching</div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Problem">
+        <div class="kicker">Problem</div>
+        <h2>Campus closet math is bad.</h2>
+        <div class="grid-2">
+          <div class="card show">
+            <h3>What Students Told Us</h3>
+            <ul class="list">
+              <li>Too much scrolling.</li>
+              <li>Hard to coordinate safe handoffs.</li>
+              <li>\"I might wear this\" has a 2% success rate.</li>
+            </ul>
+          </div>
+          <div class="card show" style="animation-delay: .08s;">
+            <h3>What We Optimized For</h3>
+            <ul class="list">
+              <li>Fast yes/no decisions.</li>
+              <li>Campus-only matching.</li>
+              <li>Visible impact after each swap.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Solution">
+        <div class="kicker">Flow</div>
+        <h2>Four screens. No chaos.</h2>
+        <div class="grid-2">
+          <div class="card show">
+            <h3>Discover</h3>
+            <p>Swipe cards, use filters, find things fast.</p>
+          </div>
+          <div class="card show" style="animation-delay: .05s;">
+            <h3>Match</h3>
+            <p>Only mutual likes become matches.</p>
+          </div>
+          <div class="card show" style="animation-delay: .1s;">
+            <h3>Exchange</h3>
+            <p>Connect and hand off on campus.</p>
+          </div>
+          <div class="card show" style="animation-delay: .15s;">
+            <h3>Measure</h3>
+            <p>See water and CO2 saved. Feel slightly heroic.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Architecture">
+        <div class="kicker">Tech</div>
+        <h2>Simple stack. Clear logic.</h2>
+        <div class="grid-2">
+          <div class="card show">
+            <h3>Core Logic</h3>
+            <ul class="list">
+              <li>AI ranking from style/color tags.</li>
+              <li>Double-blind mutual-like matching.</li>
+              <li>Swap impact calculator (water + CO2).</li>
+            </ul>
+          </div>
+          <div class="card show" style="animation-delay: .08s;">
+            <h3>Stack</h3>
+            <ul class="list">
+              <li>Frontend: React + Vite.</li>
+              <li>Backend: Spring Boot.</li>
+              <li>Data: SQLite now, Postgres-ready.</li>
+              <li>Seeded demo items, no repeats.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Demo">
+        <div class="kicker">Live Demo Script</div>
+        <h2>What we will click.</h2>
+        <div class="card show">
+          <div class="demo-flow">
+            <div class="demo-step"><span class="n">1</span><p>Quick demo login.</p></div>
+            <div class="demo-step"><span class="n">2</span><p>Discover + filters + swipes.</p></div>
+            <div class="demo-step"><span class="n">3</span><p>Open a match.</p></div>
+            <div class="demo-step"><span class="n">4</span><p>Show profile + listings.</p></div>
+            <div class="demo-step"><span class="n">5</span><p>Show impact dashboard.</p></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card show" style="animation-delay: .08s;">
+            <h3>Why It Won't Explode</h3>
+            <p>Seeded users + seeded items = predictable demo.</p>
+          </div>
+          <div class="card show" style="animation-delay: .12s;">
+            <h3>If Matching Is Camera-Shy</h3>
+            <p>Jump to Matches tab and keep rolling.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Impact">
+        <div class="kicker">Impact</div>
+        <h2>What changes (besides your outfit).</h2>
+        <div class="stat-row show">
+          <div class="stat">
+            <span class="v">Less Waste</span>
+            <span class="l">More re-use, fewer \"closet fossils\"</span>
+          </div>
+          <div class="stat">
+            <span class="v">Less Friction</span>
+            <span class="l">Campus matching keeps handoffs simple</span>
+          </div>
+          <div class="stat">
+            <span class="v">Visible Numbers</span>
+            <span class="l">Water + CO2 tracked per swap</span>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top: 14px;">
+          <div class="card show" style="animation-delay: .1s;">
+            <h3>Intentional Choices</h3>
+            <ul class="list">
+              <li>Campus-first, not general marketplace.</li>
+              <li>Ranking, not endless scrolling.</li>
+              <li>Impact numbers, not vague green vibes.</li>
+            </ul>
+          </div>
+          <div class="card show" style="animation-delay: .14s;">
+            <h3>Next Build Steps</h3>
+            <ul class="list">
+              <li>Trust + moderation tools.</li>
+              <li>Better ranking signals.</li>
+              <li>Pilot at more campuses.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Go-to-Market">
+        <div class="kicker">Next Experiments</div>
+        <h2>What we'd test after Cheesehacks.</h2>
+        <div class="grid-2">
+          <div class="card show">
+            <h3>Campus Rollout Tests</h3>
+            <ul class="list">
+              <li>Run one pilot dorm.</li>
+              <li>Add one student org partner.</li>
+              <li>Measure repeat swaps.</li>
+            </ul>
+          </div>
+          <div class="card show" style="animation-delay: .08s;">
+            <h3>Product Experiments</h3>
+            <ul class="list">
+              <li>Trust badges and moderation.</li>
+              <li>Post-swap ratings.</li>
+              <li>Smarter recommendation tuning.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Ask">
+        <div class="kicker">Closing</div>
+        <h2>What we want from judges.</h2>
+        <div class="grid-2">
+          <div class="card show">
+            <h3>Feedback We Need</h3>
+            <ul class="list">
+              <li>What feels most useful?</li>
+              <li>What feels risky?</li>
+              <li>What should we cut first?</li>
+            </ul>
+          </div>
+          <div class="card show" style="animation-delay: .08s;">
+            <h3>Immediate Next Steps</h3>
+            <ul class="list">
+              <li>Deploy production backend.</li>
+              <li>Add moderation workflows.</li>
+              <li>Add retention analytics.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="slide" data-title="Q&A">
+        <div class="kicker">Q&A</div>
+        <h2>Ask us anything (yes, even that).</h2>
+        <div class="q-grid">
+          <div class="q show"><strong>How does ranking work?</strong><span>Tag similarity + swipe history. Fast and lightweight.</span></div>
+          <div class="q show" style="animation-delay: .04s;"><strong>What about privacy?</strong><span>Only mutual likes unlock matches.</span></div>
+          <div class="q show" style="animation-delay: .08s;"><strong>Can this scale?</strong><span>Yes. SQLite now, Postgres-ready path exists.</span></div>
+          <div class="q show" style="animation-delay: .12s;"><strong>Will this judge my style?</strong><span>No. The app is neutral. Your friends are not.</span></div>
+        </div>
+        <div class="card show" style="margin-top: 14px; animation-delay: .16s;">
+          <h3>Thanks</h3>
+          <p class="lead">We built this at Cheesehacks to make swapping clothes easier and waste lower. Questions welcome.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <div class="progress" aria-hidden="true"><div id="progressFill"></div></div>
+      <div class="controls">
+        <span class="hint">Use left/right arrows or buttons</span>
+        <button class="nav" id="prevBtn" aria-label="Previous slide">&#8592;</button>
+        <button class="nav" id="nextBtn" aria-label="Next slide">&#8594;</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const slideCountEl = document.getElementById('slideCount');
+    const progressFill = document.getElementById('progressFill');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let index = 0;
+
+    function updateSlide(nextIndex) {
+      index = (nextIndex + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+
+      slideCountEl.textContent = `${index + 1} / ${slides.length}`;
+      progressFill.style.width = `${((index + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() { updateSlide(index + 1); }
+    function prevSlide() { updateSlide(index - 1); }
+
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+        event.preventDefault();
+        nextSlide();
+      }
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        prevSlide();
+      }
+      if (event.key.toLowerCase() === 'home') {
+        event.preventDefault();
+        updateSlide(0);
+      }
+      if (event.key.toLowerCase() === 'end') {
+        event.preventDefault();
+        updateSlide(slides.length - 1);
+      }
+    });
+
+    updateSlide(0);
+  </script>
+</body>
+</html>
