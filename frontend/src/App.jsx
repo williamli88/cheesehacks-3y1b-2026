@@ -6,6 +6,9 @@ import Matches from './components/Matches';
 import SettingsModal from './components/SettingsModal';
 import Profile from './components/Profile';
 import Upload from './components/Upload';
+import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import './App.css';
 
 export default function App() {
@@ -45,19 +48,19 @@ export default function App() {
           {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
           {page === 'matches' && <Matches user={user} openProfile={(u) => { setProfileUser(u); setPage('profile'); }} />}
           {page === 'profile' && <Profile user={profileUser || user} viewer={user} onUpload={() => setPage('upload')} />}
-          {page === 'upload' && <Upload user={user} />}
+          {page === 'upload' && <Upload user={user} onBack={() => setPage('profile')} />}
         </div>
       </main>
 
       <nav className="app-nav">
         <button className={page === 'swipe' ? 'active' : ''} onClick={() => setPage('swipe')}>
-          <span>🔄</span><small>Discover</small>
+          <span className="nav-icon"><ExploreOutlinedIcon fontSize="inherit" /></span><small>Discover</small>
         </button>
         <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
-          <span>💚</span><small>Matches</small>
+          <span className="nav-icon"><FavoriteBorderOutlinedIcon fontSize="inherit" /></span><small>Matches</small>
         </button>
         <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setPage('profile'); }}>
-          <span>👤</span><small>Profile</small>
+          <span className="nav-icon"><PersonOutlineOutlinedIcon fontSize="inherit" /></span><small>Profile</small>
         </button>
       </nav>
 

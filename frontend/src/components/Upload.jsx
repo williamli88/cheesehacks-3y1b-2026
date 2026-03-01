@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './Upload.css';
 import { postItem } from '../api';
 
-export default function Upload({ user }) {
+export default function Upload({ user, onBack }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('T-SHIRT');
@@ -50,7 +50,34 @@ export default function Upload({ user }) {
 
   return (
     <div className="upload-container">
-      <h2>List an Item</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <button
+          type="button"
+          className="back-btn"
+          onClick={() => {
+            console.debug('Upload back clicked, onBack present?', !!onBack, 'window.navigateTo?', !!window.navigateTo);
+            // Primary: call the provided callback from App
+            if (onBack) {
+              try { onBack(); return; } catch (e) { console.warn('onBack threw', e); }
+            }
+
+            // Secondary: SPA-level global helper (added by App) — reliable when HMR
+            // or prop wiring fails.
+            if (window.navigateTo) {
+              try { window.navigateTo('profile'); return; } catch (e) { console.warn('navigateTo failed', e); }
+            }
+
+            // Last-resort: browser history back (won't affect SPA state but may help
+            // in some environments)
+            try { window.history.back(); } catch (e) { /* ignore */ }
+          }}
+          aria-label="Back"
+          title="Back"
+        >
+          ←
+        </button>
+        <h2 style={{ margin: 0 }}>List an Item</h2>
+      </div>
       <form className="upload-form" onSubmit={handleSubmit}>
         <input placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} required />
         <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
