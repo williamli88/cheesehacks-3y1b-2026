@@ -6,10 +6,33 @@ import Matches from './components/Matches';
 import SettingsModal from './components/SettingsModal';
 import Profile from './components/Profile';
 import Upload from './components/Upload';
-import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
-import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import './App.css';
+
+function ExploreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="8" />
+      <path d="m14.6 9.4-4.4 1.4-1.4 4.4 4.4-1.4z" />
+    </svg>
+  );
+}
+
+function HeartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20.2 4.8 13a4.9 4.9 0 0 1 6.9-6.9L12 7l.3-.9a4.9 4.9 0 0 1 6.9 6.9z" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5.5 19a6.5 6.5 0 0 1 13 0" />
+    </svg>
+  );
+}
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -53,13 +76,13 @@ export default function App() {
 
       <nav className="app-nav">
         <button className={page === 'swipe' ? 'active' : ''} onClick={() => setPage('swipe')}>
-          <span className="nav-icon"><ExploreOutlinedIcon fontSize="inherit" /></span><small>Discover</small>
+          <span className="nav-icon"><ExploreIcon /></span><small>Discover</small>
         </button>
         <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
-          <span>💙</span><small>Matches</small>
+          <span className="nav-icon"><HeartIcon /></span><small>Matches</small>
         </button>
         <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setPage('profile'); }}>
-          <span className="nav-icon"><PersonOutlineOutlinedIcon fontSize="inherit" /></span><small>Profile</small>
+          <span className="nav-icon"><UserIcon /></span><small>Profile</small>
         </button>
       </nav>
 

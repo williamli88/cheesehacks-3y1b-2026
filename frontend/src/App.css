@@ -146,6 +146,11 @@
   justify-content: center;
 }
 
+.app-nav button .nav-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
 .app-nav button small {
   font-size: 0.67rem;
   letter-spacing: 0.03em;

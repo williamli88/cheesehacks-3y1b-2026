@@ -24,6 +24,12 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-restricted-imports': ['error', {
+        patterns: [
+          '@mui/icons-material',
+          '@mui/icons-material/*',
+        ],
+      }],
     },
   },
 ])
