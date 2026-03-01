@@ -106,22 +106,21 @@ export default function Matches({ user, openProfile }) {
   async function confirmSwap(match, matchKey) {
     const itemId = match?.matchedItem?.id;
     if (!itemId) {
-      alert('Could not confirm swap: missing item id.');
+      console.error('Could not confirm swap: missing item id.');
       return;
     }
 
     setConfirmingKey(matchKey);
     try {
       await confirmMatch(user.userId || user.id, itemId);
-      setMatches(prev => prev.map(m => (m === match ? { ...m, status: 'confirmed' } : m)));
-      alert(`Confirmed swap for "${match.matchedItem.title}"`);
+      // remove confirmed match locally
+      setMatches(prev => prev.filter(m => m !== match));
     } catch (e) {
       if (e?.response?.status === 409) {
-        setMatches(prev => prev.map(m => (m === match ? { ...m, status: 'confirmed' } : m)));
-        alert(`"${match.matchedItem.title}" was already confirmed.`);
+        // already confirmed on server; also drop locally
+        setMatches(prev => prev.filter(m => m !== match));
       } else {
         console.error('Failed to confirm swap', e);
-        alert('Could not confirm swap. Please try again.');
       }
     } finally {
       setConfirmingKey(null);
@@ -131,7 +130,6 @@ export default function Matches({ user, openProfile }) {
   function rejectSwap(match) {
     // For demo: remove the match locally
     setMatches(prev => prev.filter(m => m !== match));
-    alert(`Rejected swap for "${match.matchedItem.title}"`);
   }
 
   function viewProfile(match) {
