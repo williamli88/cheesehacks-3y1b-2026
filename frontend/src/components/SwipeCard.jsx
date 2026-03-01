@@ -4,12 +4,6 @@ import { getFeed, postSwipe } from '../api';
 import CustomDropdown from './CustomDropdown';
 import './SwipeCard.css';
 
-const CATEGORY_ICONS = {
-  TSHIRT: '👕', JEANS: '👖', JACKET: '🧥', DRESS: '👗',
-  SHOES: '👟', SWEATER: '🧶', SKIRT: '👗', SHORTS: '🩳',
-  TOPS: '👕', BOTTOMS: '👖', OUTERWEAR: '🧥', FOOTWEAR: '👟', ACCESSORIES: '👜'
-};
-
 const CONDITION_COLORS = { NEW: '#245f2d', GOOD: '#2f7d38', FAIR: '#5d6f4a' };
 const FILTER_GENDER_OPTIONS = [
   { value: '', label: 'Gender (All)' },
@@ -57,6 +51,8 @@ const FILTER_COLOR_OPTIONS = [
   { value: 'pink', label: 'Pink' }
 ];
 const CARD_ENTER_MS = 360;
+const TITLE_SIZE_CONDITION_SUFFIX_RE = /\s*-\s*(XXS|XS|S|M|L|XL|XXL)\s+(NEW|GOOD|FAIR)\s*$/i;
+const TITLE_EMOJI_RE = /[\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F\u200D]/gu;
 
 const normalizeImageSrc = (src) => {
   if (typeof src !== 'string') return null;
@@ -74,6 +70,12 @@ const displayGender = (item) => {
   const legacyCategory = String(item?.category || '').toUpperCase();
   if (legacyCategory === 'DRESS' || legacyCategory === 'SKIRT') return 'Women';
   return 'Men';
+};
+
+const formatItemTitle = (title) => {
+  if (typeof title !== 'string') return '';
+  const withoutEmoji = title.replace(TITLE_EMOJI_RE, '');
+  return withoutEmoji.replace(TITLE_SIZE_CONDITION_SUFFIX_RE, '').replace(/\s{2,}/g, ' ').trim();
 };
 
 export default function SwipeCard({ user, onGoToMatches }) {
@@ -269,7 +271,7 @@ export default function SwipeCard({ user, onGoToMatches }) {
             <div className="match-emoji">🎊</div>
             <h2>It's a Match!</h2>
             <p>You and someone else both liked each other's items!</p>
-            <div className="match-item-name">{matchNotif.title}</div>
+            <div className="match-item-name">{formatItemTitle(matchNotif.title) || matchNotif.title}</div>
             <div className="match-actions">
               <button className="match-btn secondary" onClick={closeMatch}>Continue Swiping</button>
               <button
@@ -390,7 +392,7 @@ export default function SwipeCard({ user, onGoToMatches }) {
             >
               <div className="card-image-wrap">
                 {imageSrc(current.imageUrl) ? (
-                  <img src={imageSrc(current.imageUrl)} alt={current.title} />
+                  <img src={imageSrc(current.imageUrl)} alt={formatItemTitle(current.title) || current.title} />
                 ) : (
                   <div className="card-image-placeholder">No image</div>
                 )}
@@ -403,7 +405,7 @@ export default function SwipeCard({ user, onGoToMatches }) {
               </div>
               <div className="card-info">
                 <div className="card-header-row">
-                  <h2>{CATEGORY_ICONS[current.category] || '👚'} {current.title}</h2>
+                  <h2>{formatItemTitle(current.title) || current.title}</h2>
                   <span className="card-size">Size {current.size}</span>
                 </div>
             <p className="card-desc">{current.description}</p>
