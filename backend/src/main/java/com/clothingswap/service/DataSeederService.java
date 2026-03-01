@@ -42,6 +42,7 @@ public class DataSeederService {
             User user = new User();
             user.setUsername(firstNames[i].toLowerCase() + (1000 + rng.nextInt(9000)));
             user.setEmail(user.getUsername() + "@campus.edu");
+            user.setContactUrl("mailto:" + user.getEmail());
             user.setPassword(passwordEncoder.encode("password123"));
             user.setCampus(campuses[rng.nextInt(campuses.length)]);
             users.add(userRepo.save(user));

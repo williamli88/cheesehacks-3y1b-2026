@@ -24,3 +24,9 @@ export const getMatches = (userId) =>
 
 export const getImpact = (userId) =>
   api.get(`/impact/${userId}`);
+
+export const postItem = (item) =>
+  api.post('/items', item);
+
+export const getUserItems = (userId) =>
+  api.get(`/items/user/${userId}`);
