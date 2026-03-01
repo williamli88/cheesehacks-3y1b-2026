@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   padding: 24px 20px 26px;
+  position: relative;
+  overflow: hidden;
   background:
     radial-gradient(circle at 15% 15%, rgba(38, 66, 126, 0.2), transparent 45%),
     linear-gradient(180deg, transparent 0%, rgba(16, 42, 92, 0.06) 100%);
@@ -18,6 +20,12 @@
 .login-hero {
   text-align: center;
   padding: 32px 0 26px;
+}
+
+.login-sequenced .login-hero {
+  transform: translateY(25vh) scale(1.03);
+  opacity: 0.35;
+  animation: logo-rise 1.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s forwards;
 }
 
 .login-icon {
@@ -49,6 +57,18 @@
   display: flex;
   flex-direction: column;
   gap: 11px;
+}
+
+.login-sequenced .login-form,
+.login-sequenced .demo-section,
+.login-sequenced .register-cta {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: section-follow 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.login-sequenced .login-form {
+  animation-delay: 1.62s;
 }
 
 .login-form input,
@@ -112,6 +132,10 @@
   margin-top: 22px;
 }
 
+.login-sequenced .demo-section {
+  animation-delay: 1.98s;
+}
+
 .demo-label {
   text-align: center;
   color: var(--text-muted);
@@ -140,7 +164,6 @@
   font-size: 0.8rem;
   color: var(--text-surface);
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-  animation: fade-up 0.35s ease;
 }
 
 .demo-user-btn:hover {
@@ -159,6 +182,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.login-sequenced .register-cta {
+  animation-delay: 2.22s;
 }
 
 .register-cta p {
@@ -221,4 +248,37 @@
 .campus-value {
   color: var(--text-surface);
   font-weight: 700;
+}
+
+@keyframes logo-rise {
+  0% {
+    transform: translateY(25vh) scale(1.03);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes section-follow {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-sequenced .login-hero,
+  .login-sequenced .login-form,
+  .login-sequenced .demo-section,
+  .login-sequenced .register-cta {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }

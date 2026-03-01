@@ -35,7 +35,8 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <div className="header-center"><span className="logo">STYLR</span></div>
+        <div className="header-left"><span className="logo">👕 STYLR</span></div>
+        <div className="header-center"><span className="campus-badge">{user.campus}</span></div>
         <div className="header-right"><button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings">⚙️</button></div>
       </header>
 
