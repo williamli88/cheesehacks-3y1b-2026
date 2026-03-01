@@ -57,6 +57,7 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
 
   const canEmail = !isOwn && typeof user?.email === 'string' && user.email.trim().length > 0;
   const phoneNumber = !isOwn && typeof user?.phoneNumber === 'string' ? user.phoneNumber.trim() : '';
+  const canMessage = phoneNumber.length > 0;
 
   const openEmailComposer = () => {
     if (!canEmail) return;
@@ -68,6 +69,17 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
     }
     const href = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
     window.open(href, '_blank', 'noopener,noreferrer');
+  };
+
+  const openMessageComposer = () => {
+    if (!canMessage) return;
+    const normalizedPhone = phoneNumber.replace(/\s+/g, '');
+    const isApplePlatform = /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isApplePlatform) {
+      window.location.href = `sms:${normalizedPhone}`;
+      return;
+    }
+    window.location.href = `sms:${normalizedPhone}`;
   };
 
   // Impact data is shown in the embedded Dashboard modal; no local impact state here.
@@ -97,7 +109,11 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
                 Email
               </button>
             )}
-            {phoneNumber && <div className="profile-phone">Phone: {phoneNumber}</div>}
+            {phoneNumber && (
+              <button className="profile-phone-btn" onClick={openMessageComposer}>
+                Message: {phoneNumber}
+              </button>
+            )}
           </div>
         )}
       </div>
