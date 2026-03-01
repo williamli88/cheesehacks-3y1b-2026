@@ -26,6 +26,7 @@ function AnimatedNumber({ value, decimals = 0, duration = 1500 }) {
 export default function Dashboard({ user }) {
   const [impact, setImpact] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showRanksPopup, setShowRanksPopup] = useState(false);
   const currentUserId = user?.userId || user?.id;
 
   useEffect(() => {
@@ -65,6 +66,11 @@ export default function Dashboard({ user }) {
   const milesMilestones = [10, 40, 100, 200, 350, 500, 750, 1000];
 
   const milestoneLabel = (value, unit) => `${value}${unit}`;
+  const estimateSwapsForRank = (rank) => {
+    const remainingCo2 = Math.max(0, rank.minCo2 - co2);
+    if (remainingCo2 <= 0) return 0;
+    return Math.max(1, Math.ceil(remainingCo2 / Math.max(avgCo2PerSwap, 0.5)));
+  };
 
   return (
     <div className="dashboard-page">
@@ -79,7 +85,35 @@ export default function Dashboard({ user }) {
             <span>Max rank achieved ({impactRank.icon} {impactRank.label})</span>
           )}
         </div>
+        <button className="dash-ranks-link" type="button" onClick={() => setShowRanksPopup(true)}>
+          View all ranks
+        </button>
       </div>
+
+      {showRanksPopup && (
+        <div className="dash-ranks-overlay" onClick={() => setShowRanksPopup(false)}>
+          <div className="dash-ranks-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="dash-ranks-header">
+              <h3>Impact Ranks</h3>
+              <button type="button" onClick={() => setShowRanksPopup(false)}>✕</button>
+            </div>
+            <div className="dash-ranks-list">
+              {IMPACT_RANKS.map((rank) => {
+                const neededSwaps = estimateSwapsForRank(rank);
+                const reached = neededSwaps === 0;
+                return (
+                  <div className={`dash-rank-row ${reached ? 'reached' : ''}`} key={rank.label}>
+                    <div className="dash-rank-name">{rank.icon} {rank.label}</div>
+                    <div className="dash-rank-meta">
+                      {reached ? 'Reached' : `${neededSwaps} swap${neededSwaps !== 1 ? 's' : ''}`}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="impact-cards">
         <div className="impact-card co2-card">

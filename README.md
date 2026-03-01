@@ -48,7 +48,7 @@ java -jar target/clothing-swap-0.0.1-SNAPSHOT.jar
 
 The backend starts on **http://localhost:8080** and automatically seeds:
 - 20 fake campus users (password: `password123`)
-- 100 clothing items with randomized tags
+- 100 clothing items sampled from a curated demo item bank (no repeats)
 
 ### 1b. Cloud Postgres (Production Profile)
 
@@ -141,7 +141,7 @@ Three JPA-managed SQLite tables:
 
 ## Demo
 
-1. Start backend → auto-seeded with 20 users + 100 items
+1. Start backend → auto-seeded with 20 users + 100 unique curated items
 2. Open frontend → click a **Quick Demo Login** button
 3. Swipe right on items to like them
 4. When two users both like each other's items → Match!

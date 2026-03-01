@@ -52,6 +52,7 @@ export default function Upload({ user, onBack, initialItem = null }) {
   const [imageData, setImageData] = useState('');
   const [isDragActive, setIsDragActive] = useState(false);
   const [status, setStatus] = useState('');
+  const [showPostSuccess, setShowPostSuccess] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const fileInputRef = useRef(null);
   const isEditing = Boolean(initialItem && initialItem.id);
@@ -149,7 +150,7 @@ export default function Upload({ user, onBack, initialItem = null }) {
         setStatus('Updated');
       } else {
         await postItem(item);
-        setStatus('Uploaded');
+        setStatus('Posted');
         setTitle('');
         setDescription('');
         setColors([]);
@@ -160,11 +161,30 @@ export default function Upload({ user, onBack, initialItem = null }) {
         setSize('');
         setCondition('');
         setOpenDropdown(null);
+        setShowPostSuccess(true);
       }
     } catch (err) {
       console.error(err);
       setStatus(isEditing ? 'Update failed' : 'Upload failed');
     }
+  };
+
+  const navigateBackToProfile = () => {
+    console.debug('Upload back clicked, onBack present?', !!onBack, 'window.navigateTo?', !!window.navigateTo);
+    // Primary: call the provided callback from App
+    if (onBack) {
+      try { onBack(); return; } catch (e) { console.warn('onBack threw', e); }
+    }
+
+    // Secondary: SPA-level global helper (added by App) — reliable when HMR
+    // or prop wiring fails.
+    if (window.navigateTo) {
+      try { window.navigateTo('profile'); return; } catch (e) { console.warn('navigateTo failed', e); }
+    }
+
+    // Last-resort: browser history back (won't affect SPA state but may help
+    // in some environments)
+    try { window.history.back(); } catch (e) { /* ignore */ }
   };
 
   return (
@@ -173,23 +193,7 @@ export default function Upload({ user, onBack, initialItem = null }) {
         <button
           type="button"
           className="back-btn"
-          onClick={() => {
-            console.debug('Upload back clicked, onBack present?', !!onBack, 'window.navigateTo?', !!window.navigateTo);
-            // Primary: call the provided callback from App
-            if (onBack) {
-              try { onBack(); return; } catch (e) { console.warn('onBack threw', e); }
-            }
-
-            // Secondary: SPA-level global helper (added by App) — reliable when HMR
-            // or prop wiring fails.
-            if (window.navigateTo) {
-              try { window.navigateTo('profile'); return; } catch (e) { console.warn('navigateTo failed', e); }
-            }
-
-            // Last-resort: browser history back (won't affect SPA state but may help
-            // in some environments)
-            try { window.history.back(); } catch (e) { /* ignore */ }
-          }}
+          onClick={navigateBackToProfile}
           aria-label="Back"
           title="Back"
         >
@@ -303,13 +307,45 @@ export default function Upload({ user, onBack, initialItem = null }) {
           multiple
         />
 
-        <button type="submit">{isEditing ? 'Save Changes' : 'Upload'}</button>
+        <button type="submit">{isEditing ? 'Save Changes' : 'Post'}</button>
       </form>
       <div
-        className={`upload-status ${(status === 'Uploaded' || status === 'Updated') ? 'success' : ''} ${(status === 'Upload failed' || status === 'Update failed' || status.startsWith('Please select')) ? 'error' : ''}`}
+        className={`upload-status ${(status === 'Posted' || status === 'Updated') ? 'success' : ''} ${(status === 'Upload failed' || status === 'Update failed' || status.startsWith('Please select')) ? 'error' : ''}`}
       >
         {status}
       </div>
+
+      {showPostSuccess && (
+        <div className="upload-success-overlay" role="dialog" aria-modal="true" aria-live="polite">
+          <div className="upload-success-card">
+            <h3>Congratulations!</h3>
+            <p>Your item was posted successfully.</p>
+            <div className="upload-success-actions">
+              <button
+                type="button"
+                className="upload-success-secondary"
+                onClick={() => {
+                  setShowPostSuccess(false);
+                  setStatus('');
+                }}
+              >
+                Continue Uploading
+              </button>
+              <button
+                type="button"
+                className="upload-success-primary"
+                onClick={() => {
+                  setShowPostSuccess(false);
+                  setStatus('');
+                  navigateBackToProfile();
+                }}
+              >
+                Go to Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

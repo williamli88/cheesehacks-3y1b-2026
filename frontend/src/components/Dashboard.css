@@ -45,6 +45,95 @@
   font-weight: 700;
 }
 
+.dash-ranks-link {
+  margin-top: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-muted);
+  color: var(--text-surface);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dash-ranks-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.56);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+
+.dash-ranks-popup {
+  width: min(92vw, 320px);
+  max-height: 72vh;
+  overflow: auto;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-strong);
+  padding: 12px;
+}
+
+.dash-ranks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.dash-ranks-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-surface);
+}
+
+.dash-ranks-header button {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.dash-ranks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.dash-rank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 9px;
+  background: var(--surface-muted);
+}
+
+.dash-rank-row.reached {
+  background: var(--accent-soft);
+}
+
+.dash-rank-name {
+  font-size: 0.8rem;
+  color: var(--text-surface);
+  font-weight: 700;
+}
+
+.dash-rank-meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .impact-cards {
   display: flex;
   flex-direction: column;
