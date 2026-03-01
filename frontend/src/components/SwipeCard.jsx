@@ -37,36 +37,28 @@ export default function SwipeCard({ user, onMatch }) {
 
     try {
       const res = await postSwipe(user.userId, item.id, action);
+      
+      // FIX: Only show the notification. DO NOT call confirmMatch here.
       if (res.data.matched) {
-        try {
-          await confirmMatch(user.userId, item.id);
-        } catch (confirmErr) {
-          // Non-blocking: user can still confirm from the matches page if needed.
-          console.warn('Auto-confirm after match failed', confirmErr);
-        }
         setMatchNotif(item);
-        onMatch && onMatch(item);
+        if (onMatch) onMatch(item); 
       }
-      // Persist a lightweight client-side cache for recently liked items so
-      // the Profile "Liked" tab can show the new like immediately without
-      // waiting for a full server refresh. We still rely on the server as
-      // the source-of-truth — this is just a UX improvement.
+
+      // UX Improvement: Persist liked items to local cache
       if (action === 'RIGHT') {
         try {
           const raw = localStorage.getItem('recentLiked') || '[]';
           const arr = JSON.parse(raw);
           if (!arr.includes(item.id)) {
             arr.unshift(item.id);
-            // keep small
             localStorage.setItem('recentLiked', JSON.stringify(arr.slice(0, 50)));
           }
         } catch (e) {
-          // ignore localStorage issues
           console.warn('Could not update recentLiked cache', e);
         }
       }
     } catch (e) {
-      console.error(e);
+      console.error("Swipe failed:", e);
     }
 
     setTimeout(() => {

@@ -21,24 +21,22 @@ public class RecommendationService {
     }
 
     public List<ClothingItem> getRankedFeed(Long userId, String campus, String size) {
-        // 1. Get all items on campus NOT owned by the current user
         List<ClothingItem> allItems = itemRepo.findByCampusAndUserIdNot(campus, userId);
 
-        // 2. Get IDs of every item this user has ALREADY liked
         Set<Long> swipedItemIds = swipeRepo.findByUserIdFromAndAction(userId, "RIGHT").stream()
         .map(SwipeLedger::getItemIdTo)
         .collect(Collectors.toSet());
 
-        // 3. Filter: Only keep items that haven't been swiped yet
+        // FIX: Calculate user vector ONCE outside the loop to stop lag
+        Map<String, Double> userVector = buildUserVector(userId);
+
         return allItems.stream()
+            .filter(ClothingItem::isActive) // FIX: Ignore items that have been swapped
             .filter(item -> !swipedItemIds.contains(item.getId()))
-            .sorted((a, b) -> {
-                Map<String, Double> userVector = buildUserVector(userId);
-                return Double.compare(
+            .sorted((a, b) -> Double.compare(
                     cosineSimilarity(userVector, buildItemVector(b)),
                     cosineSimilarity(userVector, buildItemVector(a))
-                );
-            })
+            ))
             .collect(Collectors.toList());
     }
 

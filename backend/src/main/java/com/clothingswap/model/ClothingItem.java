@@ -10,20 +10,24 @@ public class ClothingItem {
     private Long id;
 
     private Long userId;
-    private String category;  // TSHIRT, JEANS, JACKET, DRESS, SHOES
-    private String size;      // XS, S, M, L, XL
-    private String condition; // NEW, GOOD, FAIR
+    private String category;  
+    private String size;      
+    private String condition; 
 
     @Column(length = 500)
-    private String colorTags; // comma-separated
+    private String colorTags; 
 
     @Column(length = 500)
-    private String styleTags; // comma-separated
+    private String styleTags; 
 
     private String campus;
     private String imageUrl;
     private String title;
     private String description;
+
+    // NEW: Tracks if the item has been swapped
+    @Column(columnDefinition = "boolean default true")
+    private boolean active = true; 
 
     public ClothingItem() {}
 
@@ -59,4 +63,8 @@ public class ClothingItem {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    // NEW: Getters and Setters for active
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 }
