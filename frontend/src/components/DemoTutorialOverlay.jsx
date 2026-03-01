@@ -24,13 +24,21 @@ export const DEMO_TUTORIAL_STEPS = [
   }
 ];
 
-export default function DemoTutorialOverlay({ stepIndex, isLocked, onNext }) {
+export default function DemoTutorialOverlay({ stepIndex, isLocked, onNext, onClose }) {
   const step = DEMO_TUTORIAL_STEPS[stepIndex] || DEMO_TUTORIAL_STEPS[0];
   const isLastStep = stepIndex >= DEMO_TUTORIAL_STEPS.length - 1;
 
   return (
     <div className="demo-tutorial-overlay" role="dialog" aria-modal="true" aria-live="polite">
       <div key={stepIndex} className={`demo-tutorial-card ${isLocked ? 'is-animating' : ''}`}>
+        <button
+          type="button"
+          className="demo-tutorial-close"
+          aria-label="Close demo tutorial"
+          onClick={onClose}
+        >
+          X
+        </button>
         <p className="demo-tutorial-kicker">Welcome to STYLR Demo</p>
         <div className="demo-tutorial-icon" aria-hidden="true">{step.icon}</div>
         <h3>{step.title}</h3>
@@ -46,7 +54,7 @@ export default function DemoTutorialOverlay({ stepIndex, isLocked, onNext }) {
           ))}
         </div>
 
-        <button type="button" onClick={onNext} disabled={isLocked}>
+        <button type="button" className="demo-tutorial-next" onClick={onNext} disabled={isLocked}>
           {isLastStep ? 'Start Exploring' : 'Next Step'}
         </button>
 

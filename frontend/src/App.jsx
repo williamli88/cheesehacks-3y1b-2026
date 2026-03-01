@@ -132,6 +132,12 @@ export default function App() {
     });
   };
 
+  const closeDemoTutorial = () => {
+    setDemoTutorialOpen(false);
+    setDemoTutorialStep(0);
+    setDemoTutorialLocked(false);
+  };
+
   if (!user) {
     return (
       <div className="app-container">
@@ -214,6 +220,7 @@ export default function App() {
           stepIndex={demoTutorialStep}
           isLocked={demoTutorialLocked}
           onNext={goToNextTutorialStep}
+          onClose={closeDemoTutorial}
         />
       )}
 
