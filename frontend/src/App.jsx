@@ -48,6 +48,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('swipe'); // swipe | matches | profile | upload
   const [profileUser, setProfileUser] = useState(null); // when viewing someone else's profile
+  const [editingItem, setEditingItem] = useState(null);
   const [profileSource, setProfileSource] = useState('self'); // self | matches
   const [authView, setAuthView] = useState('login'); // login | register
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -112,6 +113,7 @@ export default function App() {
     setUser(authUser);
     setPage('swipe');
     setProfileUser(null);
+    setEditingItem(null);
     setProfileSource('self');
 
     const fromDemoButton = Boolean(options?.isDemo);
@@ -178,6 +180,10 @@ export default function App() {
               user={profileUser || user}
               viewer={user}
               profileSource={profileSource}
+              onEditListing={(item) => {
+                setEditingItem(item);
+                setPage('upload');
+              }}
               onBack={() => {
                 setProfileUser(null);
                 setProfileSource('self');
@@ -192,12 +198,29 @@ export default function App() {
               onUpload={() => setPage('upload')}
             />
           )}
-          {page === 'upload' && <Upload user={user} onBack={() => setPage('profile')} />}
+          {page === 'upload' && (
+            <Upload
+              user={user}
+              initialItem={editingItem}
+              onBack={() => {
+                setEditingItem(null);
+                setPage('profile');
+              }}
+            />
+          )}
         </div>
       </main>
 
       {page === 'profile' && !profileUser && (
-        <button className="add-listing-fab" onClick={() => setPage('upload')} aria-label="Add Listing" disabled={demoTutorialOpen}>
+        <button
+          className="add-listing-fab"
+          onClick={() => {
+            setEditingItem(null);
+            setPage('upload');
+          }}
+          aria-label="Add Listing"
+          disabled={demoTutorialOpen}
+        >
           <span className="add-listing-fab-icon" aria-hidden="true">+</span>
           <span>Add Listing</span>
         </button>
@@ -232,6 +255,7 @@ export default function App() {
           setUser(null);
           setAuthView('login');
           setSettingsOpen(false);
+          setEditingItem(null);
           setDemoTutorialOpen(false);
           setDemoTutorialStep(0);
           setDemoTutorialLocked(false);

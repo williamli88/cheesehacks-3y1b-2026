@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './Upload.css';
-import { postItem } from '../api';
+import { postItem, updateItem } from '../api';
 
 const GENDER_OPTIONS = [
   { value: 'MEN', label: 'Men' },
@@ -126,7 +126,7 @@ function CustomDropdown({ id, value, options, placeholder, openDropdown, setOpen
   );
 }
 
-export default function Upload({ user, onBack }) {
+export default function Upload({ user, onBack, initialItem = null }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [gender, setGender] = useState('');
@@ -140,6 +140,22 @@ export default function Upload({ user, onBack }) {
   const [status, setStatus] = useState('');
   const [openDropdown, setOpenDropdown] = useState(null);
   const fileInputRef = useRef(null);
+  const isEditing = Boolean(initialItem && initialItem.id);
+
+  useEffect(() => {
+    if (!initialItem) return;
+    setTitle(initialItem.title || '');
+    setDescription(initialItem.description || '');
+    setGender(initialItem.gender || '');
+    setClothingType(initialItem.clothingType || initialItem.category || '');
+    setSize(initialItem.size || '');
+    setCondition(initialItem.condition || '');
+    setStyle(initialItem.style || '');
+    setColors((initialItem.colorTags || '').split(',').map((c) => c.trim()).filter(Boolean));
+    setImageData(initialItem.imageUrl || '');
+    setStatus('');
+    setOpenDropdown(null);
+  }, [initialItem]);
 
   const applyFile = (file) => {
     if (!file) return;
@@ -194,7 +210,7 @@ export default function Upload({ user, onBack }) {
       setStatus('Please select all category fields');
       return;
     }
-    setStatus('Uploading...');
+    setStatus(isEditing ? 'Saving...' : 'Uploading...');
 
     const item = {
       userId: user.userId || user.id,
@@ -214,21 +230,26 @@ export default function Upload({ user, onBack }) {
     };
 
     try {
-      const res = await postItem(item);
-      setStatus('Uploaded');
-      setTitle('');
-      setDescription('');
-      setColors([]);
-      setImageData('');
-      setStyle('');
-      setGender('');
-      setClothingType('');
-      setSize('');
-      setCondition('');
-      setOpenDropdown(null);
+      if (isEditing) {
+        await updateItem(initialItem.id, item);
+        setStatus('Updated');
+      } else {
+        await postItem(item);
+        setStatus('Uploaded');
+        setTitle('');
+        setDescription('');
+        setColors([]);
+        setImageData('');
+        setStyle('');
+        setGender('');
+        setClothingType('');
+        setSize('');
+        setCondition('');
+        setOpenDropdown(null);
+      }
     } catch (err) {
       console.error(err);
-      setStatus('Upload failed');
+      setStatus(isEditing ? 'Update failed' : 'Upload failed');
     }
   };
 
@@ -260,7 +281,7 @@ export default function Upload({ user, onBack }) {
         >
           ←
         </button>
-        <h2 style={{ margin: 0 }}>List an Item</h2>
+        <h2 style={{ margin: 0 }}>{isEditing ? 'Edit Listing' : 'List an Item'}</h2>
       </div>
 
       <div
@@ -368,10 +389,10 @@ export default function Upload({ user, onBack }) {
           multiple
         />
 
-        <button type="submit">Upload</button>
+        <button type="submit">{isEditing ? 'Save Changes' : 'Upload'}</button>
       </form>
       <div
-        className={`upload-status ${status === 'Uploaded' ? 'success' : ''} ${(status === 'Upload failed' || status.startsWith('Please select')) ? 'error' : ''}`}
+        className={`upload-status ${(status === 'Uploaded' || status === 'Updated') ? 'success' : ''} ${(status === 'Upload failed' || status === 'Update failed' || status.startsWith('Please select')) ? 'error' : ''}`}
       >
         {status}
       </div>

@@ -31,6 +31,12 @@ export const getImpact = (userId) =>
 export const postItem = (item) =>
   api.post('/items', item);
 
+export const updateItem = (itemId, item) =>
+  api.put(`/items/${itemId}`, item);
+
+export const deleteItem = (itemId) =>
+  api.delete(`/items/${itemId}`);
+
 export const getUserItems = (userId) =>
   api.get(`/items/user/${userId}`);
 

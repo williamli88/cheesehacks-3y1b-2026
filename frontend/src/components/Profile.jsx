@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { getUserItems, getLikedItems, getImpact } from '../api';
+import { getUserItems, getLikedItems, getImpact, deleteItem } from '../api';
 import { IMPACT_RANKS, getImpactRank } from '../impactRank';
 import Dashboard from './Dashboard';
 import './Profile.css';
 
-export default function Profile({ user, viewer, profileSource, onBack }) {
+export default function Profile({ user, viewer, profileSource, onBack, onEditListing }) {
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
   const [viewMode, setViewMode] = useState('listings'); // 'listings' | 'liked'
   const [impactRank, setImpactRank] = useState(IMPACT_RANKS[0]);
+  const [openMenuFor, setOpenMenuFor] = useState(null);
+  const [deletingItemId, setDeletingItemId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Determine if the profile being viewed is the current logged-in user
   const viewerId = viewer ? (viewer.userId || viewer.id) : null;
@@ -64,7 +67,7 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
         setLoadingItems(false);
       })
       .catch(() => setLoadingItems(false));
-  }, [user, viewMode, isOwn]);
+  }, [user, viewMode, isOwn, refreshKey]);
 
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
   const profileImageSrc = imageSrc(user.profileImageUrl || user.avatarUrl);
@@ -96,6 +99,23 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
       return;
     }
     window.location.href = `sms:${normalizedPhone}`;
+  };
+
+  const handleDeleteListing = async (itemId) => {
+    const confirmed = window.confirm('Delete this listing? This cannot be undone.');
+    if (!confirmed) return;
+
+    setDeletingItemId(itemId);
+    try {
+      await deleteItem(itemId);
+      setItems((prev) => prev.filter((i) => i.id !== itemId));
+      setRefreshKey((k) => k + 1);
+    } catch (e) {
+      console.error('Failed to delete listing', e);
+    } finally {
+      setDeletingItemId(null);
+      setOpenMenuFor(null);
+    }
   };
 
   // Impact data is shown in the embedded Dashboard modal; no local impact state here.
@@ -187,6 +207,42 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
             <div className="item-list gallery">
               {items.map(i => (
                 <div key={i.id} className="item-card">
+                  {isOwn && viewMode === 'listings' && (
+                    <>
+                      <button
+                        type="button"
+                        className="listing-menu-button"
+                        aria-label="Listing options"
+                        onClick={() => setOpenMenuFor(openMenuFor === i.id ? null : i.id)}
+                      >
+                        ⋮
+                      </button>
+                      {openMenuFor === i.id && (
+                        <div className="listing-menu-wrapper">
+                          <div className="listing-menu">
+                            <button
+                              type="button"
+                              className="listing-menu-item"
+                              onClick={() => {
+                                if (onEditListing) onEditListing(i);
+                                setOpenMenuFor(null);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="listing-menu-item danger"
+                              disabled={deletingItemId === i.id}
+                              onClick={() => handleDeleteListing(i.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                   {imageSrc(i.imageUrl) ? (
                     <img src={imageSrc(i.imageUrl)} alt={i.title} />
                   ) : (
@@ -198,6 +254,14 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
                   </div>
                 </div>
               ))}
+              {openMenuFor !== null && (
+                <button
+                  type="button"
+                  className="listing-menu-overlay"
+                  aria-label="Close listing menu"
+                  onClick={() => setOpenMenuFor(null)}
+                />
+              )}
             </div>
           )}
         </div>
