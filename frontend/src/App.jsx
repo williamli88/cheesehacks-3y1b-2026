@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import SwipeCard from './components/SwipeCard';
 import Matches from './components/Matches';
 import Dashboard from './components/Dashboard';
+import SettingsModal from './components/SettingsModal';
 import './App.css';
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('swipe'); // swipe | matches | dashboard
   const [authView, setAuthView] = useState('login'); // login | register
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark-mode', theme === 'dark');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   if (!user) {
     return (
@@ -25,8 +33,9 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <span className="logo">👕 STYLR</span>
-        <span className="campus-badge">{user.campus}</span>
+        <div className="header-left"><span className="logo">👕 STYLR</span></div>
+        <div className="header-center"><span className="campus-badge">{user.campus}</span></div>
+        <div className="header-right"><button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings">⚙️</button></div>
       </header>
 
       <main className="app-main">
@@ -46,6 +55,16 @@ export default function App() {
           <span>🌱</span><small>Impact</small>
         </button>
       </nav>
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        user={user}
+        onSignOut={() => { setUser(null); setAuthView('login'); setSettingsOpen(false); }}
+        onSave={(updated) => { setUser(prev => ({ ...prev, ...updated })); setSettingsOpen(false); }}
+        theme={theme}
+        toggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+      />
     </div>
   );
 }

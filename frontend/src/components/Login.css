@@ -135,3 +135,13 @@
 .register-btn:hover {
   background: #ecfff4;
 }
+
+/* Dark mode overrides */
+.dark-mode .login-screen { background: linear-gradient(160deg, rgba(8,20,26,0.4) 0%, rgba(8,12,20,0.6) 60%); }
+.dark-mode .login-hero h1 { color: #e6eef8; }
+.dark-mode .login-hero p, .dark-mode .demo-label, .dark-mode .demo-user-btn small { color: #9fb3c8; }
+.dark-mode .login-form input { background: rgba(255,255,255,0.02); border: 1.2px solid rgba(255,255,255,0.04); color: #e6eef8; }
+.dark-mode .login-form button { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+.dark-mode .demo-user-btn { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef8; }
+.dark-mode .demo-user-btn:hover { background: rgba(46,204,113,0.06); border-color: rgba(46,204,113,0.16); }
+.dark-mode .register-btn { background: transparent; color: #8de6a5; border-color: rgba(46,204,113,0.14); }

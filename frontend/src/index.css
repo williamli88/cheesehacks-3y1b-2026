@@ -6,7 +6,7 @@
 
 html, body, #root {
   height: 100%;
-  background: #f0f0f0;
+  background: var(--page-bg, #f0f0f0);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -14,8 +14,19 @@ html, body, #root {
   max-width: 400px;
   margin: 0 auto;
   min-height: 100vh;
-  background: #fff;
+  background: var(--surface, #fff);
   position: relative;
   overflow: hidden;
   box-shadow: 0 0 20px rgba(0,0,0,0.15);
+}
+
+/* Dark mode theme variables applied via .dark-mode on <html> */
+:root {
+  --page-bg: #f0f0f0;
+  --surface: #ffffff;
+}
+
+.dark-mode {
+  --page-bg: #071018;
+  --surface: #071626;
 }
