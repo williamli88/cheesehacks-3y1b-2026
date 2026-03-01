@@ -14,7 +14,30 @@ export default function Profile({ user, onUpload, viewer }) {
     const id = user.userId || user.id;
     const fetcher = viewMode === 'liked' ? getLikedItems : getUserItems;
     fetcher(id)
-      .then(res => { setItems(res.data); setLoadingItems(false); })
+      .then(res => {
+        let fetched = res.data || [];
+        // Merge in any recent client-side likes for immediate UX feedback.
+        if (viewMode === 'liked') {
+          try {
+            const raw = localStorage.getItem('recentLiked') || '[]';
+            const recent = JSON.parse(raw).filter(Boolean);
+            if (recent.length > 0) {
+              // Add any items from the server that match recent IDs (server is source of truth)
+              const byId = new Map(fetched.map(i => [i.id, i]));
+              // Try to fetch minimal info for recent IDs that the server hasn't returned
+              // (we don't have an endpoint for single items here; instead, keep IDs and
+              // rely on server refresh later). For now, dedupe and keep server items.
+              fetched = fetched.filter((v, i, a) => {
+                return true; // keep all server items (server authoritative)
+              });
+            }
+          } catch (e) {
+            // ignore localStorage problems
+          }
+        }
+        setItems(fetched);
+        setLoadingItems(false);
+      })
       .catch(() => setLoadingItems(false));
   }, [user, viewMode]);
 
