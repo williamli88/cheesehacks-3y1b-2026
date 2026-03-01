@@ -50,16 +50,20 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
         String username = request.get("username");
+        String email = request.get("email");
+
         if (userRepo.findByUsername(username).isPresent()) {
             return ResponseEntity.status(409).body(Map.of("error", "Username already exists"));
         }
 
         User user = new User();
         user.setUsername(username);
-        user.setEmail(request.get("email"));
-        user.setContactUrl(request.getOrDefault("contactUrl", "mailto:" + request.get("email")));
+        user.setEmail(email);
+        user.setContactUrl(request.getOrDefault("contactUrl", "mailto:" + email));
         user.setPassword(passwordEncoder.encode(request.get("password")));
-        user.setCampus(request.getOrDefault("campus", "MIT"));
+        
+        // This MUST be the only place the campus is set
+        user.setCampusFromEmail(email); 
 
         User saved = userRepo.save(user);
 

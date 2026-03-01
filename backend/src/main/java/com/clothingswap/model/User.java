@@ -49,4 +49,30 @@ public class User {
 
     public int getTotalSwapsCompleted() { return totalSwapsCompleted; }
     public void setTotalSwapsCompleted(int totalSwapsCompleted) { this.totalSwapsCompleted = totalSwapsCompleted; }
+
+    public void setCampusFromEmail(String email) {
+        if (email == null || !email.endsWith(".edu")) {
+            this.campus = "Invalid/Non-Edu";
+            return;
+        }
+
+        String domain = email.substring(email.indexOf("@") + 1).toLowerCase();
+        
+        // Tier 1: Hardcoded specific formatting
+        switch (domain) {
+            case "wisc.edu": this.campus = "UW-Madison"; return;
+            case "mit.edu": this.campus = "MIT"; return;
+            case "stanford.edu": this.campus = "Stanford"; return;
+            case "harvard.edu": this.campus = "Harvard"; return;
+        }
+
+        // Tier 2: Dynamic fallback for every other US college
+        // e.g., "berkeley.edu" -> "Berkeley"
+        String rawName = domain.replace(".edu", "");
+        if (rawName.length() > 0) {
+            this.campus = Character.toUpperCase(rawName.charAt(0)) + rawName.substring(1);
+        } else {
+            this.campus = "Unknown";
+        }
+    }
 }
