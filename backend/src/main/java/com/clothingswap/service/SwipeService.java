@@ -107,8 +107,8 @@ public class SwipeService {
             itemRepo.save(itemA);
 
             // Calculate Savings
-            LcaService.LcaResult lcaItemB = lcaService.calculateSavings(itemB.getCategory());
-            LcaService.LcaResult lcaItemA = lcaService.calculateSavings(itemA.getCategory());
+            LcaService.LcaResult lcaItemB = lcaService.calculateSavings(itemB.getCategory(), itemB.getClothingType());
+            LcaService.LcaResult lcaItemA = lcaService.calculateSavings(itemA.getCategory(), itemA.getClothingType());
             double totalWater = lcaItemA.waterSaved() + lcaItemB.waterSaved();
             double totalCo2 = lcaItemA.co2Saved() + lcaItemB.co2Saved();
             updateUserImpact(userIdFrom, totalWater / 2, totalCo2 / 2);

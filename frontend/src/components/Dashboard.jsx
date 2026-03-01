@@ -22,15 +22,6 @@ function AnimatedNumber({ value, decimals = 0, duration = 1500 }) {
   return <span>{display.toFixed(decimals)}</span>;
 }
 
-function StatBar({ value, max, color }) {
-  const pct = Math.min((value / max) * 100, 100);
-  return (
-    <div className="stat-bar-bg">
-      <div className="stat-bar-fill" style={{ width: `${pct}%`, background: color }} />
-    </div>
-  );
-}
-
 export default function Dashboard({ user }) {
   const [impact, setImpact] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +52,11 @@ export default function Dashboard({ user }) {
   const trees = impact.treesEquivalent || 0;
   const showers = impact.showersSaved || 0;
   const miles = impact.milesNotDriven || 0;
+  const carbonMilestones = [5, 15, 30, 50, 75, 100, 150, 200];
+  const waterMilestones = [5000, 15000, 30000, 50000, 75000, 100000, 150000, 200000];
+  const milesMilestones = [10, 40, 100, 200, 350, 500, 750, 1000];
+
+  const milestoneLabel = (value, unit) => `${value}${unit}`;
 
   return (
     <div className="dashboard-page">
@@ -77,7 +73,15 @@ export default function Dashboard({ user }) {
             <AnimatedNumber value={co2} decimals={1} /> <span className="unit">kg CO₂</span>
           </div>
           <div className="impact-card-label">Carbon saved</div>
-          <StatBar value={co2} max={50} color="#102a5c" />
+          <div className="milestone-scroll">
+            <div className="milestone-badges">
+              {carbonMilestones.map((m) => (
+                <span key={`co2-${m}`} className={`milestone-badge ${co2 >= m ? 'earned' : ''}`}>
+                  {co2 >= m ? '✓ ' : ''}{milestoneLabel(m, 'kg')}
+                </span>
+              ))}
+            </div>
+          </div>
           <div className="impact-equiv">
             ≈ <strong>{trees.toFixed(1)}</strong> trees planted for a year
           </div>
@@ -89,7 +93,15 @@ export default function Dashboard({ user }) {
             <AnimatedNumber value={water} decimals={0} /> <span className="unit">L</span>
           </div>
           <div className="impact-card-label">Water saved</div>
-          <StatBar value={water} max={10000} color="#1c4388" />
+          <div className="milestone-scroll">
+            <div className="milestone-badges">
+              {waterMilestones.map((m) => (
+                <span key={`water-${m}`} className={`milestone-badge ${water >= m ? 'earned' : ''}`}>
+                  {water >= m ? '✓ ' : ''}{milestoneLabel(m, 'L')}
+                </span>
+              ))}
+            </div>
+          </div>
           <div className="impact-equiv">
             ≈ <strong>{showers.toFixed(0)}</strong> showers saved
           </div>
@@ -101,7 +113,15 @@ export default function Dashboard({ user }) {
             <AnimatedNumber value={miles} decimals={1} /> <span className="unit">mi</span>
           </div>
           <div className="impact-card-label">Driving avoided</div>
-          <StatBar value={miles} max={500} color="#445a84" />
+          <div className="milestone-scroll">
+            <div className="milestone-badges">
+              {milesMilestones.map((m) => (
+                <span key={`miles-${m}`} className={`milestone-badge ${miles >= m ? 'earned' : ''}`}>
+                  {miles >= m ? '✓ ' : ''}{milestoneLabel(m, 'mi')}
+                </span>
+              ))}
+            </div>
+          </div>
           <div className="impact-equiv">
             That's <strong>{miles.toFixed(0)}</strong> miles not driven
           </div>
@@ -114,11 +134,6 @@ export default function Dashboard({ user }) {
         </div>
       )}
 
-      {co2 > 0 && (
-        <div className="dash-summary">
-          <p>🎉 You saved <strong>{co2.toFixed(1)}kg CO₂</strong> — equivalent to planting <strong>{trees.toFixed(1)} trees</strong>.</p>
-        </div>
-      )}
     </div>
   );
 }

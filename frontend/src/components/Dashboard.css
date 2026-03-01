@@ -78,18 +78,34 @@
   margin-bottom: 8px;
 }
 
-.stat-bar-bg {
-  height: 8px;
-  background: var(--surface-muted);
-  border-radius: 5px;
-  overflow: hidden;
+.milestone-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
   margin-bottom: 8px;
 }
 
-.stat-bar-fill {
-  height: 100%;
-  border-radius: 5px;
-  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+.milestone-badges {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-width: max-content;
+}
+
+.milestone-badge {
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.milestone-badge.earned {
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  color: var(--text-inverse);
+  border-color: transparent;
 }
 
 .impact-equiv {

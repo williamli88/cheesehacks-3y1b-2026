@@ -199,3 +199,52 @@
   background: transparent;
   z-index: 999;
 }
+
+.trade-summary-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.56);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.trade-summary-card {
+  width: min(92vw, 340px);
+  border-radius: 14px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-strong);
+  padding: 16px;
+  text-align: center;
+}
+
+.trade-summary-card h3 {
+  margin: 0 0 8px;
+  color: var(--text-surface);
+}
+
+.trade-summary-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.trade-summary-item {
+  margin-top: 8px !important;
+  color: var(--text-surface) !important;
+  font-weight: 700;
+}
+
+.trade-summary-card button {
+  margin-top: 14px;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  color: var(--text-inverse);
+  cursor: pointer;
+  font-weight: 700;
+}

@@ -9,6 +9,7 @@ export default function Matches({ user, openProfile }) {
   const [openMenuFor, setOpenMenuFor] = useState(null); // match id that has menu open
   const [confirmingKey, setConfirmingKey] = useState(null);
   const [rejectingKey, setRejectingKey] = useState(null);
+  const [tradeSummary, setTradeSummary] = useState(null);
 
   useEffect(() => {
     getMatches(user.userId)
@@ -34,6 +35,21 @@ export default function Matches({ user, openProfile }) {
 
   return (
   <div className="matches-page">
+      {tradeSummary && (
+        <div className="trade-summary-overlay" onClick={() => setTradeSummary(null)}>
+          <div className="trade-summary-card" onClick={(e) => e.stopPropagation()}>
+            <h3>Trade Confirmed</h3>
+            <p>
+              You confirmed a trade with <strong>{tradeSummary.username}</strong>.
+            </p>
+            <p className="trade-summary-item">{tradeSummary.itemTitle}</p>
+            <button type="button" onClick={() => setTradeSummary(null)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="matches-header">
         <h2>Your Matches 💙</h2>
         <span className="match-count">{matches.length}</span>
@@ -118,10 +134,18 @@ export default function Matches({ user, openProfile }) {
     setConfirmingKey(matchKey);
     try {
       await confirmMatch(user.userId || user.id, itemId);
+      setTradeSummary({
+        username: match.matchedWithUsername || 'User',
+        itemTitle: match?.matchedItem?.title || 'Trade item'
+      });
       // remove confirmed match locally
       setMatches(prev => prev.filter(m => m !== match));
     } catch (e) {
       if (e?.response?.status === 409) {
+        setTradeSummary({
+          username: match.matchedWithUsername || 'User',
+          itemTitle: match?.matchedItem?.title || 'Trade item'
+        });
         // already confirmed on server; also drop locally
         setMatches(prev => prev.filter(m => m !== match));
       } else {
