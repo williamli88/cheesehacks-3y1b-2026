@@ -92,6 +92,68 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.prefixed-input-row,
+.phone-input-row {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: 13px;
+  background: var(--surface-strong);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark-mode .prefixed-input-row,
+.dark-mode .phone-input-row {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.prefixed-input-row:focus-within,
+.phone-input-row:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.field-prefix {
+  min-width: 76px;
+  padding: 0 12px;
+  color: var(--text-muted);
+  font-size: 0.98rem;
+  font-weight: 400;
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+}
+
+.prefixed-input-row input,
+.phone-input-row input {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.prefixed-input-row input:focus,
+.phone-input-row input:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.country-code-select {
+  border: 0;
+  border-right: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-surface);
+  padding: 14px 12px;
+  font-size: 0.88rem;
+  min-width: 160px;
+  max-width: 185px;
+  outline: none;
+}
+
 .login-form input:focus {
   border-color: var(--border-strong);
   box-shadow: 0 0 0 3px var(--accent-soft);
