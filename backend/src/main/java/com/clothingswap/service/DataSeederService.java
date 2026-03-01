@@ -24,7 +24,10 @@ public class DataSeederService {
     }
 
     public void seed() {
-        if (userRepo.count() > 0) return;
+        if (userRepo.count() > 0) {
+            backfillMissingPhoneNumbers();
+            return;
+        }
 
         Random rng = new Random(42);
         String[] domains = {"mit.edu", "harvard.edu", "stanford.edu"};
@@ -46,6 +49,7 @@ public class DataSeederService {
             // Assign a valid domain
             String domain = domains[rng.nextInt(domains.length)];
             user.setEmail(user.getUsername() + "@" + domain);
+            user.setPhoneNumber(generateFakePhone(rng));
             
             user.setContactUrl("mailto:" + user.getEmail());
             user.setPassword(passwordEncoder.encode("password123"));
@@ -112,5 +116,24 @@ public class DataSeederService {
             case "SHOES" -> "FOOTWEAR";
             default -> "ACCESSORIES";
         };
+    }
+
+    private void backfillMissingPhoneNumbers() {
+        Random rng = new Random(4242);
+        List<User> users = userRepo.findAll();
+        for (User user : users) {
+            if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
+                user.setPhoneNumber(generateFakePhone(rng));
+                userRepo.save(user);
+            }
+        }
+    }
+
+    private String generateFakePhone(Random rng) {
+        // E.164-style fake US number for demo accounts.
+        int area = 200 + rng.nextInt(800);
+        int mid = 200 + rng.nextInt(800);
+        int last = 1000 + rng.nextInt(9000);
+        return String.format("+1%03d%03d%04d", area, mid, last);
     }
 }

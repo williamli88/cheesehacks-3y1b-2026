@@ -57,6 +57,11 @@ export default function SettingsModal({ open, onClose, user, onSignOut, onSave, 
         </div>
 
         <div className="settings-section">
+          <label>Phone Number</label>
+          <input value={user.phoneNumber || ''} disabled />
+        </div>
+
+        <div className="settings-section">
           <label>Profile Picture</label>
           <div className="settings-avatar-row">
             {profileImageUrl ? (

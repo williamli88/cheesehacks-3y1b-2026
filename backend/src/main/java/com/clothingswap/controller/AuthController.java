@@ -40,6 +40,7 @@ public class AuthController {
         response.put("userId", user.getId());
         response.put("username", user.getUsername());
         response.put("email", user.getEmail());
+        response.put("phoneNumber", user.getPhoneNumber());
         response.put("contactUrl", user.getContactUrl());
         response.put("campus", user.getCampus());
         response.put("token", "bearer-" + user.getId() + "-" + System.currentTimeMillis());
@@ -95,6 +96,8 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("userId", saved.getId());
         response.put("username", saved.getUsername());
+        response.put("email", saved.getEmail());
+        response.put("phoneNumber", saved.getPhoneNumber());
         response.put("campus", saved.getCampus());
         response.put("token", "bearer-" + saved.getId() + "-" + System.currentTimeMillis());
 
@@ -109,6 +112,7 @@ public class AuthController {
                 "username", u.getUsername(),
                 "campus", u.getCampus(),
                 "email", u.getEmail(),
+                "phoneNumber", u.getPhoneNumber(),
                 "contactUrl", u.getContactUrl()
             ))
             .toList());
