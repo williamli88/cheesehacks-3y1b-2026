@@ -1,21 +1,31 @@
 import { useState } from 'react';
 import { register } from '../api';
+import { getCampusFromEmail } from '../campusUtils';
 import './Login.css';
 
 export default function Register({ onRegister, onCancel }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [campus, setCampus] = useState('MIT');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const derivedCampus = getCampusFromEmail(email);
+  const isValidEdu = email.endsWith('.edu');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidEdu) {
+      setError("You must use a valid .edu email address.");
+      return;
+    }
+
     setLoading(true);
     setError('');
     try {
-      const res = await register(username, email, password, campus);
+      // We pass the derivedCampus just in case your api.js still expects a 4th argument,
+      // but remember our backend AuthController now recalculates this securely anyway!
+      const res = await register(username, email, password, derivedCampus);
       onRegister(res.data);
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to register');
@@ -42,7 +52,7 @@ export default function Register({ onRegister, onCancel }) {
         />
         <input
           type="email"
-          placeholder="Email"
+          placeholder="e.g. nhung@wisc.edu"
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
@@ -54,15 +64,25 @@ export default function Register({ onRegister, onCancel }) {
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <select value={campus} onChange={e => setCampus(e.target.value)}>
-          <option>MIT</option>
-          <option>Harvard</option>
-          <option>Stanford</option>
-        </select>
+        
+        {/* Dynamic Campus Display instead of a Select dropdown */}
+        <div style={{ 
+            padding: '12px', 
+            backgroundColor: '#f8f9fa', 
+            borderRadius: '8px', 
+            marginBottom: '15px',
+            border: isValidEdu ? '1px solid #27ae60' : '1px solid #ddd',
+            textAlign: 'center'
+        }}>
+            <span style={{ fontSize: '0.85rem', color: '#666' }}>Your Campus: </span>
+            <strong style={{ color: isValidEdu ? '#27ae60' : '#e74c3c' }}>
+                {derivedCampus}
+            </strong>
+        </div>
 
         {error && <p className="login-error">{error}</p>}
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || !isValidEdu}>
           {loading ? 'Creating...' : 'Create Account'}
         </button>
 

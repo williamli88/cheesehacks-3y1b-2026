@@ -50,7 +50,6 @@ export default function SettingsModal({ open, onClose, user, onSignOut, onSave, 
           <label>Campus</label>
           <input value={user.campus || ''} disabled />
         </div>
-
         <div className="settings-section theme-row">
           <label>Theme</label>
           <button className="theme-toggle" onClick={toggleTheme}>{theme === 'dark' ? '🌙 Dark' : '☀️ Light'}</button>
