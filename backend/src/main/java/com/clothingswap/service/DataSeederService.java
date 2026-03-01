@@ -60,9 +60,10 @@ public class DataSeederService {
 
     // Curated demo bank. Edit these entries to define your own default demo inventory.
     private static final List<DemoItemTemplate> DEMO_ITEM_BANK = buildDemoItemBank();
-        private static final Set<String> DEMO_ITEM_KEYS = DEMO_ITEM_BANK.stream()
+          private static final Set<String> DEMO_ITEM_KEYS = DEMO_ITEM_BANK.stream()
             .map(DataSeederService::templateKey)
             .collect(Collectors.toUnmodifiableSet());
+
 
     private final UserRepository userRepo;
     private final ClothingItemRepository itemRepo;
@@ -81,7 +82,7 @@ public class DataSeederService {
         if (hasExistingUsers) {
             List<User> demos = ensureDemoUsers();
             backfillMissingPhoneNumbers();
-            int deactivatedLegacy = deactivateLegacyRandomDemoItems(demos);
+                int deactivatedLegacy = deactivateLegacyRandomDemoItems(demos);
             if (deactivatedLegacy > 0) {
                 log.info("Deactivated {} legacy random demo item(s).", deactivatedLegacy);
             }
@@ -122,7 +123,7 @@ public class DataSeederService {
         seedRemainingItems(users, demoItemPool, remainingTarget, userRng);
     }
 
-    public static boolean isDemoBankItem(ClothingItem item) {
+       public static boolean isDemoBankItem(ClothingItem item) {
         if (item == null) {
             return false;
         }
@@ -265,10 +266,12 @@ public class DataSeederService {
     private DemoItemPool createDemoItemPool(Random rng) {
         Set<String> usedKeys = new HashSet<>();
         for (ClothingItem existing : itemRepo.findAll()) {
-            if (!existing.isActive()) {
+
+   if (!existing.isActive()) {
                 continue;
-            }
-            usedKeys.add(itemKey(existing));
+            }          
+              usedKeys.add(itemKey(existing));
+
         }
 
         List<DemoItemTemplate> availableTemplates = new ArrayList<>();
@@ -420,11 +423,11 @@ public class DataSeederService {
         addBankVariants(bank, "Dickies shirt", "Oversized pocket tee",
             "TSHIRT", "MEN", "VINTAGE", "vintage,street", "green", "green,black", "/P6%20(20).jpg");
         addBankVariants(bank, "Brown tee", "nice brown tee.",
-            "TSHIRT", "MEN", "STREET", "street,vintage", "brown", "brown,chocolate", "/P6.jpg");
+            "TSHIRT", "MEN", "STREET", "street,vintage", "brown", "brown,chocolate", "/P6(22).jpg");
         addBankVariants(bank, "Dickies cargo pants", "Utility pants with tool pocket.",   
-            "PANTS", "MEN", "VINTAGE", "vintage,street", "green", "green,black", "/P6%20(22).jpg");
+            "PANTS", "MEN", "VINTAGE", "vintage,street", "green", "green,black", "/P6%20(24).jpg");
         addBankVariants(bank, "High-Rise Denim Jeans", "Structured high-rise denim for clean silhouettes.",
-            "JEANS", "WOMEN", "FORMAL", "formal,street", "darkblue", "darkblue,black", "/P6.jpg");
+            "JEANS", "WOMEN", "FORMAL", "formal,street", "darkblue", "darkblue,black", "/P6%20.jpg");
 
         return List.copyOf(bank);
     }
