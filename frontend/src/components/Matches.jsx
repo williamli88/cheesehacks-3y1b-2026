@@ -6,6 +6,7 @@ export default function Matches({ user }) {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [openMenuFor, setOpenMenuFor] = useState(null); // match id that has menu open
 
   useEffect(() => {
     getMatches(user.userId)
@@ -43,7 +44,7 @@ export default function Matches({ user }) {
       ) : (
         <div className="matches-list">
           {matches.map((match, i) => (
-            <div key={i} className="match-card">
+            <div key={match.id || i} className="match-card">
               <img src={match.matchedItem.imageUrl} alt={match.matchedItem.title} />
               <div className="match-card-info">
                 <h3>{match.matchedItem.title}</h3>
@@ -55,6 +56,33 @@ export default function Matches({ user }) {
                   ))}
                 </div>
               </div>
+
+              {/* three-dot menu button */}
+              <button
+                className="menu-button"
+                aria-label="options"
+                onClick={() => setOpenMenuFor(openMenuFor === (match.id || i) ? null : (match.id || i))}
+              >
+                ⋮
+              </button>
+
+              {openMenuFor === (match.id || i) && (
+                <div className="match-menu-wrapper">
+                  <div className="match-menu">
+                    <button className="match-menu-item" onClick={() => { confirmSwap(match); setOpenMenuFor(null); }}>
+                      ✅ Confirm swap
+                    </button>
+                    <button className="match-menu-item danger" onClick={() => { rejectSwap(match); setOpenMenuFor(null); }}>
+                      ✖️ Reject swap
+                    </button>
+                    <button className="match-menu-item" onClick={() => { viewProfile(match); setOpenMenuFor(null); }}>
+                      👤 View profile
+                    </button>
+                  </div>
+                  <div className="menu-overlay" onClick={() => setOpenMenuFor(null)} />
+                </div>
+              )}
+
               <div className="match-badge">✓</div>
             </div>
           ))}
@@ -62,4 +90,22 @@ export default function Matches({ user }) {
       )}
     </div>
   );
+
+  // Handlers: placeholder implementations — replace with real API calls as needed
+  function confirmSwap(match) {
+    // For now, mark as confirmed locally and show a simple alert
+    setMatches(prev => prev.map(m => (m === match ? { ...m, status: 'confirmed' } : m)));
+    alert(`Confirmed swap for "${match.matchedItem.title}"`);
+  }
+
+  function rejectSwap(match) {
+    // For demo: remove the match locally
+    setMatches(prev => prev.filter(m => m !== match));
+    alert(`Rejected swap for "${match.matchedItem.title}"`);
+  }
+
+  function viewProfile(match) {
+    // Placeholder: navigate to a profile page or open a profile modal
+    alert(`Open profile for ${match.matchedWithUsername || 'User'}`);
+  }
 }
