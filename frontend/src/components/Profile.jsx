@@ -49,6 +49,17 @@ export default function Profile({ user, viewer }) {
   const viewerId = viewer ? (viewer.userId || viewer.id) : null;
   const profileId = user ? (user.userId || user.id) : null;
   const isOwn = !viewerId || viewerId === profileId;
+  const canEmail = !isOwn && typeof user?.email === 'string' && user.email.trim().length > 0;
+
+  const openEmailComposer = () => {
+    if (!canEmail) return;
+    const email = encodeURIComponent(user.email.trim());
+    const isApplePlatform = /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const href = isApplePlatform
+      ? `mailto:${user.email.trim()}`
+      : `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+    window.open(href, '_blank', 'noopener,noreferrer');
+  };
 
   // Impact data is shown in the embedded Dashboard modal; no local impact state here.
 
@@ -62,6 +73,11 @@ export default function Profile({ user, viewer }) {
           <div className="profile-avatar profile-avatar-fallback" aria-label={`${user.username} profile`}>
             {profileInitial}
           </div>
+        )}
+        {canEmail && (
+          <button className="profile-email-btn" onClick={openEmailComposer}>
+            Email
+          </button>
         )}
       </div>
 
