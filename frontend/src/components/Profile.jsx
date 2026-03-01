@@ -3,7 +3,7 @@ import { getUserItems, getLikedItems } from '../api';
 import Dashboard from './Dashboard';
 import './Profile.css';
 
-export default function Profile({ user, onUpload, viewer }) {
+export default function Profile({ user, viewer }) {
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
@@ -42,32 +42,13 @@ export default function Profile({ user, onUpload, viewer }) {
   }, [user, viewMode]);
 
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
+  const profileImageSrc = imageSrc(user.profileImageUrl || user.avatarUrl);
+  const profileInitial = (user.username || 'U').trim().charAt(0).toUpperCase();
 
-  const contactUrl = user.contactUrl || (user.email ? `mailto:${user.email}` : null);
   // Determine if the profile being viewed is the current logged-in user
   const viewerId = viewer ? (viewer.userId || viewer.id) : null;
   const profileId = user ? (user.userId || user.id) : null;
   const isOwn = !viewerId || viewerId === profileId;
-
-  const renderContactButton = () => {
-    if (!contactUrl) return null;
-    let label = 'Contact';
-    if (contactUrl.startsWith('mailto:')) {
-      label = 'Email';
-    } else if (contactUrl.includes('instagram.com')) {
-      label = 'Instagram';
-    } else if (contactUrl.includes('facebook.com')) {
-      label = 'Facebook';
-    } else if (contactUrl.startsWith('tel:')) {
-      label = 'Call';
-    }
-
-    return (
-      <a href={contactUrl} className="contact-btn" target="_blank" rel="noreferrer">
-        {label}
-      </a>
-    );
-  };
 
   // Impact data is shown in the embedded Dashboard modal; no local impact state here.
 
@@ -75,12 +56,17 @@ export default function Profile({ user, onUpload, viewer }) {
     <div className="profile-page">
       <div className="profile-header">
         <h2>{user.username}</h2>
-        {renderContactButton()}
+        {profileImageSrc ? (
+          <img className="profile-avatar" src={profileImageSrc} alt={`${user.username} profile`} />
+        ) : (
+          <div className="profile-avatar profile-avatar-fallback" aria-label={`${user.username} profile`}>
+            {profileInitial}
+          </div>
+        )}
       </div>
 
       {isOwn && (
         <div className="profile-actions">
-          <button className="upload-btn" onClick={onUpload}>Upload Item</button>
           <div className="profile-tabs">
             <button
               className={`tab ${viewMode === 'listings' ? 'active' : ''}`}
@@ -121,7 +107,7 @@ export default function Profile({ user, onUpload, viewer }) {
         ) : items.length === 0 ? (
           <p>No items listed yet.</p>
         ) : (
-          <div className={`item-list ${viewMode === 'listings' ? 'gallery' : ''}`}>
+          <div className="item-list gallery">
             {items.map(i => (
               <div key={i.id} className="item-card">
                 {imageSrc(i.imageUrl) ? (

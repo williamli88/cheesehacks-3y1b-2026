@@ -17,46 +17,29 @@
   font-weight: 700;
 }
 
-.contact-btn {
-  display: inline-block;
-  margin-top: 9px;
-  margin-right: 6px;
-  padding: 7px 14px;
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
-  color: var(--text-inverse);
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 0.84rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform 0.2s ease;
+.profile-avatar {
+  width: 86px;
+  height: 86px;
+  margin: 10px auto 0;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.contact-btn:hover {
-  transform: translateY(-1px);
+.profile-avatar-fallback {
+  background: var(--surface-muted);
+  color: var(--text-surface);
+  font-size: 1.45rem;
+  font-weight: 700;
 }
 
 .profile-actions {
   text-align: center;
   margin-bottom: 18px;
-}
-
-.upload-btn {
-  padding: 10px 20px;
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
-  margin-left: 20px;           /* move right */
-  margin-right: 10px;
-  color: var(--text-inverse);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: transform 0.2s ease;
-}
-
-.upload-btn:hover {
-  transform: translateY(-1px);
 }
 
 .profile-tabs {
