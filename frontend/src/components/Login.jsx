@@ -32,7 +32,7 @@ export default function Login({ onLogin, onShowRegister }) {
   };
 
   return (
-    <div className="login-screen">
+    <div className="login-screen login-sequenced">
       <div className="login-hero">
         <div className="login-icon">✦</div>
         <h1>STYLR</h1>
