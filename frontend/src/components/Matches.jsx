@@ -31,7 +31,7 @@ export default function Matches({ user, openProfile }) {
   return (
   <div className="matches-page">
       <div className="matches-header">
-        <h2>Your Matches 💚</h2>
+        <h2>Your Matches 💙</h2>
         <span className="match-count">{matches.length}</span>
       </div>
 
