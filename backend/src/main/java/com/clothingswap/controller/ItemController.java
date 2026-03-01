@@ -64,14 +64,16 @@ public class ItemController {
             return ResponseEntity.status(404).body("Item not found");
         }
 
+        ClothingItem item = existingOpt.get();
         swipeRepo.deleteByItemIdTo(itemId);
-        itemRepo.deleteById(itemId);
+        item.setActive(false);
+        itemRepo.save(item);
         return ResponseEntity.ok("Item deleted");
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> listUserItems(@PathVariable Long userId) {
-        List<ClothingItem> items = itemRepo.findByUserId(userId);
+        List<ClothingItem> items = itemRepo.findByUserIdAndActiveTrue(userId);
         return ResponseEntity.ok(items);
     }
 
@@ -79,7 +81,9 @@ public class ItemController {
     public ResponseEntity<?> listLikedItems(@PathVariable Long userId) {
         List<SwipeLedger> rights = swipeRepo.findByUserIdFromAndAction(userId, "RIGHT");
         List<Long> itemIds = rights.stream().map(SwipeLedger::getItemIdTo).toList();
-        List<ClothingItem> items = itemRepo.findAllById(itemIds);
+        List<ClothingItem> items = itemRepo.findAllById(itemIds).stream()
+                .filter(ClothingItem::isActive)
+                .toList();
         return ResponseEntity.ok(items);
     }
 }

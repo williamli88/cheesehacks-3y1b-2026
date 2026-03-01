@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ClothingItemRepository extends JpaRepository<ClothingItem, Long> {
     List<ClothingItem> findByUserId(Long userId);
+    List<ClothingItem> findByUserIdAndActiveTrue(Long userId);
     List<ClothingItem> findByCampusAndUserIdNot(String campus, Long userId);
 }

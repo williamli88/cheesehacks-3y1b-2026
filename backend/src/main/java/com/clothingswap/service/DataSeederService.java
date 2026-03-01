@@ -17,8 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,14 +77,14 @@ public class DataSeederService {
         boolean hasExistingUsers = userRepo.count() > 0;
         Random userRng = new Random(42);
         Random itemRng = new Random(2026);
-        int deactivated = deactivateItemsOutsideDemoBank();
-        if (deactivated > 0) {
-            log.info("Deactivated {} item(s) outside the demo item bank.", deactivated);
-        }
 
         if (hasExistingUsers) {
             List<User> demos = ensureDemoUsers();
             backfillMissingPhoneNumbers();
+            int deactivatedLegacy = deactivateLegacyRandomDemoItems(demos);
+            if (deactivatedLegacy > 0) {
+                log.info("Deactivated {} legacy random demo item(s).", deactivatedLegacy);
+            }
             int deactivatedDuplicates = deactivateDuplicateDemoItemsWithinCampus(demos);
             if (deactivatedDuplicates > 0) {
                 log.info("Deactivated {} duplicate demo item(s) within same-campus accounts.", deactivatedDuplicates);
@@ -221,13 +221,20 @@ public class DataSeederService {
         return created;
     }
 
-    private int deactivateItemsOutsideDemoBank() {
+    private int deactivateLegacyRandomDemoItems(List<User> demos) {
+        Set<Long> demoUserIds = demos.stream()
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
         int updated = 0;
         for (ClothingItem item : itemRepo.findAll()) {
-            if (isDemoBankItem(item)) {
+            if (!item.isActive()) {
                 continue;
             }
-            if (!item.isActive()) {
+            if (!demoUserIds.contains(item.getUserId())) {
+                continue;
+            }
+            if (!isLegacyRandomGeneratorImage(item.getImageUrl())) {
                 continue;
             }
             item.setActive(false);
@@ -235,6 +242,24 @@ public class DataSeederService {
             updated++;
         }
         return updated;
+    }
+
+    private boolean isLegacyRandomGeneratorImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return false;
+        }
+
+        String normalized = imageUrl.trim();
+        for (String legacyUrl : DEMO_IMAGE_URLS) {
+            if (normalized.equals(legacyUrl)) {
+                return true;
+            }
+            String base = legacyUrl.split("\\?")[0];
+            if (normalized.startsWith(base)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private DemoItemPool createDemoItemPool(Random rng) {
