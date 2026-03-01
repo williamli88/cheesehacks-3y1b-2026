@@ -34,7 +34,7 @@ export default function Login({ onLogin, onShowRegister }) {
   return (
     <div className="login-screen">
       <div className="login-hero">
-        <div className="login-icon"></div>
+        <div className="login-icon">✦</div>
         <h1>STYLR</h1>
         <p>Campus Clothing Exchange</p>
       </div>
@@ -81,7 +81,7 @@ export default function Login({ onLogin, onShowRegister }) {
       )}
       
       <div className="register-cta">
-        <p style={{ textAlign: 'center', marginTop: 14 }}>New here?</p>
+        <p>New here?</p>
         <button className="register-btn" onClick={onShowRegister}>Create an account</button>
       </div>
     </div>

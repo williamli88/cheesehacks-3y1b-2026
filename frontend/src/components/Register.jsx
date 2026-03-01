@@ -66,16 +66,9 @@ export default function Register({ onRegister, onCancel }) {
         />
         
         {/* Dynamic Campus Display instead of a Select dropdown */}
-        <div style={{ 
-            padding: '12px', 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px', 
-            marginBottom: '15px',
-            border: isValidEdu ? '1px solid #27ae60' : '1px solid #ddd',
-            textAlign: 'center'
-        }}>
-            <span style={{ fontSize: '0.85rem', color: '#666' }}>Your Campus: </span>
-            <strong style={{ color: isValidEdu ? '#27ae60' : '#e74c3c' }}>
+        <div className={`campus-preview ${isValidEdu ? 'valid' : 'invalid'}`}>
+            <span className="campus-label">Your Campus: </span>
+            <strong className="campus-value">
                 {derivedCampus}
             </strong>
         </div>
@@ -86,7 +79,7 @@ export default function Register({ onRegister, onCancel }) {
           {loading ? 'Creating...' : 'Create Account'}
         </button>
 
-        <button type="button" onClick={onCancel} style={{ marginTop: 8, background: 'transparent', color: '#27ae60', border: 'none', cursor: 'pointer' }}>
+        <button type="button" className="link-btn" onClick={onCancel}>
           Back to Sign In
         </button>
       </form>

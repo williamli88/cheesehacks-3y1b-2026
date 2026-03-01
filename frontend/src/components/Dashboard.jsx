@@ -71,7 +71,7 @@ export default function Dashboard({ user }) {
             <AnimatedNumber value={co2} decimals={1} /> <span className="unit">kg CO₂</span>
           </div>
           <div className="impact-card-label">Carbon saved</div>
-          <StatBar value={co2} max={50} color="#2ecc71" />
+          <StatBar value={co2} max={50} color="#102a5c" />
           <div className="impact-equiv">
             ≈ <strong>{trees.toFixed(1)}</strong> trees planted for a year
           </div>
@@ -83,7 +83,7 @@ export default function Dashboard({ user }) {
             <AnimatedNumber value={water} decimals={0} /> <span className="unit">L</span>
           </div>
           <div className="impact-card-label">Water saved</div>
-          <StatBar value={water} max={10000} color="#3498db" />
+          <StatBar value={water} max={10000} color="#1c4388" />
           <div className="impact-equiv">
             ≈ <strong>{showers.toFixed(0)}</strong> showers saved
           </div>
@@ -95,7 +95,7 @@ export default function Dashboard({ user }) {
             <AnimatedNumber value={miles} decimals={1} /> <span className="unit">mi</span>
           </div>
           <div className="impact-card-label">Driving avoided</div>
-          <StatBar value={miles} max={500} color="#e67e22" />
+          <StatBar value={miles} max={500} color="#445a84" />
           <div className="impact-equiv">
             That's <strong>{miles.toFixed(0)}</strong> miles not driven
           </div>

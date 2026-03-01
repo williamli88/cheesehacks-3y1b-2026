@@ -1,46 +1,137 @@
 .settings-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.52);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 70px;
   z-index: 60;
+  animation: fadeIn 0.2s ease;
 }
 
 .settings-panel {
   width: 92%;
   max-width: 360px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  background: var(--surface-strong);
+  border-radius: 14px;
+  box-shadow: var(--shadow-strong);
+  border: 1px solid var(--border-color);
   padding: 14px;
-  color: #111;
+  color: var(--text-surface);
+  animation: fade-up 0.24s ease;
 }
 
-.settings-header { display:flex; align-items:center; justify-content:space-between; }
-.settings-header h3 { margin: 0; font-size: 1.1rem; }
-.close-btn { background:none; border:none; font-size:1.1rem; cursor:pointer; }
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-.settings-section { margin-top: 12px; display:flex; flex-direction:column; gap:6px; }
-.settings-section label { font-size:0.8rem; color:#666; }
-.settings-section input { padding:8px 10px; border-radius:8px; border:1px solid #e8e8e8; }
+.settings-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
 
-.theme-row { align-items:center; flex-direction:row; justify-content:space-between; }
-.theme-toggle { border:1px solid #ddd; background:transparent; padding:6px 10px; border-radius:8px; cursor:pointer; }
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
 
-.settings-actions { display:flex; gap:8px; margin-top:14px; }
-.save-btn { flex:1; background:#2ecc71; color:#fff; padding:8px 10px; border-radius:8px; border:none; cursor:pointer; }
-.cancel-btn { flex:1; background:#f2f2f2; color:#111; padding:8px 10px; border-radius:8px; border:none; cursor:pointer; }
-.signout-btn { flex:1; background:#eee; color:#111; padding:8px 10px; border-radius:8px; border:none; cursor:pointer; }
+.settings-section {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-.save-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.settings-section label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
 
-.settings-note { margin-top:10px; font-size:0.75rem; color:#888; }
+.settings-section input {
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-surface);
+}
 
-/* Dark mode overrides */
-.dark-mode .settings-panel { background: #0b1220; color: #e6eef8; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-.dark-mode .settings-section input { background:#081020; border:1px solid #1f2a3a; color:#e6eef8; }
-.dark-mode .save-btn { background:#2ecc71; }
-.dark-mode .signout-btn { background:#14202a; color:#e6eef8; }
+.settings-section input:disabled {
+  opacity: 0.8;
+}
+
+.theme-row {
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.theme-toggle {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-surface);
+  padding: 6px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-muted);
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.settings-actions button {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.settings-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.save-btn {
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  border-color: transparent;
+  color: var(--text-inverse);
+}
+
+.cancel-btn,
+.signout-btn {
+  background: var(--surface-muted);
+  color: var(--text-surface);
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.settings-note {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

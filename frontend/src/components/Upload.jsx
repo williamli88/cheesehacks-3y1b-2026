@@ -86,7 +86,11 @@ export default function Upload({ user }) {
 
         <button type="submit">Upload</button>
       </form>
-      <div className="upload-status">{status}</div>
+      <div
+        className={`upload-status ${status === 'Uploaded' ? 'success' : ''} ${status === 'Upload failed' ? 'error' : ''}`}
+      >
+        {status}
+      </div>
     </div>
   );
 }

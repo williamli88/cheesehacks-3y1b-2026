@@ -1,8 +1,8 @@
 .dashboard-page {
-  padding: 16px;
+  padding: 12px 2px 2px;
   height: 100%;
   overflow-y: auto;
-  background: #fafafa;
+  background: transparent;
 }
 
 .dash-loading {
@@ -12,122 +12,115 @@
   justify-content: center;
   height: 60vh;
   gap: 10px;
-  color: #888;
+  color: var(--text-muted);
+  text-align: center;
 }
 
 .dash-hero {
   text-align: center;
-  padding: 20px 0 16px;
+  padding: 14px 0 14px;
 }
 
 .dash-hero-icon {
-  font-size: 2.5rem;
+  font-size: 2.3rem;
   margin-bottom: 6px;
 }
 
 .dash-hero h2 {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #1a1a1a;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-surface);
 }
 
 .dash-hero p {
-  color: #888;
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.84rem;
   margin-top: 4px;
 }
 
 .impact-cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 11px;
+  margin-bottom: 14px;
 }
 
 .impact-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f0;
+  background: var(--surface-strong);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-color);
+  animation: fade-up 0.32s ease;
 }
 
 .impact-card-icon {
-  font-size: 1.5rem;
+  font-size: 1.42rem;
   margin-bottom: 6px;
 }
 
 .impact-card-value {
-  font-size: 2rem;
+  font-size: 1.88rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: var(--text-surface);
   line-height: 1.1;
 }
 
 .impact-card-value .unit {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #888;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .impact-card-label {
   font-size: 0.8rem;
-  color: #888;
-  margin-bottom: 10px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
 }
 
 .stat-bar-bg {
   height: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
+  background: var(--surface-muted);
+  border-radius: 5px;
   overflow: hidden;
   margin-bottom: 8px;
 }
 
 .stat-bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 5px;
   transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .impact-equiv {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 0.79rem;
+  color: var(--text-muted);
 }
 
 .dash-cta {
   text-align: center;
-  padding: 16px;
-  background: linear-gradient(135deg, #e8f8f0, #fff);
+  padding: 14px;
+  background: var(--surface-strong);
   border-radius: 14px;
-  border: 1px dashed #2ecc71;
+  border: 1px dashed var(--border-strong);
   margin-bottom: 12px;
 }
 
 .dash-cta p {
-  color: #27ae60;
-  font-size: 0.9rem;
+  color: var(--text-surface);
+  font-size: 0.88rem;
 }
 
 .dash-summary {
   text-align: center;
-  padding: 14px;
-  background: linear-gradient(135deg, #fff9e8, #fff);
+  padding: 13px;
+  background: var(--surface-strong);
   border-radius: 14px;
-  border: 1px solid #f0e0a0;
+  border: 1px solid var(--border-color);
 }
 
 .dash-summary p {
-  color: #555;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  color: var(--text-surface);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
-
-/* Dark mode overrides */
-.dark-mode .dashboard-page { background: var(--surface); }
-.dark-mode .dash-loading, .dark-mode .dash-hero p, .dark-mode .impact-card-label, .dark-mode .impact-equiv { color: #9fb3c8; }
-.dark-mode .dash-hero h2, .dark-mode .impact-card-value { color: #e6eef8; }
-.dark-mode .impact-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 2px 12px rgba(0,0,0,0.6); }
-.dark-mode .stat-bar-bg { background: rgba(255,255,255,0.03); }
-.dark-mode .dash-cta { background: linear-gradient(135deg, rgba(10,30,20,0.4), rgba(8,12,20,0.3)); border: 1px dashed rgba(46,204,113,0.18); }
-.dark-mode .dash-summary { background: linear-gradient(135deg, rgba(16,12,8,0.25), rgba(8,12,20,0.3)); border: 1px solid rgba(240,224,160,0.06); }

@@ -8,7 +8,7 @@ const CATEGORY_ICONS = {
   SHOES: '👟', SWEATER: '🧶', SKIRT: '👗', SHORTS: '🩳'
 };
 
-const CONDITION_COLORS = { NEW: '#2ecc71', GOOD: '#f39c12', FAIR: '#e74c3c' };
+const CONDITION_COLORS = { NEW: '#102a5c', GOOD: '#1c4388', FAIR: '#45567a' };
 
 export default function SwipeCard({ user, onMatch }) {
   const [items, setItems] = useState([]);

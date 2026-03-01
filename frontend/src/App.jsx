@@ -41,10 +41,12 @@ export default function App() {
       </header>
 
       <main className="app-main">
-  {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
-    {page === 'matches' && <Matches user={user} openProfile={(u) => { setProfileUser(u); setPage('profile'); }} />}
-  {page === 'profile' && <Profile user={profileUser || user} viewer={user} onUpload={() => setPage('upload')} />}
-  {page === 'upload' && <Upload user={user} />}
+        <div className="page-shell" key={page}>
+          {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
+          {page === 'matches' && <Matches user={user} openProfile={(u) => { setProfileUser(u); setPage('profile'); }} />}
+          {page === 'profile' && <Profile user={profileUser || user} viewer={user} onUpload={() => setPage('upload')} />}
+          {page === 'upload' && <Upload user={user} />}
+        </div>
       </main>
 
       <nav className="app-nav">

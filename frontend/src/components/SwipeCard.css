@@ -4,37 +4,43 @@
   flex-direction: column;
   align-items: center;
   padding: 12px 12px 0;
-  background: #fafafa;
+  background:
+    radial-gradient(circle at 90% 5%, rgba(19, 53, 114, 0.12), transparent 40%),
+    transparent;
 }
 
-.swipe-loading, .swipe-empty {
+.swipe-loading,
+.swipe-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
   gap: 12px;
-  color: #666;
+  color: var(--text-muted);
+  text-align: center;
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e8e8e8;
-  border-top-color: #2ecc71;
+  border: 3px solid var(--surface-muted);
+  border-top-color: var(--accent-strong);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .card-stack {
   position: relative;
   width: 100%;
   flex: 1;
-  max-height: 460px;
+  max-height: 470px;
 }
 
 .card {
@@ -43,23 +49,27 @@
   height: 100%;
   border-radius: 18px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-  transition: transform 0.15s ease;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease;
   cursor: grab;
   user-select: none;
 }
 
-.card:active { cursor: grabbing; }
+.card:active {
+  cursor: grabbing;
+}
 
 .card-behind {
-  transform: scale(0.95) translateY(8px);
-  opacity: 0.7;
+  transform: scale(0.95) translateY(10px);
+  opacity: 0.75;
   z-index: 1;
 }
 
 .card-front {
   z-index: 2;
+  animation: fade-up 0.35s ease;
 }
 
 .card.swiping-right {
@@ -74,7 +84,7 @@
 
 .card-image-wrap {
   position: relative;
-  height: 65%;
+  height: 64%;
   overflow: hidden;
 }
 
@@ -83,21 +93,28 @@
   height: 100%;
   object-fit: cover;
   pointer-events: none;
+  transition: transform 0.6s ease;
+}
+
+.card-front:hover .card-image-wrap img {
+  transform: scale(1.04);
 }
 
 .card-condition {
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  color: white;
-  font-size: 0.7rem;
+  padding: 4px 11px;
+  border-radius: 999px;
+  color: var(--text-inverse);
+  font-size: 0.68rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .card-info {
   padding: 12px 14px;
+  color: var(--text-surface);
 }
 
 .card-header-row {
@@ -105,26 +122,27 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 4px;
+  gap: 8px;
 }
 
 .card-header-row h2 {
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
-  color: #1a1a1a;
 }
 
 .card-size {
-  background: #f0f0f0;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
   padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: #555;
+  color: var(--text-muted);
 }
 
 .card-desc {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 0.79rem;
+  color: var(--text-muted);
   margin-bottom: 8px;
   line-height: 1.4;
 }
@@ -132,24 +150,25 @@
 .card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 5px;
 }
 
 .tag {
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
 }
 
 .tag-color {
-  background: #e8f8f0;
-  color: #27ae60;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .tag-style {
-  background: #eef3ff;
-  color: #3498db;
+  background: var(--surface-muted);
+  color: var(--text-muted);
 }
 
 .swipe-actions {
@@ -160,107 +179,131 @@
   padding: 14px 0 8px;
 }
 
-.btn-nope, .btn-like {
+.btn-nope,
+.btn-like {
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  border: none;
-  font-size: 1.5rem;
+  border: 1px solid var(--border-color);
+  font-size: 1.45rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  transition: transform 0.15s;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.btn-nope:active, .btn-like:active {
-  transform: scale(0.9);
+.btn-nope:hover,
+.btn-like:hover {
+  transform: translateY(-2px);
+}
+
+.btn-nope:active,
+.btn-like:active {
+  transform: scale(0.92);
 }
 
 .btn-nope {
-  background: #fff;
-  color: #e74c3c;
-  border: 2px solid #f0f0f0;
+  background: var(--surface-strong);
+  color: var(--text-surface);
 }
 
 .btn-like {
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
-  color: white;
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  color: var(--text-inverse);
+  border-color: transparent;
 }
 
-.swipe-hint {
-  color: #bbb;
+.swipe-hint,
+.swipe-counter {
+  color: var(--text-muted);
   text-align: center;
 }
 
 .swipe-counter {
-  font-size: 0.75rem;
-  color: #bbb;
+  font-size: 0.74rem;
   margin-bottom: 8px;
 }
 
-/* Match overlay */
 .match-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.72);
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.26s ease;
 }
 
 .match-popup {
-  background: linear-gradient(160deg, #e8f8f0, #fff);
+  background: linear-gradient(160deg, var(--surface-strong), var(--surface));
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-strong);
   border-radius: 24px;
-  padding: 32px 24px;
+  padding: 30px 22px;
   text-align: center;
   max-width: 320px;
   width: 90%;
-  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: popIn 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.match-emoji { font-size: 3rem; margin-bottom: 8px; }
-.match-popup h2 { font-size: 1.6rem; color: #1a1a1a; margin-bottom: 8px; }
-.match-popup p { color: #666; font-size: 0.9rem; margin-bottom: 12px; }
-.match-item-name { font-weight: 700; color: #27ae60; margin-bottom: 16px; }
+.match-emoji {
+  font-size: 2.8rem;
+  margin-bottom: 8px;
+}
+
+.match-popup h2 {
+  font-size: 1.55rem;
+  color: var(--text-surface);
+  margin-bottom: 8px;
+}
+
+.match-popup p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.match-item-name {
+  font-weight: 700;
+  color: var(--accent-strong);
+  margin-bottom: 16px;
+}
 
 .match-btn {
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
-  color: white;
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  color: var(--text-inverse);
   border: none;
-  padding: 12px 24px;
+  padding: 11px 22px;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.match-btn:hover {
+  transform: translateY(-1px);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes popIn {
-  from { transform: scale(0.5); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.76);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-
-/* Dark mode overrides */
-.dark-mode .swipe-container { background: var(--surface); }
-.dark-mode .swipe-loading, .dark-mode .swipe-empty { color: #9fb3c8; }
-.dark-mode .spinner { border: 3px solid rgba(255,255,255,0.06); border-top-color: #2ecc71; }
-.dark-mode .card { background: var(--surface); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-.dark-mode .card-header-row h2 { color: #e6eef8; }
-.dark-mode .card-size { background: rgba(255,255,255,0.04); color: #cfe6ff; }
-.dark-mode .card-desc { color: #b8c9d6; }
-.dark-mode .tag-color { background: rgba(46,204,113,0.08); color: #2ecc71; }
-.dark-mode .tag-style { background: rgba(52,152,219,0.06); color: #7fb6ff; }
-.dark-mode .btn-nope { background: rgba(255,255,255,0.02); border: 2px solid rgba(255,255,255,0.04); color: #ff9990; }
-.dark-mode .btn-like { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
-.dark-mode .match-overlay { background: rgba(0,0,0,0.75); }
-.dark-mode .match-popup { background: linear-gradient(160deg, rgba(10,20,30,0.6), rgba(8,12,20,0.8)); }
-.dark-mode .match-popup h2, .dark-mode .match-popup p { color: #e6eef8; }
-.dark-mode .match-item-name { color: #8de6a5; }
