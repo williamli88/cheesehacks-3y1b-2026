@@ -27,6 +27,15 @@ export default function Matches({ user, openProfile }) {
   }, [user.userId]);
 
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
+  const ownImage = (match) => imageSrc(
+    match?.ownItem?.imageUrl
+    || match?.ownItem?.image_url
+    || match?.ownImageUrl
+  );
+  const matchedImage = (match) => imageSrc(
+    match?.matchedItem?.imageUrl
+    || match?.matchedItem?.image_url
+  );
 
   if (loading) {
     return <div className="matches-loading"><div className="spinner" />Loading matches...</div>;
@@ -51,7 +60,7 @@ export default function Matches({ user, openProfile }) {
             <p>
               You confirmed a trade with <strong>{tradeSummary.username}</strong>.
             </p>
-            <p className="trade-summary-item">{tradeSummary.itemTitle}</p>
+            <p className="trade-summary-item">{tradeSummary.ownItemTitle} ↔ {tradeSummary.matchedItemTitle}</p>
             <p className="trade-summary-stats-title">You saved:</p>
             <div className="trade-summary-stats">
               <div className="trade-stat">
@@ -88,15 +97,31 @@ export default function Matches({ user, openProfile }) {
       ) : (
         <div className="matches-list">
           {matches.map((match, i) => (
-            <div key={match.id || i} className="match-card">
-              {imageSrc(match?.matchedItem?.imageUrl) ? (
-                <img src={imageSrc(match.matchedItem.imageUrl)} alt={match.matchedItem.title} />
-              ) : (
-                <div className="match-image-placeholder">No image</div>
-              )}
+            <div key={match.id || `${match?.ownItem?.id || 'x'}-${match?.matchedItem?.id || i}`} className="match-card">
+              <div className="match-items">
+                <div className="match-item-pane">
+                  <div className="match-item-label">Your item</div>
+                  {ownImage(match) ? (
+                    <img src={ownImage(match)} alt={match?.ownItem?.title || match?.ownItemTitle || 'Your item'} />
+                  ) : (
+                    <div className="match-image-placeholder">No image</div>
+                  )}
+                  <div className="match-item-title">{match?.ownItem?.title || match?.ownItemTitle || 'Your item'}</div>
+                </div>
+                <div className="match-pair-divider">↔</div>
+                <div className="match-item-pane">
+                  <div className="match-item-label">Their item</div>
+                  {matchedImage(match) ? (
+                    <img src={matchedImage(match)} alt={match?.matchedItem?.title || 'Matched item'} />
+                  ) : (
+                    <div className="match-image-placeholder">No image</div>
+                  )}
+                  <div className="match-item-title">{match?.matchedItem?.title || 'Matched item'}</div>
+                </div>
+              </div>
               <div className="match-card-info">
-                <h3>{match.matchedItem.title}</h3>
-                <p>Size {match.matchedItem.size} · {match.matchedItem.condition}</p>
+                <h3>{match?.ownItem?.title || 'Your item'} ↔ {match?.matchedItem?.title || 'Matched item'}</h3>
+                <p>You: {match?.ownItem?.size || '-'} · {match?.ownItem?.condition || '-'} | Them: {match?.matchedItem?.size || '-'} · {match?.matchedItem?.condition || '-'}</p>
                 <p className="match-with">Matched with <strong>{match.matchedWithUsername || 'User'}</strong></p>
                 <div className="match-tags">
                   {match.matchedItem.styleTags?.split(',').slice(0, 2).map((t, idx) => (
@@ -150,6 +175,7 @@ export default function Matches({ user, openProfile }) {
   // Handlers: placeholder implementations — replace with real API calls as needed
   async function confirmSwap(match, matchKey) {
     const itemId = match?.matchedItem?.id;
+    const ownItemId = match?.ownItem?.id || match?.ownItemId;
     if (!itemId) {
       console.error('Could not confirm swap: missing item id.');
       return;
@@ -157,29 +183,35 @@ export default function Matches({ user, openProfile }) {
 
     setConfirmingKey(matchKey);
     try {
-      const res = await confirmMatch(user.userId || user.id, itemId);
+      const res = await confirmMatch(user.userId || user.id, itemId, ownItemId);
       const data = res?.data || {};
       setTradeSummary({
         username: match.matchedWithUsername || 'User',
-        itemTitle: match?.matchedItem?.title || 'Trade item',
+        ownItemTitle: match?.ownItem?.title || 'Your item',
+        matchedItemTitle: match?.matchedItem?.title || 'Matched item',
         waterSaved: data.waterSaved,
         co2Saved: data.co2Saved,
         milesNotDriven: data.milesNotDriven
       });
-      // remove confirmed match locally
-      setMatches(prev => prev.filter(m => m !== match));
+      // Remove all pairs that include either traded item (both are now inactive).
+      setMatches(prev => prev.filter(m =>
+        m?.matchedItem?.id !== itemId && m?.ownItem?.id !== ownItemId
+      ));
     } catch (e) {
       if (e?.response?.status === 409) {
         const data = e?.response?.data || {};
         setTradeSummary({
           username: match.matchedWithUsername || 'User',
-          itemTitle: match?.matchedItem?.title || 'Trade item',
+          ownItemTitle: match?.ownItem?.title || 'Your item',
+          matchedItemTitle: match?.matchedItem?.title || 'Matched item',
           waterSaved: data.waterSaved,
           co2Saved: data.co2Saved,
           milesNotDriven: data.milesNotDriven
         });
-        // already confirmed on server; also drop locally
-        setMatches(prev => prev.filter(m => m !== match));
+        // already confirmed on server; also drop impacted pairs locally
+        setMatches(prev => prev.filter(m =>
+          m?.matchedItem?.id !== itemId && m?.ownItem?.id !== ownItemId
+        ));
       } else {
         console.error('Failed to confirm swap', e);
       }
@@ -199,7 +231,7 @@ export default function Matches({ user, openProfile }) {
     try {
       // Persist reject as a LEFT swipe so the match is removed server-side.
       await postSwipe(user.userId || user.id, itemId, 'LEFT');
-      setMatches(prev => prev.filter(m => m !== match));
+      setMatches(prev => prev.filter(m => m?.matchedItem?.id !== itemId));
     } catch (e) {
       console.error('Failed to reject swap', e);
     } finally {
