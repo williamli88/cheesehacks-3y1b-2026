@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getMatches } from '../api';
 import './Matches.css';
 
-export default function Matches({ user }) {
+export default function Matches({ user, openProfile }) {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -29,7 +29,7 @@ export default function Matches({ user }) {
   }
 
   return (
-    <div className="matches-page">
+  <div className="matches-page">
       <div className="matches-header">
         <h2>Your Matches 💚</h2>
         <span className="match-count">{matches.length}</span>
@@ -105,7 +105,11 @@ export default function Matches({ user }) {
   }
 
   function viewProfile(match) {
-    // Placeholder: navigate to a profile page or open a profile modal
-    alert(`Open profile for ${match.matchedWithUsername || 'User'}`);
+    // Ask parent to open profile view for the matched user.
+    if (openProfile) {
+      openProfile({ userId: match.matchedWithUserId, username: match.matchedWithUsername });
+    } else {
+      alert(`Open profile for ${match.matchedWithUsername || 'User'}`);
+    }
   }
 }

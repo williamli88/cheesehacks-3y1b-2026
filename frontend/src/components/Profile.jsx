@@ -3,7 +3,7 @@ import { getUserItems, getLikedItems } from '../api';
 import Dashboard from './Dashboard';
 import './Profile.css';
 
-export default function Profile({ user, onUpload }) {
+export default function Profile({ user, onUpload, viewer }) {
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
@@ -19,7 +19,10 @@ export default function Profile({ user, onUpload }) {
   }, [user, viewMode]);
 
   const contactUrl = user.contactUrl || (user.email ? `mailto:${user.email}` : null);
-  const isOwn = true; // only viewing own profile in this app
+  // Determine if the profile being viewed is the current logged-in user
+  const viewerId = viewer ? (viewer.userId || viewer.id) : null;
+  const profileId = user ? (user.userId || user.id) : null;
+  const isOwn = !viewerId || viewerId === profileId;
 
   const renderContactButton = () => {
     if (!contactUrl) return null;

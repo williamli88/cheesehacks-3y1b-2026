@@ -11,6 +11,7 @@ import './App.css';
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('swipe'); // swipe | matches | profile | upload
+  const [profileUser, setProfileUser] = useState(null); // when viewing someone else's profile
   const [authView, setAuthView] = useState('login'); // login | register
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -41,8 +42,8 @@ export default function App() {
 
       <main className="app-main">
   {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
-        {page === 'matches' && <Matches user={user} />}
-  {page === 'profile' && <Profile user={user} onUpload={() => setPage('upload')} />}
+    {page === 'matches' && <Matches user={user} openProfile={(u) => { setProfileUser(u); setPage('profile'); }} />}
+  {page === 'profile' && <Profile user={profileUser || user} viewer={user} onUpload={() => setPage('upload')} />}
   {page === 'upload' && <Upload user={user} />}
       </main>
 
@@ -53,7 +54,7 @@ export default function App() {
         <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
           <span>💚</span><small>Matches</small>
         </button>
-        <button className={page === 'profile' ? 'active' : ''} onClick={() => setPage('profile')}>
+        <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setPage('profile'); }}>
           <span>👤</span><small>Profile</small>
         </button>
       </nav>
