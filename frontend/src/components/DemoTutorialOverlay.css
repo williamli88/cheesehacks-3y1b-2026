@@ -15,7 +15,7 @@
   width: min(100%, 350px);
   border-radius: 18px;
   border: 1px solid var(--border-color);
-  background: linear-gradient(160deg, var(--surface-strong), var(--surface));
+  background: var(--surface-strong);
   box-shadow: var(--shadow-strong);
   padding: 14px 14px 12px;
   max-height: 250px;
@@ -103,7 +103,7 @@
   border: 1px solid transparent;
   border-radius: 12px;
   padding: 9px 12px;
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  background: var(--accent-strong);
   color: var(--text-inverse);
   font-size: 0.82rem;
   font-weight: 700;

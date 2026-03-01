@@ -29,6 +29,8 @@ public class ClothingItem {
     private String imageUrl;
     private String title;
     private String description;
+    @Transient
+    private Double matchScore;
 
     // NEW: Tracks if the item has been swapped
     @Column(columnDefinition = "boolean default true")
@@ -80,6 +82,9 @@ public class ClothingItem {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public Double getMatchScore() { return matchScore; }
+    public void setMatchScore(Double matchScore) { this.matchScore = matchScore; }
 
     // NEW: Getters and Setters for active
     public boolean isActive() { return active; }

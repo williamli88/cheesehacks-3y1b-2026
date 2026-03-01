@@ -214,6 +214,9 @@ export default function Register({ onRegister, onCancel }) {
 
   const derivedCampus = getCampusFromEmail(email);
   const isValidEdu = email.endsWith('.edu');
+  const normalizedLocalPhone = phoneNumber.replace(/\D/g, '');
+  const fullPhone = `${countryCode}${normalizedLocalPhone}`;
+  const isValidPhone = /^\+[1-9]\d{5,18}$/.test(fullPhone);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -221,8 +224,8 @@ export default function Register({ onRegister, onCancel }) {
       setError("You must use a valid .edu email address.");
       return;
     }
-    if (phoneNumber.length < 4 || phoneNumber.length > 15) {
-      setError('Phone number must be 4 to 15 digits.');
+    if (!isValidPhone) {
+      setError('Enter a valid phone number (country code + number).');
       return;
     }
 
@@ -231,7 +234,6 @@ export default function Register({ onRegister, onCancel }) {
     try {
       // We pass the derivedCampus just in case your api.js still expects a 4th argument,
       // but remember our backend AuthController now recalculates this securely anyway!
-      const fullPhone = `${countryCode}${phoneNumber}`;
       const res = await register(username, email, password, derivedCampus, fullPhone);
       onRegister(res.data);
     } catch (err) {
@@ -288,10 +290,10 @@ export default function Register({ onRegister, onCancel }) {
             type="tel"
             placeholder="Phone Number"
             inputMode="numeric"
-            pattern="\\d{4,15}"
             maxLength={15}
             value={phoneNumber}
             onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 15))}
+            autoComplete="tel-national"
             required
           />
         </div>

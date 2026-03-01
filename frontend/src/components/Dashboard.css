@@ -199,7 +199,7 @@
 }
 
 .milestone-badge.earned {
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  background: var(--accent-strong);
   color: var(--text-inverse);
   border-color: transparent;
 }

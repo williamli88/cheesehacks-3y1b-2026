@@ -19,7 +19,7 @@
 }
 
 .match-count {
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  background: var(--accent-strong);
   color: var(--text-inverse);
   border-radius: 999px;
   padding: 3px 11px;
@@ -331,7 +331,7 @@
   padding: 9px 14px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  background: var(--accent-strong);
   color: var(--text-inverse);
   cursor: pointer;
   font-weight: 700;
