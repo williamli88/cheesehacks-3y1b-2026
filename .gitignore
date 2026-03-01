@@ -3,6 +3,10 @@ backend/target/
 backend/*.db
 backend/*.db-shm
 backend/*.db-wal
+backend/*.sqlite
+*.sqlite
+backend.pid
+frontend.pid
 
 # Frontend
 frontend/node_modules/

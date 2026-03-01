@@ -8,7 +8,7 @@ A mobile-responsive web application for campus-based AI clothing swapping. Built
 
 ```
 cheesehacks-3y1b-2026/
-├── backend/      # Spring Boot + SQLite REST API
+├── backend/      # Spring Boot REST API (SQLite local, Postgres production)
 └── frontend/     # React + Vite mobile-responsive web app
 ```
 
@@ -49,6 +49,27 @@ java -jar target/clothing-swap-0.0.1-SNAPSHOT.jar
 The backend starts on **http://localhost:8080** and automatically seeds:
 - 20 fake campus users (password: `password123`)
 - 100 clothing items with randomized tags
+
+### 1b. Cloud Postgres (Production Profile)
+
+The app now supports a production Postgres profile with Flyway migrations.
+
+```bash
+cd backend
+export SPRING_DATASOURCE_URL='jdbc:postgresql://<host>:5432/<db>?sslmode=require'
+export SPRING_DATASOURCE_USERNAME='<username>'
+export SPRING_DATASOURCE_PASSWORD='<password>'
+mvn clean package -DskipTests
+java -jar target/clothing-swap-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+
+To migrate existing local data (`backend/swapu_db.sqlite`) into Postgres:
+
+```bash
+./backend/scripts/migrate-sqlite-to-postgres.sh "$SPRING_DATASOURCE_URL"
+```
+
+The migration script accepts either `jdbc:postgresql://...` or `postgresql://...` URLs and will use `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` if set.
 
 ### 2. Frontend
 
