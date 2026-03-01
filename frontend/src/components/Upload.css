@@ -288,3 +288,63 @@
 .upload-status.error {
   color: var(--accent-strong);
 }
+
+.upload-success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.56);
+}
+
+.upload-success-card {
+  width: min(92vw, 340px);
+  border-radius: 14px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-strong);
+  padding: 16px;
+  text-align: center;
+  animation: fade-scale 0.2s ease;
+}
+
+.upload-success-card h3 {
+  margin: 0;
+  color: var(--text-surface);
+}
+
+.upload-success-card p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.upload-success-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.upload-success-actions button {
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.upload-success-secondary {
+  border: 1px solid var(--border-color);
+  background: var(--surface-muted);
+  color: var(--text-surface);
+}
+
+.upload-success-primary {
+  border: 1px solid transparent;
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  color: var(--text-inverse);
+}
