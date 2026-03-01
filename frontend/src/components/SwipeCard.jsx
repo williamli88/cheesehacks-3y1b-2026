@@ -41,6 +41,24 @@ export default function SwipeCard({ user, onMatch }) {
         setMatchNotif(item);
         onMatch && onMatch(item);
       }
+      // Persist a lightweight client-side cache for recently liked items so
+      // the Profile "Liked" tab can show the new like immediately without
+      // waiting for a full server refresh. We still rely on the server as
+      // the source-of-truth — this is just a UX improvement.
+      if (action === 'RIGHT') {
+        try {
+          const raw = localStorage.getItem('recentLiked') || '[]';
+          const arr = JSON.parse(raw);
+          if (!arr.includes(item.id)) {
+            arr.unshift(item.id);
+            // keep small
+            localStorage.setItem('recentLiked', JSON.stringify(arr.slice(0, 50)));
+          }
+        } catch (e) {
+          // ignore localStorage issues
+          console.warn('Could not update recentLiked cache', e);
+        }
+      }
     } catch (e) {
       console.error(e);
     }
