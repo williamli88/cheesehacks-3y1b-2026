@@ -24,9 +24,15 @@ html, body, #root {
 :root {
   --page-bg: #f0f0f0;
   --surface: #ffffff;
+  --text-surface: #1a1a1a;
+  --muted: #888;
+  --card-border: #f0f0f0;
 }
 
 .dark-mode {
   --page-bg: #071018;
   --surface: #071626;
+  --text-surface: #e6eef8;
+  --muted: #9fb3c8;
+  --card-border: rgba(255,255,255,0.04);
 }
