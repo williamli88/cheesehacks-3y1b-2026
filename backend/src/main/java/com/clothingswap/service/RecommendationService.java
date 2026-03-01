@@ -23,7 +23,7 @@ public class RecommendationService {
     public List<ClothingItem> getRankedFeed(Long userId, String campus, String size) {
         List<ClothingItem> allItems = itemRepo.findByCampusAndUserIdNot(campus, userId);
 
-        Set<Long> swipedItemIds = swipeRepo.findByUserIdFromAndAction(userId, "RIGHT").stream()
+        Set<Long> swipedItemIds = swipeRepo.findByUserIdFrom(userId).stream()
         .map(SwipeLedger::getItemIdTo)
         .collect(Collectors.toSet());
 

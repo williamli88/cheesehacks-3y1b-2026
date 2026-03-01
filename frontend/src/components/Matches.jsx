@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMatches, confirmMatch } from '../api';
+import { getMatches, confirmMatch, postSwipe } from '../api';
 import './Matches.css';
 
 export default function Matches({ user, openProfile }) {
@@ -8,6 +8,7 @@ export default function Matches({ user, openProfile }) {
   const [error, setError] = useState(false);
   const [openMenuFor, setOpenMenuFor] = useState(null); // match id that has menu open
   const [confirmingKey, setConfirmingKey] = useState(null);
+  const [rejectingKey, setRejectingKey] = useState(null);
 
   useEffect(() => {
     getMatches(user.userId)
@@ -83,7 +84,11 @@ export default function Matches({ user, openProfile }) {
                     >
                       ✅ Confirm swap
                     </button>
-                    <button className="match-menu-item danger" onClick={() => { rejectSwap(match); setOpenMenuFor(null); }}>
+                    <button
+                      className="match-menu-item danger"
+                      disabled={rejectingKey === (match.id || i)}
+                      onClick={() => { rejectSwap(match, match.id || i); setOpenMenuFor(null); }}
+                    >
                       ✖️ Reject swap
                     </button>
                     <button className="match-menu-item" onClick={() => { viewProfile(match); setOpenMenuFor(null); }}>
@@ -127,9 +132,23 @@ export default function Matches({ user, openProfile }) {
     }
   }
 
-  function rejectSwap(match) {
-    // For demo: remove the match locally
-    setMatches(prev => prev.filter(m => m !== match));
+  async function rejectSwap(match, matchKey) {
+    const itemId = match?.matchedItem?.id;
+    if (!itemId) {
+      console.error('Could not reject swap: missing item id.');
+      return;
+    }
+
+    setRejectingKey(matchKey);
+    try {
+      // Persist reject as a LEFT swipe so the match is removed server-side.
+      await postSwipe(user.userId || user.id, itemId, 'LEFT');
+      setMatches(prev => prev.filter(m => m !== match));
+    } catch (e) {
+      console.error('Failed to reject swap', e);
+    } finally {
+      setRejectingKey(null);
+    }
   }
 
   function viewProfile(match) {
