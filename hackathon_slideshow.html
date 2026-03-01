@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STYLR - Hackathon Pitch</title>
+  <style>
+    :root {
+      --bg: #f5f7f3;
+      --card: #ffffff;
+      --text: #17331f;
+      --muted: #4f6b58;
+      --accent: #2f6b3d;
+      --accent-2: #8bbf77;
+      --shadow: 0 16px 40px rgba(25, 51, 31, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .deck {
+      width: min(980px, 100%);
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(145deg, #f1f6ef, #ffffff 45%);
+      border: 2px solid #dde8d8;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 42px 52px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .slide.active { display: flex; }
+
+    .kicker {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    h1, h2 {
+      margin: 0;
+      line-height: 1.12;
+    }
+
+    h1 { font-size: clamp(42px, 5vw, 66px); }
+    h2 { font-size: clamp(30px, 4vw, 48px); }
+
+    p, li {
+      font-size: clamp(19px, 2.2vw, 30px);
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 24px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .badge {
+      align-self: flex-start;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .callout {
+      margin-top: auto;
+      background: var(--card);
+      border: 1px solid #d6e2d2;
+      border-left: 6px solid var(--accent);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: clamp(16px, 1.8vw, 22px);
+      color: #285136;
+      font-weight: 600;
+    }
+    .callout.tight {
+      font-size: clamp(14px, 1.5vw, 19px);
+      line-height: 1.25;
+      padding: 10px 12px;
+    }
+
+    .mock {
+      margin-top: 8px;
+      background: #fff;
+      border: 1px dashed #a8bea1;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: clamp(16px, 1.8vw, 22px);
+      color: #365a43;
+    }
+
+  </style>
+</head>
+<body>
+  <main class="deck" aria-live="polite">
+    <section class="slide active">
+      <div class="kicker">Cheesehacks 2026</div>
+      <h1>STYLR</h1>
+      <p>Campus clothing swaps with measurable sustainability impact.</p>
+      <div class="badge">Live Demo in 90 sec</div>
+      <div class="callout">If Tinder and Depop had a responsible child, this is it.</div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">The Problem</div>
+      <h2>Closets full. Wallets empty. Planet's dying.</h2>
+      <ul>
+        <li>Students want new fits without paying new-fit prices.</li>
+        <li>Reselling is slow, expensive, and unsustainable.</li>
+        <li>No one shows you the environmental win from each swap.</li>
+      </ul>
+      <div class="callout tight">Current strategy: "I guess I will just pay for shipping fees."</div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">How STYLR Works</div>
+      <h2>Swipe, Match, Trade, Impact.</h2>
+      <ul>
+        <li>List clothing in seconds.</li>
+        <li>Swipe through campus listings with a match %.</li>
+        <li>Mutual likes generate item-to-item matches.</li>
+        <li>Confirm trade and track CO2, water, driving saved.</li>
+      </ul>
+      <div class="callout">Yes, you can save the Earth in a better jacket.</div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Demo Time</div>
+      <h2>2-minute walkthrough</h2>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Technical Backbone</div>
+      <h2>Fast stack, clean flow</h2>
+      <ul>
+        <li>Frontend: React + Vite</li>
+        <li>Backend: Spring Boot REST API</li>
+        <li>Data: PostgreSQL cloud + Flyway migrations</li>
+        <li>Matching logic: mutual right-swipes</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Why It Wins</div>
+      <h2>Behavior change, but make it fun.</h2>
+      <ul>
+        <li>Rank system: seedling -> budding plant -> tree.</li>
+        <li>Milestone badges for carbon, water, and miles saved.</li>
+        <li>Campus-focused trust + direct contact options.</li>
+      </ul>
+      <div class="callout">Gamified sustainability: dopamine, but biodegradable.</div>
+    </section>
+
+    <section class="slide">
+      <div class="kicker">Closing</div>
+      <h2>STYLR makes swapping social, affordable, and measurable.</h2>
+      <p>We are ready for pilot testing on campus communities.</p>
+      <div class="badge">Questions?</div>
+      <div class="callout">Thank you. We accept feedback, applause, and sustainable fashion tips.</div>
+    </section>
+
+  </main>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    let index = 0;
+
+    function render() {
+      slides.forEach((s, i) => s.classList.toggle('active', i === index));
+    }
+
+    function next() {
+      if (index < slides.length - 1) {
+        index += 1;
+        render();
+      }
+    }
+
+    function prev() {
+      if (index > 0) {
+        index -= 1;
+        render();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    render();
+  </script>
+</body>
+</html>
