@@ -65,6 +65,45 @@
   opacity: 0.8;
 }
 
+.settings-field-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.settings-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-avatar-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  background: var(--surface-muted);
+  flex-shrink: 0;
+}
+
+.settings-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px;
+}
+
+.settings-avatar-row input[type="file"] {
+  flex: 1;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
 .theme-row {
   align-items: center;
   flex-direction: row;

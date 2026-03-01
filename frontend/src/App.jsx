@@ -34,6 +34,15 @@ function UserIcon() {
   );
 }
 
+function SettingsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.2 14.8a1 1 0 0 0 .2 1.1l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.8 1.8 0 1 1-3.6 0v-.2a1 1 0 0 0-.7-.9 1 1 0 0 0-1 .2l-.2.1a1.8 1.8 0 1 1-2.6-2.6l.1-.1a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a1.8 1.8 0 1 1 0-3.6h.2a1 1 0 0 0 .9-.7 1 1 0 0 0-.2-1l-.1-.2a1.8 1.8 0 1 1 2.6-2.6l.1.1a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a1.8 1.8 0 1 1 3.6 0v.2a1 1 0 0 0 .7.9 1 1 0 0 0 1-.2l.2-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a1.8 1.8 0 1 1 0 3.6h-.2a1 1 0 0 0-.9.7z" />
+    </svg>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('swipe'); // swipe | matches | profile | upload
@@ -63,7 +72,11 @@ export default function App() {
     <div className="app-container">
       <header className="app-header">
         <div className="header-center"><span className="logo">STYLR</span></div>
-        <div className="header-right"><button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings">⚙️</button></div>
+        <div className="header-right">
+          <button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings">
+            <span className="settings-btn-icon"><SettingsIcon /></span>
+          </button>
+        </div>
       </header>
 
       <main className="app-main">
@@ -96,6 +109,13 @@ export default function App() {
           {page === 'upload' && <Upload user={user} onBack={() => setPage('profile')} />}
         </div>
       </main>
+
+      {page === 'profile' && !profileUser && (
+        <button className="add-listing-fab" onClick={() => setPage('upload')} aria-label="Add Listing">
+          <span className="add-listing-fab-icon" aria-hidden="true">+</span>
+          <span>Add Listing</span>
+        </button>
+      )}
 
       <nav className="app-nav">
         <button className={page === 'swipe' ? 'active' : ''} onClick={() => setPage('swipe')}>
