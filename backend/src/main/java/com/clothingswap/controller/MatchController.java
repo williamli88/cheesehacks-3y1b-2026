@@ -22,4 +22,13 @@ public class MatchController {
         List<Map<String, Object>> matches = swipeService.getMatches(userId);
         return ResponseEntity.ok(matches);
     }
+
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmSwap(@RequestBody Map<String, Long> request) {
+        Long userId = request.get("userId");
+        Long itemId = request.get("itemId");
+        
+        swipeService.confirmSwap(userId, itemId);
+        return ResponseEntity.ok(Map.of("message", "Swap confirmed and impact recorded!"));
+    }
 }

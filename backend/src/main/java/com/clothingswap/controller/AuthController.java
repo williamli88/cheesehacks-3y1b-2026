@@ -39,8 +39,8 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("userId", user.getId());
         response.put("username", user.getUsername());
-+        response.put("email", user.getEmail());
-+        response.put("contactUrl", user.getContactUrl());
+        response.put("email", user.getEmail());
+        response.put("contactUrl", user.getContactUrl());
         response.put("campus", user.getCampus());
         response.put("token", "bearer-" + user.getId() + "-" + System.currentTimeMillis());
 
