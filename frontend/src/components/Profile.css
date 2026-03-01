@@ -183,22 +183,32 @@
 
 .impact-modal-content {
   background: var(--surface-strong);
-  padding: 16px;
+  padding: 14px;
   border-radius: 14px;
   border: 1px solid var(--border-color);
   max-width: 340px;
   width: 92%;
+  height: min(72vh, 560px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: var(--shadow-strong);
   animation: fade-scale 0.24s ease;
 }
 
 .impact-modal-content h4 {
   color: var(--text-surface);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+}
+
+.impact-dashboard-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .close-modal {
-  margin-top: 12px;
+  margin-top: 8px;
   padding: 7px 14px;
   background: var(--surface-muted);
   color: var(--text-surface);

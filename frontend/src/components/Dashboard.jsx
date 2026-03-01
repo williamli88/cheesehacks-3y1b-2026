@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getImpact } from '../api';
-import { getImpactRank } from '../impactRank';
+import { IMPACT_RANKS, getImpactRank } from '../impactRank';
 import './Dashboard.css';
 
 function AnimatedNumber({ value, decimals = 0, duration = 1500 }) {
@@ -54,6 +54,7 @@ export default function Dashboard({ user }) {
   const showers = impact.showersSaved || 0;
   const miles = impact.milesNotDriven || 0;
   const impactRank = getImpactRank(co2);
+  const nextRank = IMPACT_RANKS.find((rank) => rank.minCo2 > co2) || null;
   const carbonMilestones = [5, 15, 30, 50, 75, 100, 150, 200];
   const waterMilestones = [5000, 15000, 30000, 50000, 75000, 100000, 150000, 200000];
   const milesMilestones = [10, 40, 100, 200, 350, 500, 750, 1000];
@@ -66,6 +67,13 @@ export default function Dashboard({ user }) {
         <div className="dash-hero-icon">{impactRank.icon}</div>
         <h2>{impactRank.label}</h2>
         <p>{user.username} · {swaps} swap{swaps !== 1 ? 's' : ''} completed</p>
+        <div className="dash-next-rank">
+          {nextRank ? (
+            <span>Next Rank: {nextRank.icon} {nextRank.label}</span>
+          ) : (
+            <span>Next Rank: 🌳 Max Rank Achieved</span>
+          )}
+        </div>
       </div>
 
       <div className="impact-cards">

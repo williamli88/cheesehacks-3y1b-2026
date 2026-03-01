@@ -168,7 +168,9 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
         <div className="impact-modal" onClick={() => setShowImpact(false)}>
           <div className="impact-modal-content" onClick={e => e.stopPropagation()}>
             <h4>Your Impact</h4>
-            <Dashboard user={user} />
+            <div className="impact-dashboard-wrap">
+              <Dashboard user={user} />
+            </div>
             <button className="close-modal" onClick={() => setShowImpact(false)}>Close</button>
           </div>
         </div>

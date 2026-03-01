@@ -38,6 +38,13 @@
   margin-top: 4px;
 }
 
+.dash-next-rank {
+  margin-top: 6px;
+  color: var(--text-surface);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .impact-cards {
   display: flex;
   flex-direction: column;
