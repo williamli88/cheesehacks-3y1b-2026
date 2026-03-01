@@ -38,6 +38,41 @@
   font-weight: 700;
 }
 
+.profile-name-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: fit-content;
+  margin: 10px auto 0;
+}
+
+.profile-rank-icon {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  font-size: 1.2rem;
+}
+
+.profile-rank-label {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
 .profile-avatar {
   width: 86px;
   height: 86px;

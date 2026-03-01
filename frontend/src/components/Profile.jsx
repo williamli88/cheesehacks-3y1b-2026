@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getUserItems, getLikedItems } from '../api';
+import { getUserItems, getLikedItems, getImpact } from '../api';
+import { IMPACT_RANKS, getImpactRank } from '../impactRank';
 import Dashboard from './Dashboard';
 import './Profile.css';
 
@@ -8,11 +9,26 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
   const [viewMode, setViewMode] = useState('listings'); // 'listings' | 'liked'
+  const [impactRank, setImpactRank] = useState(IMPACT_RANKS[0]);
 
   // Determine if the profile being viewed is the current logged-in user
   const viewerId = viewer ? (viewer.userId || viewer.id) : null;
   const profileId = user ? (user.userId || user.id) : null;
   const isOwn = !viewerId || viewerId === profileId;
+
+  useEffect(() => {
+    const id = user?.userId || user?.id;
+    if (!id) {
+      setImpactRank(IMPACT_RANKS[0]);
+      return;
+    }
+    getImpact(id)
+      .then((res) => {
+        const co2 = Number(res?.data?.totalCo2Saved || 0);
+        setImpactRank(getImpactRank(co2));
+      })
+      .catch(() => setImpactRank(IMPACT_RANKS[0]));
+  }, [user]);
 
   useEffect(() => {
     if (!isOwn) {
@@ -94,14 +110,22 @@ export default function Profile({ user, viewer, profileSource, onBack }) {
             </button>
           </div>
         )}
-        <h2>{user.username}</h2>
-        {profileImageSrc ? (
-          <img className="profile-avatar" src={profileImageSrc} alt={`${user.username} profile`} />
-        ) : (
-          <div className="profile-avatar profile-avatar-fallback" aria-label={`${user.username} profile`}>
-            {profileInitial}
-          </div>
-        )}
+        <div className="profile-name-row">
+          <h2>{user.username}</h2>
+        </div>
+        <div className="profile-rank-label">{impactRank.label}</div>
+        <div className="profile-avatar-wrap">
+          {profileImageSrc ? (
+            <img className="profile-avatar" src={profileImageSrc} alt={`${user.username} profile`} />
+          ) : (
+            <div className="profile-avatar profile-avatar-fallback" aria-label={`${user.username} profile`}>
+              {profileInitial}
+            </div>
+          )}
+          <span className="profile-rank-icon" title={`Impact Rank: ${impactRank.label}`} aria-label={`Impact rank ${impactRank.label}`}>
+            {impactRank.icon}
+          </span>
+        </div>
         {!isOwn && (
           <div className="profile-contact">
             {canEmail && (
