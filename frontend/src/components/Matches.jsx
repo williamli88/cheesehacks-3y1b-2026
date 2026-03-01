@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMatches } from '../api';
+import { getMatches, confirmMatch } from '../api';
 import './Matches.css';
 
 export default function Matches({ user, openProfile }) {
@@ -7,6 +7,7 @@ export default function Matches({ user, openProfile }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [openMenuFor, setOpenMenuFor] = useState(null); // match id that has menu open
+  const [confirmingKey, setConfirmingKey] = useState(null);
 
   useEffect(() => {
     getMatches(user.userId)
@@ -69,7 +70,11 @@ export default function Matches({ user, openProfile }) {
               {openMenuFor === (match.id || i) && (
                 <div className="match-menu-wrapper">
                   <div className="match-menu">
-                    <button className="match-menu-item" onClick={() => { confirmSwap(match); setOpenMenuFor(null); }}>
+                    <button
+                      className="match-menu-item"
+                      disabled={confirmingKey === (match.id || i)}
+                      onClick={() => { confirmSwap(match, match.id || i); setOpenMenuFor(null); }}
+                    >
                       ✅ Confirm swap
                     </button>
                     <button className="match-menu-item danger" onClick={() => { rejectSwap(match); setOpenMenuFor(null); }}>
@@ -92,10 +97,29 @@ export default function Matches({ user, openProfile }) {
   );
 
   // Handlers: placeholder implementations — replace with real API calls as needed
-  function confirmSwap(match) {
-    // For now, mark as confirmed locally and show a simple alert
-    setMatches(prev => prev.map(m => (m === match ? { ...m, status: 'confirmed' } : m)));
-    alert(`Confirmed swap for "${match.matchedItem.title}"`);
+  async function confirmSwap(match, matchKey) {
+    const itemId = match?.matchedItem?.id;
+    if (!itemId) {
+      alert('Could not confirm swap: missing item id.');
+      return;
+    }
+
+    setConfirmingKey(matchKey);
+    try {
+      await confirmMatch(user.userId || user.id, itemId);
+      setMatches(prev => prev.map(m => (m === match ? { ...m, status: 'confirmed' } : m)));
+      alert(`Confirmed swap for "${match.matchedItem.title}"`);
+    } catch (e) {
+      if (e?.response?.status === 409) {
+        setMatches(prev => prev.map(m => (m === match ? { ...m, status: 'confirmed' } : m)));
+        alert(`"${match.matchedItem.title}" was already confirmed.`);
+      } else {
+        console.error('Failed to confirm swap', e);
+        alert('Could not confirm swap. Please try again.');
+      }
+    } finally {
+      setConfirmingKey(null);
+    }
   }
 
   function rejectSwap(match) {

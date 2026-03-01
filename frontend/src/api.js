@@ -22,6 +22,9 @@ export const postSwipe = (userIdFrom, itemIdTo, action) =>
 export const getMatches = (userId) =>
   api.get(`/matches/${userId}`);
 
+export const confirmMatch = (userId, itemId) =>
+  api.post('/matches/confirm', { userId, itemId });
+
 export const getImpact = (userId) =>
   api.get(`/impact/${userId}`);
 

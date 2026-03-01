@@ -75,12 +75,21 @@ public class SwipeService {
     }
 
     @Transactional
-    public void confirmSwap(Long userIdFrom, Long itemIdTo) {
+    public boolean confirmSwap(Long userIdFrom, Long itemIdTo) {
         // 1. Get the item User A matched with (Item B)
         Optional<ClothingItem> itemBOpt = itemRepo.findById(itemIdTo);
-        if (itemBOpt.isEmpty()) return;
+        if (itemBOpt.isEmpty()) return false;
         ClothingItem itemB = itemBOpt.get();
         Long userIdTo = itemB.getUserId();
+
+        Optional<SwipeLedger> forwardSwipeOpt = swipeRepo.findByUserIdFromAndItemIdTo(userIdFrom, itemIdTo);
+        if (forwardSwipeOpt.isEmpty() || !"RIGHT".equals(forwardSwipeOpt.get().getAction())) {
+            return false;
+        }
+        SwipeLedger forwardSwipe = forwardSwipeOpt.get();
+        if (forwardSwipe.isConfirmed()) {
+            return false;
+        }
 
         // 2. Find the reverse swipe to get Item A
         List<ClothingItem> userAItems = itemRepo.findByUserId(userIdFrom);
@@ -91,11 +100,14 @@ public class SwipeService {
                 .filter(s -> userAItemIds.contains(s.getItemIdTo()))
                 .findFirst();
 
-        if (reverseSwipe.isEmpty()) return; 
+        if (reverseSwipe.isEmpty()) return false;
+        if (reverseSwipe.get().isConfirmed()) return false;
 
         // 3. Calculate combined savings for BOTH items
         LcaService.LcaResult lcaItemB = lcaService.calculateSavings(itemB.getCategory());
-        ClothingItem itemA = itemRepo.findById(reverseSwipe.get().getItemIdTo()).get();
+        Optional<ClothingItem> itemAOpt = itemRepo.findById(reverseSwipe.get().getItemIdTo());
+        if (itemAOpt.isEmpty()) return false;
+        ClothingItem itemA = itemAOpt.get();
         LcaService.LcaResult lcaItemA = lcaService.calculateSavings(itemA.getCategory());
 
         double totalWater = lcaItemA.waterSaved() + lcaItemB.waterSaved();
@@ -104,6 +116,14 @@ public class SwipeService {
         // 4. Update both users
         updateUserImpact(userIdFrom, totalWater/2, totalCo2/2);
         updateUserImpact(userIdTo, totalWater/2, totalCo2/2);
+
+        // 5. Mark both swipe records as confirmed to prevent double-counting
+        forwardSwipe.setConfirmed(true);
+        reverseSwipe.get().setConfirmed(true);
+        swipeRepo.save(forwardSwipe);
+        swipeRepo.save(reverseSwipe.get());
+
+        return true;
     }
 
     // Helper method to keep code clean

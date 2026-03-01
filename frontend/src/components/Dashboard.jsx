@@ -34,12 +34,18 @@ function StatBar({ value, max, color }) {
 export default function Dashboard({ user }) {
   const [impact, setImpact] = useState(null);
   const [loading, setLoading] = useState(true);
+  const currentUserId = user?.userId || user?.id;
 
   useEffect(() => {
-    getImpact(user.userId)
+    if (!currentUserId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getImpact(currentUserId)
       .then(res => { setImpact(res.data); setLoading(false); })
       .catch(() => { setLoading(false); });
-  }, [user.userId]);
+  }, [currentUserId]);
 
   if (loading) {
     return <div className="dash-loading"><div className="spinner" />Calculating your impact...</div>;

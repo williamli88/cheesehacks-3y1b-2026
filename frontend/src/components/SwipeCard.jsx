@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Hammer from 'hammerjs';
-import { getFeed, postSwipe } from '../api';
+import { getFeed, postSwipe, confirmMatch } from '../api';
 import './SwipeCard.css';
 
 const CATEGORY_ICONS = {
@@ -38,6 +38,12 @@ export default function SwipeCard({ user, onMatch }) {
     try {
       const res = await postSwipe(user.userId, item.id, action);
       if (res.data.matched) {
+        try {
+          await confirmMatch(user.userId, item.id);
+        } catch (confirmErr) {
+          // Non-blocking: user can still confirm from the matches page if needed.
+          console.warn('Auto-confirm after match failed', confirmErr);
+        }
         setMatchNotif(item);
         onMatch && onMatch(item);
       }

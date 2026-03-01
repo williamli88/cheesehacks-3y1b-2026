@@ -13,6 +13,7 @@ public class SwipeLedger {
     private Long userIdFrom;
     private Long itemIdTo;
     private String action; // RIGHT or LEFT
+    private boolean confirmed = false;
     private LocalDateTime timestamp;
 
     public SwipeLedger() {}
@@ -28,6 +29,9 @@ public class SwipeLedger {
 
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
+
+    public boolean isConfirmed() { return confirmed; }
+    public void setConfirmed(boolean confirmed) { this.confirmed = confirmed; }
 
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
