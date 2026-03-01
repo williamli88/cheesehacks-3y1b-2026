@@ -27,7 +27,7 @@ public class DataSeederService {
         if (userRepo.count() > 0) return;
 
         Random rng = new Random(42);
-        String[] campuses = {"MIT", "Harvard", "Stanford"};
+        String[] domains = {"mit.edu", "harvard.edu", "stanford.edu", "wisc.edu"};
         String[] categories = {"TSHIRT", "JEANS", "JACKET", "DRESS", "SHOES", "SWEATER", "SKIRT", "SHORTS"};
         String[] sizes = {"XS", "S", "M", "L", "XL"};
         String[] conditions = {"NEW", "GOOD", "FAIR"};
@@ -41,10 +41,17 @@ public class DataSeederService {
         for (int i = 0; i < 20; i++) {
             User user = new User();
             user.setUsername(firstNames[i].toLowerCase() + (1000 + rng.nextInt(9000)));
-            user.setEmail(user.getUsername() + "@campus.edu");
+            
+            // Assign a valid domain
+            String domain = domains[rng.nextInt(domains.length)];
+            user.setEmail(user.getUsername() + "@" + domain);
+            
             user.setContactUrl("mailto:" + user.getEmail());
             user.setPassword(passwordEncoder.encode("password123"));
-            user.setCampus(campuses[rng.nextInt(campuses.length)]);
+            
+            // Let the User model calculate the campus from the email
+            user.setCampusFromEmail(user.getEmail()); 
+            
             users.add(userRepo.save(user));
         }
 
