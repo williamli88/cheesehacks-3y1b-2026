@@ -88,7 +88,7 @@ public class SwipeService {
     }
 
     @Transactional
-    public Map<String, Object> confirmSwap(Long userIdFrom, Long itemIdTo) {
+    public Map<String, Object> confirmSwap(Long userIdFrom, Long itemIdTo, Long ownItemId) {
         Optional<ClothingItem> itemBOpt = itemRepo.findById(itemIdTo);
         if (itemBOpt.isEmpty() || !itemBOpt.get().isActive()) {
             return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
@@ -106,12 +106,18 @@ public class SwipeService {
             return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
         }
 
-        List<ClothingItem> userAItems = itemRepo.findByUserId(userIdFrom);
+        List<ClothingItem> userAItems = itemRepo.findByUserId(userIdFrom).stream()
+                .filter(ClothingItem::isActive)
+                .collect(Collectors.toList());
         Set<Long> userAItemIds = userAItems.stream().map(ClothingItem::getId).collect(Collectors.toSet());
+        if (ownItemId != null && !userAItemIds.contains(ownItemId)) {
+            return buildConfirmResult(false, "Swap confirmation did not change impact (already confirmed or no valid pair)", 0, 0);
+        }
         
         Optional<SwipeLedger> reverseSwipeOpt = swipeRepo.findByUserIdFromAndAction(userIdTo, "RIGHT")
                 .stream()
                 .filter(s -> userAItemIds.contains(s.getItemIdTo()) && !s.isConfirmed())
+                .filter(s -> ownItemId == null || Objects.equals(s.getItemIdTo(), ownItemId))
                 .findFirst();
 
         if (reverseSwipeOpt.isEmpty()) {
@@ -177,8 +183,12 @@ public class SwipeService {
     }
 
     public List<Map<String, Object>> getMatches(Long userId) {
-        List<ClothingItem> userItems = itemRepo.findByUserId(userId);
+        List<ClothingItem> userItems = itemRepo.findByUserId(userId).stream()
+                .filter(ClothingItem::isActive)
+                .collect(Collectors.toList());
         Set<Long> userItemIds = userItems.stream().map(ClothingItem::getId).collect(Collectors.toSet());
+        Map<Long, ClothingItem> userItemsById = userItems.stream()
+                .collect(Collectors.toMap(ClothingItem::getId, i -> i));
 
         List<SwipeLedger> userRightSwipes = swipeRepo.findByUserIdFromAndAction(userId, "RIGHT")
                 .stream()
@@ -186,7 +196,8 @@ public class SwipeService {
                 .collect(Collectors.toList());
 
         List<Map<String, Object>> matches = new ArrayList<>();
-        Set<Long> matchedUserIds = new HashSet<>();
+        Set<String> emittedPairs = new HashSet<>();
+        Map<Long, List<SwipeLedger>> targetRightsByUser = new HashMap<>();
 
         for (SwipeLedger swipe : userRightSwipes) {
             Optional<ClothingItem> targetItemOpt = itemRepo.findById(swipe.getItemIdTo());
@@ -196,17 +207,34 @@ public class SwipeService {
 
             ClothingItem targetItem = targetItemOpt.get();
             Long targetUserId = targetItem.getUserId();
+            if (Objects.equals(targetUserId, userId)) {
+                continue;
+            }
 
-            // Prevent multiple cards for the same matched user
-            if (matchedUserIds.contains(targetUserId)) continue;
+            List<SwipeLedger> targetRightSwipes = targetRightsByUser.computeIfAbsent(
+                    targetUserId,
+                    id -> swipeRepo.findByUserIdFromAndAction(id, "RIGHT")
+            );
 
-            List<SwipeLedger> targetRightSwipes = swipeRepo.findByUserIdFromAndAction(targetUserId, "RIGHT");
-            boolean isMatch = targetRightSwipes.stream()
-                    .anyMatch(s -> userItemIds.contains(s.getItemIdTo()) && !s.isConfirmed());
+            for (SwipeLedger reverse : targetRightSwipes) {
+                if (reverse.isConfirmed() || !userItemIds.contains(reverse.getItemIdTo())) {
+                    continue;
+                }
+                ClothingItem ownItem = userItemsById.get(reverse.getItemIdTo());
+                if (ownItem == null || !ownItem.isActive()) {
+                    continue;
+                }
 
-            if (isMatch) {
+                String pairKey = ownItem.getId() + ":" + targetItem.getId();
+                if (!emittedPairs.add(pairKey)) {
+                    continue;
+                }
+
                 Map<String, Object> match = new HashMap<>();
-                match.put("itemId", targetItem.getId()); 
+                match.put("id", pairKey);
+                match.put("itemId", targetItem.getId());
+                match.put("ownItemId", ownItem.getId());
+                match.put("ownItem", ownItem);
                 match.put("matchedItem", targetItem);
                 match.put("matchedWithUserId", targetUserId);
                 userRepo.findById(targetUserId).ifPresent(u -> {
@@ -215,9 +243,8 @@ public class SwipeService {
                     match.put("matchedWithPhoneNumber", u.getPhoneNumber());
                     match.put("matchedWithContactUrl", u.getContactUrl());
                 });
-                
+
                 matches.add(match);
-                matchedUserIds.add(targetUserId);
             }
         }
         return matches;
