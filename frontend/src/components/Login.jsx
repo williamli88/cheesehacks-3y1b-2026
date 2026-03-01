@@ -10,7 +10,18 @@ export default function Login({ onLogin, onShowRegister }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getUsers().then(res => setDemoUsers(res.data.slice(0, 6))).catch(() => {});
+    getUsers()
+      .then((res) => {
+        const users = Array.isArray(res.data) ? res.data : [];
+        const demos = users
+          .filter((u) => typeof u?.username === 'string' && u.username.startsWith('demo_'))
+          .sort((a, b) => String(a.username).localeCompare(String(b.username)))
+          .slice(0, 6);
+        setDemoUsers(demos);
+      })
+      .catch(() => {
+        setDemoUsers([]);
+      });
   }, []);
 
   const handleLogin = async (u, p, options = {}) => {

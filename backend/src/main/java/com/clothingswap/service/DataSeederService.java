@@ -13,6 +13,16 @@ import java.util.Random;
 
 @Service
 public class DataSeederService {
+    private static final String DEMO_PASSWORD = "password123";
+    private static final String[][] DEMO_USERS = {
+            {"demo_mit", "mit.edu", "+16175550101"},
+            {"demo_harvard", "harvard.edu", "+16175550102"},
+            {"demo_stanford", "stanford.edu", "+16505550103"},
+            {"demo_wisc", "wisc.edu", "+16085550104"},
+            {"demo_berkeley", "berkeley.edu", "+15105550105"},
+            {"demo_ucla", "ucla.edu", "+13105550106"}
+    };
+
 
     private final UserRepository userRepo;
     private final ClothingItemRepository itemRepo;
@@ -24,10 +34,15 @@ public class DataSeederService {
     }
 
     public void seed() {
-        if (userRepo.count() > 0) {
+        boolean hasExistingUsers = userRepo.count() > 0;
+
+        if (hasExistingUsers) {
+            ensureDemoUsers();
             backfillMissingPhoneNumbers();
             return;
         }
+
+        List<User> users = new ArrayList<>(ensureDemoUsers());
 
         Random rng = new Random(42);
         String[] domains = {"mit.edu", "harvard.edu", "stanford.edu"};
@@ -41,8 +56,7 @@ public class DataSeederService {
                                "Quinn", "Sage", "Blake", "Drew", "Hayden", "Jamie", "Kendall",
                                "Lesley", "Mika", "Nico", "Peyton", "Robin"};
 
-        List<User> users = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = users.size(); i < 20; i++) {
             User user = new User();
             user.setUsername(firstNames[i].toLowerCase() + (1000 + rng.nextInt(9000)));
             
@@ -52,7 +66,7 @@ public class DataSeederService {
             user.setPhoneNumber(generateFakePhone(rng));
             
             user.setContactUrl("mailto:" + user.getEmail());
-            user.setPassword(passwordEncoder.encode("password123"));
+            user.setPassword(passwordEncoder.encode(DEMO_PASSWORD));
             
             // Let the User model calculate the campus from the email
             user.setCampusFromEmail(user.getEmail()); 
@@ -101,6 +115,29 @@ public class DataSeederService {
 
             itemRepo.save(item);
         }
+    }
+
+    private List<User> ensureDemoUsers() {
+        List<User> demos = new ArrayList<>();
+
+        for (String[] def : DEMO_USERS) {
+            String username = def[0];
+            String domain = def[1];
+            String phone = def[2];
+            String email = username + "@" + domain;
+
+            User user = userRepo.findByUsername(username).orElseGet(User::new);
+            user.setUsername(username);
+            user.setEmail(email);
+            user.setPhoneNumber(phone);
+            user.setContactUrl("mailto:" + email);
+            user.setPassword(passwordEncoder.encode(DEMO_PASSWORD));
+            user.setCampusFromEmail(email);
+
+            demos.add(userRepo.save(user));
+        }
+
+        return demos;
     }
 
     private String capitalize(String s) {
