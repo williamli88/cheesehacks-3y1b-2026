@@ -5,11 +5,13 @@ import SwipeCard from './components/SwipeCard';
 import Matches from './components/Matches';
 import Dashboard from './components/Dashboard';
 import SettingsModal from './components/SettingsModal';
+import Profile from './components/Profile';
+import Upload from './components/Upload';
 import './App.css';
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [page, setPage] = useState('swipe'); // swipe | matches | dashboard
+  const [page, setPage] = useState('swipe'); // swipe | matches | dashboard | profile | upload
   const [authView, setAuthView] = useState('login'); // login | register
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -39,9 +41,11 @@ export default function App() {
       </header>
 
       <main className="app-main">
-        {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('dashboard')} />}
+  {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('dashboard')} />}
+  {page === 'dashboard' && <Dashboard user={user} />}
         {page === 'matches' && <Matches user={user} />}
-        {page === 'dashboard' && <Dashboard user={user} />}
+  {page === 'profile' && <Profile user={user} onUpload={() => setPage('upload')} />}
+  {page === 'upload' && <Upload user={user} />}
       </main>
 
       <nav className="app-nav">
@@ -53,6 +57,9 @@ export default function App() {
         </button>
         <button className={page === 'dashboard' ? 'active' : ''} onClick={() => setPage('dashboard')}>
           <span>🌱</span><small>Impact</small>
+        </button>
+        <button className={page === 'profile' ? 'active' : ''} onClick={() => setPage('profile')}>
+          <span>👤</span><small>Profile</small>
         </button>
       </nav>
 

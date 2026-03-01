@@ -39,6 +39,8 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         response.put("userId", user.getId());
         response.put("username", user.getUsername());
++        response.put("email", user.getEmail());
++        response.put("contactUrl", user.getContactUrl());
         response.put("campus", user.getCampus());
         response.put("token", "bearer-" + user.getId() + "-" + System.currentTimeMillis());
 
@@ -55,6 +57,7 @@ public class AuthController {
         User user = new User();
         user.setUsername(username);
         user.setEmail(request.get("email"));
+        user.setContactUrl(request.getOrDefault("contactUrl", "mailto:" + request.get("email")));
         user.setPassword(passwordEncoder.encode(request.get("password")));
         user.setCampus(request.getOrDefault("campus", "MIT"));
 
@@ -72,7 +75,13 @@ public class AuthController {
     @GetMapping("/users")
     public ResponseEntity<?> listUsers() {
         return ResponseEntity.ok(userRepo.findAll().stream()
-            .map(u -> Map.of("id", u.getId(), "username", u.getUsername(), "campus", u.getCampus()))
+            .map(u -> Map.of(
+                "id", u.getId(),
+                "username", u.getUsername(),
+                "campus", u.getCampus(),
+                "email", u.getEmail(),
+                "contactUrl", u.getContactUrl()
+            ))
             .toList());
     }
 }
