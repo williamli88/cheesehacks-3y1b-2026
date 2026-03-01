@@ -82,10 +82,6 @@ export default function App() {
       <main className="app-main">
         <div className="page-shell" key={page}>
           {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
-<<<<<<< HEAD
-          {page === 'matches' && <Matches user={user} openProfile={(u) => { setProfileUser(u); setPage('profile'); }} />}
-          {page === 'profile' && <Profile user={profileUser || user} viewer={user} />}
-=======
           {page === 'matches' && (
             <Matches
               user={user}
@@ -110,7 +106,6 @@ export default function App() {
               onUpload={() => setPage('upload')}
             />
           )}
->>>>>>> refs/remotes/origin/main
           {page === 'upload' && <Upload user={user} onBack={() => setPage('profile')} />}
         </div>
       </main>
