@@ -27,7 +27,7 @@ const displayGender = (item) => {
   return 'Men';
 };
 
-export default function SwipeCard({ user, onMatch }) {
+export default function SwipeCard({ user, onGoToMatches }) {
   const [items, setItems] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -98,10 +98,9 @@ export default function SwipeCard({ user, onMatch }) {
     try {
       const res = await postSwipe(user.userId, item.id, action);
       
-      // FIX: Only show the notification. DO NOT call confirmMatch here.
+      // Show congrats popup and let the user choose where to go next.
       if (res.data.matched) {
         setMatchNotif(item);
-        if (onMatch) onMatch(item); 
       }
 
       // UX Improvement: Persist liked items to local cache
@@ -125,7 +124,7 @@ export default function SwipeCard({ user, onMatch }) {
       setSwiping(null);
       setCurrentIdx(i => i + 1);
     }, 350);
-  }, [items, currentIdx, user.userId, onMatch]);
+  }, [items, currentIdx, user.userId]);
 
   useEffect(() => {
     if (!cardRef.current || items.length === 0) return;
@@ -217,7 +216,18 @@ export default function SwipeCard({ user, onMatch }) {
             <h2>It's a Match!</h2>
             <p>You and someone else both liked each other's items!</p>
             <div className="match-item-name">{matchNotif.title}</div>
-            <button className="match-btn" onClick={closeMatch}>See Matches →</button>
+            <div className="match-actions">
+              <button className="match-btn secondary" onClick={closeMatch}>Continue Swiping</button>
+              <button
+                className="match-btn"
+                onClick={() => {
+                  closeMatch();
+                  if (onGoToMatches) onGoToMatches();
+                }}
+              >
+                Go to Matches
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -14,6 +14,7 @@ import java.util.Random;
 @Service
 public class DataSeederService {
     private static final String DEMO_PASSWORD = "password123";
+    private static final int MIN_DEMO_ACTIVE_ITEMS = 6;
     private static final String[][] DEMO_USERS = {
             {"demo_mit", "mit.edu", "+16175550101"},
             {"demo_mit_2", "mit.edu", "+16175550111"},
@@ -27,6 +28,22 @@ public class DataSeederService {
             {"demo_berkeley_2", "berkeley.edu", "+15105550115"},
             {"demo_ucla", "ucla.edu", "+13105550106"},
             {"demo_ucla_2", "ucla.edu", "+13105550116"}
+    };
+    private static final String[] DEMO_CATEGORIES = {"TSHIRT", "JEANS", "JACKET", "DRESS", "SHOES", "SWEATER", "SKIRT", "SHORTS"};
+    private static final String[] DEMO_GENDERS = {"MEN", "WOMEN"};
+    private static final String[] DEMO_SIZES = {"XS", "S", "M", "L", "XL"};
+    private static final String[] DEMO_CONDITIONS = {"NEW", "GOOD", "FAIR"};
+    private static final String[] DEMO_COLORS = {"red", "blue", "green", "black", "white", "grey", "purple", "yellow", "pink", "brown"};
+    private static final String[] DEMO_STYLES = {"ACTIVE", "STREET", "FORMAL", "VINTAGE"};
+    private static final String[] DEMO_IMAGE_URLS = {
+            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
+            "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400",
+            "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
+            "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
+            "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
+            "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400",
+            "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400"
     };
 
 
@@ -43,21 +60,17 @@ public class DataSeederService {
         boolean hasExistingUsers = userRepo.count() > 0;
 
         if (hasExistingUsers) {
-            ensureDemoUsers();
+            List<User> demos = ensureDemoUsers();
             backfillMissingPhoneNumbers();
+            ensureDemoInventory(demos);
             return;
         }
 
-        List<User> users = new ArrayList<>(ensureDemoUsers());
+        List<User> demos = ensureDemoUsers();
+        List<User> users = new ArrayList<>(demos);
 
         Random rng = new Random(42);
         String[] domains = {"mit.edu", "harvard.edu", "stanford.edu"};
-        String[] categories = {"TSHIRT", "JEANS", "JACKET", "DRESS", "SHOES", "SWEATER", "SKIRT", "SHORTS"};
-        String[] genders = {"MEN", "WOMEN"};
-        String[] sizes = {"XS", "S", "M", "L", "XL"};
-        String[] conditions = {"NEW", "GOOD", "FAIR"};
-        String[] colors = {"red", "blue", "green", "black", "white", "grey", "purple", "yellow", "pink", "brown"};
-        String[] styles = {"ACTIVE", "STREET", "FORMAL", "VINTAGE"};
         String[] firstNames = {"Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Avery", "Parker",
                                "Quinn", "Sage", "Blake", "Drew", "Hayden", "Jamie", "Kendall",
                                "Lesley", "Mika", "Nico", "Peyton", "Robin"};
@@ -80,47 +93,12 @@ public class DataSeederService {
             users.add(userRepo.save(user));
         }
 
-        String[] imageUrls = {
-            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
-            "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400",
-            "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
-            "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
-            "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
-            "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400",
-            "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400"
-        };
-
         for (int i = 0; i < 100; i++) {
             User owner = users.get(rng.nextInt(users.size()));
-            ClothingItem item = new ClothingItem();
-            item.setUserId(owner.getId());
-            item.setCampus(owner.getCampus());
-
-            String category = categories[rng.nextInt(categories.length)];
-            item.setCategory(category);
-            item.setGender(genders[rng.nextInt(genders.length)]);
-            item.setClothingType(mapCategoryToType(category));
-            item.setSize(sizes[rng.nextInt(sizes.length)]);
-            item.setCondition(conditions[rng.nextInt(conditions.length)]);
-
-            String color1 = colors[rng.nextInt(colors.length)];
-            String color2 = colors[rng.nextInt(colors.length)];
-            item.setColor(color1);
-            item.setColorTags(color1 + "," + color2);
-
-            String style1 = styles[rng.nextInt(styles.length)];
-            String style2 = styles[rng.nextInt(styles.length)];
-            item.setStyle(style1);
-            item.setStyleTags(style1.toLowerCase() + "," + style2.toLowerCase());
-
-            item.setTitle(capitalize(style1) + " " + capitalize(category.toLowerCase()));
-            item.setDescription("A " + item.getCondition().toLowerCase() + " condition " +
-                               item.getCategory().toLowerCase() + " in " + color1 + " color.");
-            item.setImageUrl(imageUrls[i % imageUrls.length]);
-
-            itemRepo.save(item);
+            itemRepo.save(buildRandomItem(owner, rng, i));
         }
+
+        ensureDemoInventory(demos);
     }
 
     private List<User> ensureDemoUsers() {
@@ -178,5 +156,46 @@ public class DataSeederService {
         int mid = 200 + rng.nextInt(800);
         int last = 1000 + rng.nextInt(9000);
         return String.format("+1%03d%03d%04d", area, mid, last);
+    }
+
+    private void ensureDemoInventory(List<User> demos) {
+        Random rng = new Random(2026);
+        for (User demo : demos) {
+            long activeCount = itemRepo.findByUserId(demo.getId()).stream().filter(ClothingItem::isActive).count();
+            int toCreate = (int) Math.max(0, MIN_DEMO_ACTIVE_ITEMS - activeCount);
+            for (int i = 0; i < toCreate; i++) {
+                itemRepo.save(buildRandomItem(demo, rng, i));
+            }
+        }
+    }
+
+    private ClothingItem buildRandomItem(User owner, Random rng, int indexHint) {
+        ClothingItem item = new ClothingItem();
+        item.setUserId(owner.getId());
+        item.setCampus(owner.getCampus());
+
+        String category = DEMO_CATEGORIES[rng.nextInt(DEMO_CATEGORIES.length)];
+        item.setCategory(category);
+        item.setGender(DEMO_GENDERS[rng.nextInt(DEMO_GENDERS.length)]);
+        item.setClothingType(mapCategoryToType(category));
+        item.setSize(DEMO_SIZES[rng.nextInt(DEMO_SIZES.length)]);
+        item.setCondition(DEMO_CONDITIONS[rng.nextInt(DEMO_CONDITIONS.length)]);
+
+        String color1 = DEMO_COLORS[rng.nextInt(DEMO_COLORS.length)];
+        String color2 = DEMO_COLORS[rng.nextInt(DEMO_COLORS.length)];
+        item.setColor(color1);
+        item.setColorTags(color1 + "," + color2);
+
+        String style1 = DEMO_STYLES[rng.nextInt(DEMO_STYLES.length)];
+        String style2 = DEMO_STYLES[rng.nextInt(DEMO_STYLES.length)];
+        item.setStyle(style1);
+        item.setStyleTags(style1.toLowerCase() + "," + style2.toLowerCase());
+
+        item.setTitle(capitalize(style1) + " " + capitalize(category.toLowerCase()));
+        item.setDescription("A " + item.getCondition().toLowerCase() + " condition " +
+                item.getCategory().toLowerCase() + " in " + color1 + " color.");
+        item.setImageUrl(DEMO_IMAGE_URLS[Math.floorMod(indexHint, DEMO_IMAGE_URLS.length)]);
+        item.setActive(true);
+        return item;
     }
 }

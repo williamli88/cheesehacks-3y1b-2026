@@ -164,7 +164,7 @@ export default function App() {
 
       <main className="app-main">
         <div className="page-shell" key={page}>
-          {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
+          {page === 'swipe' && <SwipeCard user={user} onGoToMatches={() => setPage('matches')} />}
           {page === 'matches' && (
             <Matches
               user={user}

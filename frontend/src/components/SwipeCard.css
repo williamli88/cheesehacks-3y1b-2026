@@ -353,6 +353,19 @@
   transform: translateY(-1px);
 }
 
+.match-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.match-btn.secondary {
+  background: var(--surface-muted);
+  color: var(--text-surface);
+  border: 1px solid var(--border-color);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
