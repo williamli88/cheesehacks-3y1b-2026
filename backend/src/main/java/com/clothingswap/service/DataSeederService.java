@@ -4,17 +4,27 @@ import com.clothingswap.model.ClothingItem;
 import com.clothingswap.model.User;
 import com.clothingswap.repository.ClothingItemRepository;
 import com.clothingswap.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 @Service
 public class DataSeederService {
+    private static final Logger log = LoggerFactory.getLogger(DataSeederService.class);
+
     private static final String DEMO_PASSWORD = "password123";
     private static final int MIN_DEMO_ACTIVE_ITEMS = 6;
+    private static final int TARGET_SEED_ITEM_COUNT = 100;
+
     private static final String[][] DEMO_USERS = {
             {"demo_mit", "mit.edu", "+16175550101"},
             {"demo_mit_2", "mit.edu", "+16175550111"},
@@ -29,12 +39,7 @@ public class DataSeederService {
             {"demo_ucla", "ucla.edu", "+13105550106"},
             {"demo_ucla_2", "ucla.edu", "+13105550116"}
     };
-    private static final String[] DEMO_CATEGORIES = {"TSHIRT", "JEANS", "JACKET", "DRESS", "SHOES", "SWEATER", "SKIRT", "SHORTS"};
-    private static final String[] DEMO_GENDERS = {"MEN", "WOMEN"};
-    private static final String[] DEMO_SIZES = {"XS", "S", "M", "L", "XL"};
-    private static final String[] DEMO_CONDITIONS = {"NEW", "GOOD", "FAIR"};
-    private static final String[] DEMO_COLORS = {"red", "blue", "green", "black", "white", "grey", "purple", "yellow", "pink", "brown"};
-    private static final String[] DEMO_STYLES = {"ACTIVE", "STREET", "FORMAL", "VINTAGE"};
+
     private static final String[] DEMO_IMAGE_URLS = {
             "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
             "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400",
@@ -46,6 +51,11 @@ public class DataSeederService {
             "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400"
     };
 
+    private static final String[] BANK_SIZES = {"S", "M", "L"};
+    private static final String[] BANK_CONDITIONS = {"GOOD", "NEW"};
+
+    // Curated demo bank. Edit these entries to define your own default demo inventory.
+    private static final List<DemoItemTemplate> DEMO_ITEM_BANK = buildDemoItemBank();
 
     private final UserRepository userRepo;
     private final ClothingItemRepository itemRepo;
@@ -58,18 +68,20 @@ public class DataSeederService {
 
     public void seed() {
         boolean hasExistingUsers = userRepo.count() > 0;
+        Random userRng = new Random(42);
+        Random itemRng = new Random(2026);
 
         if (hasExistingUsers) {
             List<User> demos = ensureDemoUsers();
             backfillMissingPhoneNumbers();
-            ensureDemoInventory(demos);
+            DemoItemPool demoItemPool = createDemoItemPool(itemRng);
+            ensureDemoInventory(demos, demoItemPool);
             return;
         }
 
         List<User> demos = ensureDemoUsers();
         List<User> users = new ArrayList<>(demos);
 
-        Random rng = new Random(42);
         String[] domains = {"mit.edu", "harvard.edu", "stanford.edu"};
         String[] firstNames = {"Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Avery", "Parker",
                                "Quinn", "Sage", "Blake", "Drew", "Hayden", "Jamie", "Kendall",
@@ -77,28 +89,22 @@ public class DataSeederService {
 
         for (int i = users.size(); i < 20; i++) {
             User user = new User();
-            user.setUsername(firstNames[i].toLowerCase() + (1000 + rng.nextInt(9000)));
-            
-            // Assign a valid domain
-            String domain = domains[rng.nextInt(domains.length)];
+            user.setUsername(firstNames[i].toLowerCase(Locale.ROOT) + (1000 + userRng.nextInt(9000)));
+
+            String domain = domains[userRng.nextInt(domains.length)];
             user.setEmail(user.getUsername() + "@" + domain);
-            user.setPhoneNumber(generateFakePhone(rng));
-            
+            user.setPhoneNumber(generateFakePhone(userRng));
             user.setContactUrl("mailto:" + user.getEmail());
             user.setPassword(passwordEncoder.encode(DEMO_PASSWORD));
-            
-            // Let the User model calculate the campus from the email
-            user.setCampusFromEmail(user.getEmail()); 
-            
+            user.setCampusFromEmail(user.getEmail());
+
             users.add(userRepo.save(user));
         }
 
-        for (int i = 0; i < 100; i++) {
-            User owner = users.get(rng.nextInt(users.size()));
-            itemRepo.save(buildRandomItem(owner, rng, i));
-        }
-
-        ensureDemoInventory(demos);
+        DemoItemPool demoItemPool = createDemoItemPool(itemRng);
+        int demoItemsCreated = ensureDemoInventory(demos, demoItemPool);
+        int remainingTarget = Math.max(0, TARGET_SEED_ITEM_COUNT - demoItemsCreated);
+        seedRemainingItems(users, demoItemPool, remainingTarget, userRng);
     }
 
     private List<User> ensureDemoUsers() {
@@ -122,11 +128,6 @@ public class DataSeederService {
         }
 
         return demos;
-    }
-
-    private String capitalize(String s) {
-        if (s == null || s.isEmpty()) return s;
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     private String mapCategoryToType(String category) {
@@ -158,44 +159,241 @@ public class DataSeederService {
         return String.format("+1%03d%03d%04d", area, mid, last);
     }
 
-    private void ensureDemoInventory(List<User> demos) {
-        Random rng = new Random(2026);
+    private int ensureDemoInventory(List<User> demos, DemoItemPool pool) {
+        int created = 0;
+
         for (User demo : demos) {
-            long activeCount = itemRepo.findByUserId(demo.getId()).stream().filter(ClothingItem::isActive).count();
+            long activeCount = itemRepo.findByUserId(demo.getId()).stream()
+                    .filter(ClothingItem::isActive)
+                    .count();
             int toCreate = (int) Math.max(0, MIN_DEMO_ACTIVE_ITEMS - activeCount);
+
             for (int i = 0; i < toCreate; i++) {
-                itemRepo.save(buildRandomItem(demo, rng, i));
+                if (!pool.hasNext()) {
+                    log.warn("Demo item bank exhausted while ensuring demo inventory. {} items still needed.", toCreate - i);
+                    return created;
+                }
+
+                itemRepo.save(buildItemFromTemplate(demo, pool.next()));
+                created++;
             }
         }
+
+        return created;
     }
 
-    private ClothingItem buildRandomItem(User owner, Random rng, int indexHint) {
+    private int seedRemainingItems(List<User> users, DemoItemPool pool, int targetCount, Random rng) {
+        int created = 0;
+
+        for (int i = 0; i < targetCount; i++) {
+            if (!pool.hasNext()) {
+                log.warn("Demo item bank exhausted after creating {} of {} requested seed items.", created, targetCount);
+                break;
+            }
+
+            User owner = users.get(rng.nextInt(users.size()));
+            itemRepo.save(buildItemFromTemplate(owner, pool.next()));
+            created++;
+        }
+
+        return created;
+    }
+
+    private DemoItemPool createDemoItemPool(Random rng) {
+        Set<String> usedKeys = new HashSet<>();
+        for (ClothingItem existing : itemRepo.findAll()) {
+            usedKeys.add(itemKey(existing));
+        }
+
+        List<DemoItemTemplate> availableTemplates = new ArrayList<>();
+        for (DemoItemTemplate template : DEMO_ITEM_BANK) {
+            if (!usedKeys.contains(templateKey(template))) {
+                availableTemplates.add(template);
+            }
+        }
+
+        Collections.shuffle(availableTemplates, rng);
+        return new DemoItemPool(availableTemplates);
+    }
+
+    private ClothingItem buildItemFromTemplate(User owner, DemoItemTemplate template) {
         ClothingItem item = new ClothingItem();
         item.setUserId(owner.getId());
         item.setCampus(owner.getCampus());
 
-        String category = DEMO_CATEGORIES[rng.nextInt(DEMO_CATEGORIES.length)];
-        item.setCategory(category);
-        item.setGender(DEMO_GENDERS[rng.nextInt(DEMO_GENDERS.length)]);
-        item.setClothingType(mapCategoryToType(category));
-        item.setSize(DEMO_SIZES[rng.nextInt(DEMO_SIZES.length)]);
-        item.setCondition(DEMO_CONDITIONS[rng.nextInt(DEMO_CONDITIONS.length)]);
+        item.setCategory(template.category());
+        item.setGender(template.gender());
+        item.setClothingType(mapCategoryToType(template.category()));
+        item.setSize(template.size());
+        item.setCondition(template.condition());
 
-        String color1 = DEMO_COLORS[rng.nextInt(DEMO_COLORS.length)];
-        String color2 = DEMO_COLORS[rng.nextInt(DEMO_COLORS.length)];
-        item.setColor(color1);
-        item.setColorTags(color1 + "," + color2);
+        item.setColor(template.color());
+        item.setColorTags(template.colorTags());
+        item.setStyle(template.style());
+        item.setStyleTags(template.styleTags());
 
-        String style1 = DEMO_STYLES[rng.nextInt(DEMO_STYLES.length)];
-        String style2 = DEMO_STYLES[rng.nextInt(DEMO_STYLES.length)];
-        item.setStyle(style1);
-        item.setStyleTags(style1.toLowerCase() + "," + style2.toLowerCase());
-
-        item.setTitle(capitalize(style1) + " " + capitalize(category.toLowerCase()));
-        item.setDescription("A " + item.getCondition().toLowerCase() + " condition " +
-                item.getCategory().toLowerCase() + " in " + color1 + " color.");
-        item.setImageUrl(DEMO_IMAGE_URLS[Math.floorMod(indexHint, DEMO_IMAGE_URLS.length)]);
+        item.setTitle(template.title());
+        item.setDescription(template.description());
+        item.setImageUrl(template.imageUrl());
         item.setActive(true);
+
         return item;
+    }
+
+    private static String templateKey(DemoItemTemplate template) {
+        return String.join("|",
+                normalize(template.title()),
+                normalize(template.category()),
+                normalize(template.gender()),
+                normalize(template.size()),
+                normalize(template.condition()),
+                normalize(template.imageUrl()));
+    }
+
+    private static String itemKey(ClothingItem item) {
+        return String.join("|",
+                normalize(item.getTitle()),
+                normalize(item.getCategory()),
+                normalize(item.getGender()),
+                normalize(item.getSize()),
+                normalize(item.getCondition()),
+                normalize(item.getImageUrl()));
+    }
+
+    private static String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static List<DemoItemTemplate> buildDemoItemBank() {
+        List<DemoItemTemplate> bank = new ArrayList<>();
+
+        addBankVariants(bank, "Campus Vintage Tee", "Soft cotton tee with a faded campus crest.",
+                "TSHIRT", "MEN", "VINTAGE", "vintage,street", "navy", "navy,white", DEMO_IMAGE_URLS[0]);
+        addBankVariants(bank, "Graphic Street Tee", "Boxy street tee with bold front art.",
+                "TSHIRT", "MEN", "STREET", "street,active", "black", "black,red", DEMO_IMAGE_URLS[0]);
+        addBankVariants(bank, "Varsity Stripe Tee", "Breathable tee with athletic shoulder stripes.",
+                "TSHIRT", "MEN", "ACTIVE", "active,street", "white", "white,blue", DEMO_IMAGE_URLS[0]);
+        addBankVariants(bank, "Ribbed Everyday Tee", "Soft rib-knit tee for daily wear.",
+                "TSHIRT", "WOMEN", "STREET", "street,formal", "cream", "cream,brown", DEMO_IMAGE_URLS[0]);
+        addBankVariants(bank, "Cropped Box Tee", "Relaxed cropped tee with clean hem.",
+                "TSHIRT", "WOMEN", "STREET", "street,active", "pink", "pink,white", DEMO_IMAGE_URLS[0]);
+        addBankVariants(bank, "Relaxed Weekend Tee", "Lightweight tee cut for comfort.",
+                "TSHIRT", "WOMEN", "ACTIVE", "active,street", "grey", "grey,white", DEMO_IMAGE_URLS[0]);
+
+        addBankVariants(bank, "Mid-Rise Straight Jeans", "Classic straight-leg denim with slight fade.",
+                "JEANS", "MEN", "STREET", "street,vintage", "indigo", "indigo,blue", DEMO_IMAGE_URLS[1]);
+        addBankVariants(bank, "Loose Carpenter Jeans", "Utility denim with relaxed fit and tool pocket.",
+                "JEANS", "MEN", "VINTAGE", "vintage,street", "blue", "blue,brown", DEMO_IMAGE_URLS[1]);
+        addBankVariants(bank, "High-Rise Denim Jeans", "Structured high-rise denim for clean silhouettes.",
+                "JEANS", "WOMEN", "FORMAL", "formal,street", "darkblue", "darkblue,black", DEMO_IMAGE_URLS[1]);
+        addBankVariants(bank, "Wide-Leg Blue Jeans", "Wide-leg denim with soft drape.",
+                "JEANS", "WOMEN", "VINTAGE", "vintage,street", "lightblue", "lightblue,white", DEMO_IMAGE_URLS[1]);
+
+        addBankVariants(bank, "Utility Bomber Jacket", "Light bomber with zip pockets and rib cuffs.",
+                "JACKET", "MEN", "STREET", "street,active", "olive", "olive,black", DEMO_IMAGE_URLS[2]);
+        addBankVariants(bank, "Lightweight Wind Jacket", "Packable shell built for windy days.",
+                "JACKET", "MEN", "ACTIVE", "active,street", "teal", "teal,grey", DEMO_IMAGE_URLS[2]);
+        addBankVariants(bank, "Cropped Moto Jacket", "Faux-leather moto with asymmetrical zip.",
+                "JACKET", "WOMEN", "STREET", "street,formal", "black", "black,silver", DEMO_IMAGE_URLS[2]);
+        addBankVariants(bank, "Quilted Puffer Jacket", "Warm quilted puffer for colder weather.",
+                "JACKET", "WOMEN", "ACTIVE", "active,street", "tan", "tan,cream", DEMO_IMAGE_URLS[2]);
+
+        addBankVariants(bank, "A-Line Midi Dress", "Flowing midi dress with a simple waist seam.",
+                "DRESS", "WOMEN", "FORMAL", "formal,vintage", "emerald", "emerald,black", DEMO_IMAGE_URLS[3]);
+        addBankVariants(bank, "Wrap Floral Dress", "Wrap-fit floral dress with soft movement.",
+                "DRESS", "WOMEN", "VINTAGE", "vintage,formal", "rose", "rose,cream", DEMO_IMAGE_URLS[3]);
+
+        addBankVariants(bank, "Classic Canvas Sneakers", "Low-top canvas sneakers with cushioned sole.",
+                "SHOES", "MEN", "ACTIVE", "active,street", "white", "white,grey", DEMO_IMAGE_URLS[4]);
+        addBankVariants(bank, "Retro Court Sneakers", "Retro-inspired court sneakers.",
+                "SHOES", "WOMEN", "STREET", "street,active", "offwhite", "offwhite,green", DEMO_IMAGE_URLS[4]);
+
+        addBankVariants(bank, "Knit Sweater Crew", "Soft crewneck sweater with textured knit.",
+                "SWEATER", "MEN", "FORMAL", "formal,vintage", "charcoal", "charcoal,grey", DEMO_IMAGE_URLS[5]);
+        addBankVariants(bank, "Soft Cable Sweater", "Cable-knit sweater with relaxed shoulder.",
+                "SWEATER", "WOMEN", "FORMAL", "formal,vintage", "ivory", "ivory,beige", DEMO_IMAGE_URLS[5]);
+
+        addBankVariants(bank, "Tennis Pleated Skirt", "Pleated skirt with crisp sporty lines.",
+                "SKIRT", "WOMEN", "FORMAL", "formal,active", "white", "white,navy", DEMO_IMAGE_URLS[6]);
+        addBankVariants(bank, "Denim Mini Skirt", "Structured mini skirt in washed denim.",
+                "SKIRT", "WOMEN", "STREET", "street,vintage", "indigo", "indigo,black", DEMO_IMAGE_URLS[6]);
+
+        addBankVariants(bank, "Athletic Mesh Shorts", "Breathable mesh shorts with drawstring waist.",
+                "SHORTS", "MEN", "ACTIVE", "active,street", "black", "black,white", DEMO_IMAGE_URLS[7]);
+        addBankVariants(bank, "Tailored Linen Shorts", "Tailored linen-blend shorts for warm days.",
+                "SHORTS", "WOMEN", "FORMAL", "formal,street", "sand", "sand,white", DEMO_IMAGE_URLS[7]);
+
+        return List.copyOf(bank);
+    }
+
+    private static void addBankVariants(
+            List<DemoItemTemplate> bank,
+            String title,
+            String baseDescription,
+            String category,
+            String gender,
+            String style,
+            String styleTags,
+            String color,
+            String colorTags,
+            String imageUrl
+    ) {
+        for (String size : BANK_SIZES) {
+            for (String condition : BANK_CONDITIONS) {
+                String variantTitle = title + " - " + size + " " + condition;
+                String variantDescription = baseDescription + " Size " + size + ", " + condition.toLowerCase(Locale.ROOT) + " condition.";
+
+                bank.add(new DemoItemTemplate(
+                        variantTitle,
+                        variantDescription,
+                        category,
+                        gender,
+                        size,
+                        condition,
+                        color,
+                        colorTags,
+                        style,
+                        styleTags,
+                        imageUrl
+                ));
+            }
+        }
+    }
+
+    private record DemoItemTemplate(
+            String title,
+            String description,
+            String category,
+            String gender,
+            String size,
+            String condition,
+            String color,
+            String colorTags,
+            String style,
+            String styleTags,
+            String imageUrl
+    ) {
+    }
+
+    private static final class DemoItemPool {
+        private final List<DemoItemTemplate> templates;
+        private int cursor = 0;
+
+        private DemoItemPool(List<DemoItemTemplate> templates) {
+            this.templates = templates;
+        }
+
+        private boolean hasNext() {
+            return cursor < templates.size();
+        }
+
+        private DemoItemTemplate next() {
+            DemoItemTemplate template = templates.get(cursor);
+            cursor++;
+            return template;
+        }
     }
 }
