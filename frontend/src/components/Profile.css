@@ -38,6 +38,41 @@
   font-weight: 700;
 }
 
+.profile-name-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: fit-content;
+  margin: 10px auto 0;
+}
+
+.profile-rank-icon {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  font-size: 1.2rem;
+}
+
+.profile-rank-label {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
 .profile-avatar {
   width: 86px;
   height: 86px;
@@ -148,22 +183,32 @@
 
 .impact-modal-content {
   background: var(--surface-strong);
-  padding: 16px;
+  padding: 14px;
   border-radius: 14px;
   border: 1px solid var(--border-color);
   max-width: 340px;
   width: 92%;
+  height: min(72vh, 560px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: var(--shadow-strong);
   animation: fade-scale 0.24s ease;
 }
 
 .impact-modal-content h4 {
   color: var(--text-surface);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+}
+
+.impact-dashboard-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .close-modal {
-  margin-top: 12px;
+  margin-top: 8px;
   padding: 7px 14px;
   background: var(--surface-muted);
   color: var(--text-surface);
