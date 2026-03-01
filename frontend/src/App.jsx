@@ -35,8 +35,7 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <div className="header-left"><span className="logo">👕 STYLR</span></div>
-        <div className="header-center"><span className="campus-badge">{user.campus}</span></div>
+        <div className="header-center"><span className="logo">STYLR</span></div>
         <div className="header-right"><button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings">⚙️</button></div>
       </header>
 
@@ -54,7 +53,7 @@ export default function App() {
           <span>🔄</span><small>Discover</small>
         </button>
         <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
-          <span>💚</span><small>Matches</small>
+          <span>💙</span><small>Matches</small>
         </button>
         <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setPage('profile'); }}>
           <span>👤</span><small>Profile</small>

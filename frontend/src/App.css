@@ -4,7 +4,7 @@
   min-height: 100vh;
   background: linear-gradient(180deg, var(--surface-strong), var(--surface));
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   border-left: 1px solid rgba(255, 255, 255, 0.18);
   border-right: 1px solid rgba(255, 255, 255, 0.18);
   box-shadow: var(--shadow-strong);
@@ -28,6 +28,8 @@
   position: sticky;
   top: 0;
   z-index: 20;
+  width: 445px;          /* span the entire browser window */
+  transform: translateX(-1%);
 }
 
 .dark-mode .app-header {
@@ -40,14 +42,19 @@
 }
 
 .header-center {
-  flex: 1 1 auto;
-  text-align: center;
+  /* centre logo independent of other items */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center; /* keep logo centred in its own box */
+  width: max-content;
 }
 
 .header-right {
   flex: 0 0 auto;
   display: flex;
   justify-content: flex-end;
+  margin-left: auto; /* push group as far right as possible */
 }
 
 .logo {
