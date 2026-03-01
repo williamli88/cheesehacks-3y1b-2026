@@ -167,3 +167,10 @@
   /* below the menu but above page content so clicks close the menu */
   z-index: 999;
 }
+
+/* Dark mode overrides */
+.dark-mode .matches-page { background: var(--surface); color: #e6eef8; }
+.dark-mode .match-card { background: rgba(255,255,255,0.02); box-shadow: 0 2px 10px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.04); }
+.dark-mode .match-card-info p { color: #9fb3c8; }
+.dark-mode .match-count, .dark-mode .match-badge { background: #18b965; }
+.dark-mode .match-tags .tag { background: rgba(46,204,113,0.06); color: #8de6a5; }

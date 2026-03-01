@@ -247,3 +247,20 @@
   from { transform: scale(0.5); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* Dark mode overrides */
+.dark-mode .swipe-container { background: var(--surface); }
+.dark-mode .swipe-loading, .dark-mode .swipe-empty { color: #9fb3c8; }
+.dark-mode .spinner { border: 3px solid rgba(255,255,255,0.06); border-top-color: #2ecc71; }
+.dark-mode .card { background: var(--surface); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+.dark-mode .card-header-row h2 { color: #e6eef8; }
+.dark-mode .card-size { background: rgba(255,255,255,0.04); color: #cfe6ff; }
+.dark-mode .card-desc { color: #b8c9d6; }
+.dark-mode .tag-color { background: rgba(46,204,113,0.08); color: #2ecc71; }
+.dark-mode .tag-style { background: rgba(52,152,219,0.06); color: #7fb6ff; }
+.dark-mode .btn-nope { background: rgba(255,255,255,0.02); border: 2px solid rgba(255,255,255,0.04); color: #ff9990; }
+.dark-mode .btn-like { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+.dark-mode .match-overlay { background: rgba(0,0,0,0.75); }
+.dark-mode .match-popup { background: linear-gradient(160deg, rgba(10,20,30,0.6), rgba(8,12,20,0.8)); }
+.dark-mode .match-popup h2, .dark-mode .match-popup p { color: #e6eef8; }
+.dark-mode .match-item-name { color: #8de6a5; }

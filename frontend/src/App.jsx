@@ -1,16 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import SwipeCard from './components/SwipeCard';
 import Matches from './components/Matches';
+import Dashboard from './components/Dashboard';
+import SettingsModal from './components/SettingsModal';
 import Profile from './components/Profile';
 import Upload from './components/Upload';
 import './App.css';
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [page, setPage] = useState('swipe'); // swipe | matches | profile
+  const [page, setPage] = useState('swipe'); // swipe | matches | dashboard | profile | upload
   const [authView, setAuthView] = useState('login'); // login | register
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark-mode', theme === 'dark');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   if (!user) {
     return (
@@ -26,15 +35,17 @@ export default function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <span className="logo">👕 STYLR</span>
-        <span className="campus-badge">{user.campus}</span>
+        <div className="header-left"><span className="logo">👕 STYLR</span></div>
+        <div className="header-center"><span className="campus-badge">{user.campus}</span></div>
+        <div className="header-right"><button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings">⚙️</button></div>
       </header>
 
       <main className="app-main">
-        {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('profile')} />}
+  {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('dashboard')} />}
+  {page === 'dashboard' && <Dashboard user={user} />}
         {page === 'matches' && <Matches user={user} />}
-        {page === 'profile' && <Profile user={user} onUpload={() => setPage('upload')} />}
-        {page === 'upload' && <Upload user={user} />}
+  {page === 'profile' && <Profile user={user} onUpload={() => setPage('upload')} />}
+  {page === 'upload' && <Upload user={user} />}
       </main>
 
       <nav className="app-nav">
@@ -44,10 +55,23 @@ export default function App() {
         <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
           <span>💚</span><small>Matches</small>
         </button>
+        <button className={page === 'dashboard' ? 'active' : ''} onClick={() => setPage('dashboard')}>
+          <span>🌱</span><small>Impact</small>
+        </button>
         <button className={page === 'profile' ? 'active' : ''} onClick={() => setPage('profile')}>
           <span>👤</span><small>Profile</small>
         </button>
       </nav>
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        user={user}
+        onSignOut={() => { setUser(null); setAuthView('login'); setSettingsOpen(false); }}
+        onSave={(updated) => { setUser(prev => ({ ...prev, ...updated })); setSettingsOpen(false); }}
+        theme={theme}
+        toggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+      />
     </div>
   );
 }

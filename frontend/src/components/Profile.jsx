@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react';
-import { getImpact, getUserItems } from '../api';
+import { getUserItems } from '../api';
+import Dashboard from './Dashboard';
 import './Profile.css';
 
 export default function Profile({ user, onUpload }) {
-  const [impact, setImpact] = useState(null);
   const [items, setItems] = useState([]);
-  const [loadingImpact, setLoadingImpact] = useState(true);
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
 
   useEffect(() => {
-    setLoadingImpact(true);
-    getImpact(user.userId || user.id)
-      .then(res => { setImpact(res.data); setLoadingImpact(false); })
-      .catch(() => setLoadingImpact(false));
-
     setLoadingItems(true);
     getUserItems(user.userId || user.id)
       .then(res => { setItems(res.data); setLoadingItems(false); })
@@ -44,9 +38,7 @@ export default function Profile({ user, onUpload }) {
     );
   };
 
-  const co2 = impact?.totalCo2Saved || 0;
-  const water = impact?.totalWaterSaved || 0;
-  const swaps = impact?.totalSwapsCompleted || 0;
+  // Impact data is shown in the embedded Dashboard modal; no local impact state here.
 
   return (
     <div className="profile-page">
@@ -71,15 +63,7 @@ export default function Profile({ user, onUpload }) {
         <div className="impact-modal" onClick={() => setShowImpact(false)}>
           <div className="impact-modal-content" onClick={e => e.stopPropagation()}>
             <h4>Your Impact</h4>
-            {loadingImpact ? (
-              <div className="small-loading">Loading…</div>
-            ) : (
-              <div className="impact-numbers">
-                <div>{co2.toFixed(1)} kg CO₂ saved</div>
-                <div>{water.toFixed(0)} L water saved</div>
-                <div>{swaps} swaps</div>
-              </div>
-            )}
+            <Dashboard user={user} />
             <button className="close-modal" onClick={() => setShowImpact(false)}>Close</button>
           </div>
         </div>
