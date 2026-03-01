@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import Hammer from 'hammerjs';
 import { getFeed, postSwipe } from '../api';
 import './SwipeCard.css';
@@ -15,6 +15,7 @@ const FILTER_TYPES = ['', 'TOPS', 'BOTTOMS', 'OUTERWEAR', 'FOOTWEAR', 'ACCESSORI
 const FILTER_SIZES = ['', 'XS', 'S', 'M', 'L', 'XL'];
 const FILTER_STYLES = ['', 'ACTIVE', 'STREET', 'FORMAL', 'VINTAGE'];
 const FILTER_COLORS = ['', 'black', 'white', 'blue', 'red', 'green', 'grey', 'brown', 'yellow', 'purple', 'pink'];
+const CARD_ENTER_MS = 360;
 
 const displayGender = (item) => {
   if (item?.gender === 'MEN') return 'Men';
@@ -31,6 +32,8 @@ export default function SwipeCard({ user, onMatch }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [swiping, setSwiping] = useState(null); // 'left' | 'right' | null
+  const [isDragging, setIsDragging] = useState(false);
+  const [isEntering, setIsEntering] = useState(false);
   const [matchNotif, setMatchNotif] = useState(null);
   const [feedError, setFeedError] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -43,6 +46,31 @@ export default function SwipeCard({ user, onMatch }) {
   });
   const cardRef = useRef(null);
   const hammerRef = useRef(null);
+  const enterTimerRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (!items[currentIdx]) {
+      setIsEntering(false);
+      return;
+    }
+
+    setIsEntering(true);
+
+    if (enterTimerRef.current) {
+      window.clearTimeout(enterTimerRef.current);
+    }
+    enterTimerRef.current = window.setTimeout(() => {
+      setIsEntering(false);
+      enterTimerRef.current = null;
+    }, CARD_ENTER_MS);
+
+    return () => {
+      if (enterTimerRef.current) {
+        window.clearTimeout(enterTimerRef.current);
+        enterTimerRef.current = null;
+      }
+    };
+  }, [items, currentIdx]);
 
   useEffect(() => {
     setLoading(true);
@@ -105,6 +133,9 @@ export default function SwipeCard({ user, onMatch }) {
 
     const hammer = new Hammer(cardRef.current);
     hammer.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 10 });
+    hammer.on('panstart', () => {
+      setIsDragging(true);
+    });
     hammer.on('panend', (e) => {
       if (e.deltaX > 80) handleSwipe('RIGHT');
       else if (e.deltaX < -80) handleSwipe('LEFT');
@@ -116,12 +147,16 @@ export default function SwipeCard({ user, onMatch }) {
       }
     });
     hammer.on('pancancel panend', () => {
+      setIsDragging(false);
       if (cardRef.current && !swiping) {
         cardRef.current.style.transform = '';
       }
     });
     hammerRef.current = hammer;
-    return () => hammer.destroy();
+    return () => {
+      setIsDragging(false);
+      hammer.destroy();
+    };
   }, [currentIdx, items, handleSwipe, swiping]);
 
   useEffect(() => {
@@ -242,7 +277,7 @@ export default function SwipeCard({ user, onMatch }) {
         <>
           <div className="card-stack">
             {/* Preview of next card */}
-            {items[currentIdx + 1] && (
+            {!swiping && !isDragging && !isEntering && items[currentIdx + 1] && (
               <div className="card card-behind">
                 {imageSrc(items[currentIdx + 1].imageUrl) ? (
                   <img src={imageSrc(items[currentIdx + 1].imageUrl)} alt="next item" />
