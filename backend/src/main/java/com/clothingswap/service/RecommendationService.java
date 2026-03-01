@@ -32,6 +32,7 @@ public class RecommendationService {
         List<ClothingItem> allItems = itemRepo.findByCampusAndUserIdNot(campus, userId);
 
         Set<Long> swipedItemIds = swipeRepo.findByUserIdFrom(userId).stream()
+        .filter(swipe -> !"REJECTED".equalsIgnoreCase(swipe.getAction()))
         .map(SwipeLedger::getItemIdTo)
         .collect(Collectors.toSet());
 

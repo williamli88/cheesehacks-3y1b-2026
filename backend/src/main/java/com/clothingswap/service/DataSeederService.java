@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,6 +85,10 @@ public class DataSeederService {
         if (hasExistingUsers) {
             List<User> demos = ensureDemoUsers();
             backfillMissingPhoneNumbers();
+            int deactivatedDuplicates = deactivateDuplicateDemoItemsWithinCampus(demos);
+            if (deactivatedDuplicates > 0) {
+                log.info("Deactivated {} duplicate demo item(s) within same-campus accounts.", deactivatedDuplicates);
+            }
             DemoItemPool demoItemPool = createDemoItemPool(itemRng);
             ensureDemoInventory(demos, demoItemPool);
             return;
@@ -233,6 +240,9 @@ public class DataSeederService {
     private DemoItemPool createDemoItemPool(Random rng) {
         Set<String> usedKeys = new HashSet<>();
         for (ClothingItem existing : itemRepo.findAll()) {
+            if (!existing.isActive()) {
+                continue;
+            }
             usedKeys.add(itemKey(existing));
         }
 
@@ -245,6 +255,44 @@ public class DataSeederService {
 
         Collections.shuffle(availableTemplates, rng);
         return new DemoItemPool(availableTemplates);
+    }
+
+    private int deactivateDuplicateDemoItemsWithinCampus(List<User> demos) {
+        Map<String, List<User>> byCampus = new HashMap<>();
+        for (User demo : demos) {
+            byCampus.computeIfAbsent(normalize(demo.getCampus()), k -> new ArrayList<>()).add(demo);
+        }
+
+        int deactivated = 0;
+        for (List<User> campusUsers : byCampus.values()) {
+            campusUsers.sort(Comparator.comparing(u -> normalize(u.getUsername())));
+            Set<String> seenListings = new HashSet<>();
+
+            for (User user : campusUsers) {
+                List<ClothingItem> activeItems = itemRepo.findByUserId(user.getId()).stream()
+                        .filter(ClothingItem::isActive)
+                        .sorted(Comparator.comparing(ClothingItem::getId))
+                        .toList();
+
+                for (ClothingItem item : activeItems) {
+                    String signature = String.join("|",
+                            normalize(item.getTitle()),
+                            normalize(item.getCategory()),
+                            normalize(item.getGender()),
+                            normalize(item.getSize()),
+                            normalize(item.getCondition()),
+                            normalize(item.getImageUrl()));
+
+                    if (!seenListings.add(signature)) {
+                        item.setActive(false);
+                        itemRepo.save(item);
+                        deactivated++;
+                    }
+                }
+            }
+        }
+
+        return deactivated;
     }
 
     private ClothingItem buildItemFromTemplate(User owner, DemoItemTemplate template) {

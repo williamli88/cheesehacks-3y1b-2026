@@ -35,6 +35,9 @@ export const getMatches = (userId) =>
 export const confirmMatch = (userId, itemId, ownItemId) =>
   api.post('/matches/confirm', { userId, itemId, ownItemId });
 
+export const rejectMatch = (userId, itemId) =>
+  api.post('/matches/reject', { userId, itemId });
+
 export const getImpact = (userId) =>
   api.get(`/impact/${userId}`);
 

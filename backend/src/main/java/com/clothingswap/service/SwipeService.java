@@ -193,10 +193,19 @@ public class SwipeService {
         List<SwipeLedger> userRightSwipes = swipeRepo.findByUserIdFromAndAction(userId, "RIGHT")
                 .stream()
                 .filter(s -> !s.isConfirmed())
+                // Defensive dedupe in case historical ledger rows contain duplicates.
+                .collect(Collectors.toMap(
+                        SwipeLedger::getItemIdTo,
+                        s -> s,
+                        (a, b) -> a
+                ))
+                .values()
+                .stream()
                 .collect(Collectors.toList());
 
         List<Map<String, Object>> matches = new ArrayList<>();
         Set<String> emittedPairs = new HashSet<>();
+        Set<String> emittedCardSignatures = new HashSet<>();
         Map<Long, List<SwipeLedger>> targetRightsByUser = new HashMap<>();
 
         for (SwipeLedger swipe : userRightSwipes) {
@@ -214,10 +223,20 @@ public class SwipeService {
             List<SwipeLedger> targetRightSwipes = targetRightsByUser.computeIfAbsent(
                     targetUserId,
                     id -> swipeRepo.findByUserIdFromAndAction(id, "RIGHT")
+                            .stream()
+                            .filter(s -> !s.isConfirmed())
+                            .collect(Collectors.toMap(
+                                    SwipeLedger::getItemIdTo,
+                                    s -> s,
+                                    (a, b) -> a
+                            ))
+                            .values()
+                            .stream()
+                            .collect(Collectors.toList())
             );
 
             for (SwipeLedger reverse : targetRightSwipes) {
-                if (reverse.isConfirmed() || !userItemIds.contains(reverse.getItemIdTo())) {
+                if (!userItemIds.contains(reverse.getItemIdTo())) {
                     continue;
                 }
                 ClothingItem ownItem = userItemsById.get(reverse.getItemIdTo());
@@ -227,6 +246,10 @@ public class SwipeService {
 
                 String pairKey = ownItem.getId() + ":" + targetItem.getId();
                 if (!emittedPairs.add(pairKey)) {
+                    continue;
+                }
+                String cardSignature = buildCardSignature(targetUserId, ownItem, targetItem);
+                if (!emittedCardSignatures.add(cardSignature)) {
                     continue;
                 }
 
@@ -248,5 +271,24 @@ public class SwipeService {
             }
         }
         return matches;
+    }
+
+    private String buildCardSignature(Long targetUserId, ClothingItem ownItem, ClothingItem targetItem) {
+        return String.join("|",
+                String.valueOf(targetUserId),
+                normalizeForMatchCard(ownItem.getTitle()),
+                normalizeForMatchCard(ownItem.getSize()),
+                normalizeForMatchCard(ownItem.getCondition()),
+                normalizeForMatchCard(ownItem.getImageUrl()),
+                normalizeForMatchCard(targetItem.getTitle()),
+                normalizeForMatchCard(targetItem.getSize()),
+                normalizeForMatchCard(targetItem.getCondition()),
+                normalizeForMatchCard(targetItem.getImageUrl())
+        );
+    }
+
+    private String normalizeForMatchCard(String value) {
+        if (value == null) return "";
+        return value.trim().toLowerCase(Locale.ROOT);
     }
 }

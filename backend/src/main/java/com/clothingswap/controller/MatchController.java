@@ -40,4 +40,17 @@ public class MatchController {
         }
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/reject")
+    public ResponseEntity<?> rejectSwap(@RequestBody Map<String, Long> request) {
+        Long userId = request.get("userId");
+        Long itemId = request.get("itemId");
+
+        if (userId == null || itemId == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "userId and itemId are required"));
+        }
+
+        swipeService.rejectMatch(userId, itemId);
+        return ResponseEntity.ok(Map.of("recorded", true));
+    }
 }

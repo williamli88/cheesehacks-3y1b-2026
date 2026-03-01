@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMatches, confirmMatch, postSwipe } from '../api';
+import { getMatches, confirmMatch, rejectMatch } from '../api';
 import './Matches.css';
 
 function toNumber(value) {
@@ -229,8 +229,7 @@ export default function Matches({ user, openProfile }) {
 
     setRejectingKey(matchKey);
     try {
-      // Persist reject as a LEFT swipe so the match is removed server-side.
-      await postSwipe(user.userId || user.id, itemId, 'LEFT');
+      await rejectMatch(user.userId || user.id, itemId);
       setMatches(prev => prev.filter(m => m?.matchedItem?.id !== itemId));
     } catch (e) {
       console.error('Failed to reject swap', e);
