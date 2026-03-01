@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUserItems } from '../api';
+import { getUserItems, getLikedItems } from '../api';
 import Dashboard from './Dashboard';
 import './Profile.css';
 
@@ -7,13 +7,16 @@ export default function Profile({ user, onUpload }) {
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
+  const [viewMode, setViewMode] = useState('listings'); // 'listings' | 'liked'
 
   useEffect(() => {
     setLoadingItems(true);
-    getUserItems(user.userId || user.id)
+    const id = user.userId || user.id;
+    const fetcher = viewMode === 'liked' ? getLikedItems : getUserItems;
+    fetcher(id)
       .then(res => { setItems(res.data); setLoadingItems(false); })
       .catch(() => setLoadingItems(false));
-  }, [user]);
+  }, [user, viewMode]);
 
   const contactUrl = user.contactUrl || (user.email ? `mailto:${user.email}` : null);
   const isOwn = true; // only viewing own profile in this app
@@ -50,6 +53,20 @@ export default function Profile({ user, onUpload }) {
       {isOwn && (
         <div className="profile-actions">
           <button className="upload-btn" onClick={onUpload}>Upload Item</button>
+          <div className="profile-tabs">
+            <button
+              className={`tab ${viewMode === 'listings' ? 'active' : ''}`}
+              onClick={() => setViewMode('listings')}
+            >
+              Listings
+            </button>
+            <button
+              className={`tab ${viewMode === 'liked' ? 'active' : ''}`}
+              onClick={() => setViewMode('liked')}
+            >
+              Liked
+            </button>
+          </div>
         </div>
       )}
 
@@ -70,7 +87,7 @@ export default function Profile({ user, onUpload }) {
       )}
 
       <div className="profile-items">
-        <h3>Your Listings</h3>
+        <h3>{viewMode === 'liked' ? 'Liked Items' : 'Your Listings'}</h3>
         {loadingItems ? (
           <div className="small-loading">Loading items…</div>
         ) : items.length === 0 ? (

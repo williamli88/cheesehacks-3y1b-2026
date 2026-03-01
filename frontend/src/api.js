@@ -30,3 +30,6 @@ export const postItem = (item) =>
 
 export const getUserItems = (userId) =>
   api.get(`/items/user/${userId}`);
+
+export const getLikedItems = (userId) =>
+  api.get(`/items/liked/${userId}`);
