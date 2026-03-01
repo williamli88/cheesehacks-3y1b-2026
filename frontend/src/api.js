@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:8080';
+function resolveApiBase() {
+  const explicitBase = (import.meta.env.VITE_API_BASE_URL || '').trim();
+  if (explicitBase) {
+    return explicitBase;
+  }
+
+  const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+  return `http://${host}:8080`;
+}
+
+const API_BASE = resolveApiBase();
 
 const api = axios.create({ baseURL: API_BASE });
 
