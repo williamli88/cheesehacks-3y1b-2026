@@ -51,8 +51,8 @@ export default function Matches({ user, openProfile }) {
                 <p>Size {match.matchedItem.size} · {match.matchedItem.condition}</p>
                 <p className="match-with">Matched with <strong>{match.matchedWithUsername || 'User'}</strong></p>
                 <div className="match-tags">
-                  {match.matchedItem.styleTags?.split(',').slice(0, 2).map(t => (
-                    <span key={t} className="tag">{t.trim()}</span>
+                  {match.matchedItem.styleTags?.split(',').slice(0, 2).map((t, idx) => (
+                    <span key={`match-style-${t.trim()}-${idx}`} className="tag">{t.trim()}</span>
                   ))}
                 </div>
               </div>

@@ -84,6 +84,27 @@
   font-weight: 600;
 }
 
+.back-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-surface);
+  font-size: 1.1rem;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background: var(--surface-muted);
+}
+
+.back-btn {
+  position: relative;
+  z-index: 6000;
+  pointer-events: auto;
+}
+
+
 .upload-status.success,
 .upload-status.error {
   color: var(--accent-strong);

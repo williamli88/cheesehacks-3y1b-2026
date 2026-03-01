@@ -176,11 +176,11 @@ export default function SwipeCard({ user, onMatch }) {
             </div>
             <p className="card-desc">{current.description}</p>
             <div className="card-tags">
-              {current.colorTags?.split(',').map(t => (
-                <span key={t} className="tag tag-color">{t.trim()}</span>
+              {current.colorTags?.split(',').map((t, idx) => (
+                <span key={`color-${t.trim()}-${idx}`} className="tag tag-color">{t.trim()}</span>
               ))}
-              {current.styleTags?.split(',').map(t => (
-                <span key={t} className="tag tag-style">{t.trim()}</span>
+              {current.styleTags?.split(',').map((t, idx) => (
+                <span key={`style-${t.trim()}-${idx}`} className="tag tag-style">{t.trim()}</span>
               ))}
             </div>
           </div>

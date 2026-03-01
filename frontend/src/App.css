@@ -139,8 +139,11 @@
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.app-nav button span {
+.app-nav button .nav-icon {
   font-size: 1.28rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .app-nav button small {
@@ -158,6 +161,6 @@
   color: var(--accent-strong);
 }
 
-.app-nav button.active span {
+.app-nav button.active .nav-icon {
   transform: scale(1.08);
 }
