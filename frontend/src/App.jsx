@@ -38,6 +38,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('swipe'); // swipe | matches | profile | upload
   const [profileUser, setProfileUser] = useState(null); // when viewing someone else's profile
+  const [profileSource, setProfileSource] = useState('self'); // self | matches
   const [authView, setAuthView] = useState('login'); // login | register
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -68,8 +69,30 @@ export default function App() {
       <main className="app-main">
         <div className="page-shell" key={page}>
           {page === 'swipe' && <SwipeCard user={user} onMatch={() => setPage('matches')} />}
-          {page === 'matches' && <Matches user={user} openProfile={(u) => { setProfileUser(u); setPage('profile'); }} />}
-          {page === 'profile' && <Profile user={profileUser || user} viewer={user} onUpload={() => setPage('upload')} />}
+          {page === 'matches' && (
+            <Matches
+              user={user}
+              openProfile={(u) => {
+                setProfileUser({ ...u, _fromMatches: true });
+                setProfileSource('matches');
+                setPage('profile');
+              }}
+            />
+          )}
+          {page === 'profile' && (
+            <Profile
+              user={profileUser || user}
+              viewer={user}
+              profileSource={profileSource}
+              isOwnProfile={
+                profileSource !== 'matches' &&
+                (!profileUser ||
+                String(profileUser.userId ?? profileUser.id) === String(user.userId ?? user.id)
+                )
+              }
+              onUpload={() => setPage('upload')}
+            />
+          )}
           {page === 'upload' && <Upload user={user} onBack={() => setPage('profile')} />}
         </div>
       </main>
@@ -81,7 +104,7 @@ export default function App() {
         <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
           <span className="nav-icon"><HeartIcon /></span><small>Matches</small>
         </button>
-        <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setPage('profile'); }}>
+        <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setProfileSource('self'); setPage('profile'); }}>
           <span className="nav-icon"><UserIcon /></span><small>Profile</small>
         </button>
       </nav>

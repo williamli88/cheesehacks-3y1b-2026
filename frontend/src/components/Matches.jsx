@@ -135,7 +135,12 @@ export default function Matches({ user, openProfile }) {
   function viewProfile(match) {
     // Ask parent to open profile view for the matched user.
     if (openProfile) {
-      openProfile({ userId: match.matchedWithUserId, username: match.matchedWithUsername });
+      openProfile({
+        userId: match.matchedWithUserId,
+        username: match.matchedWithUsername,
+        email: match.matchedWithEmail,
+        contactUrl: match.matchedWithContactUrl
+      });
     } else {
       alert(`Open profile for ${match.matchedWithUsername || 'User'}`);
     }
