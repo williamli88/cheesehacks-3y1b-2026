@@ -4,7 +4,8 @@
   flex-direction: column;
   padding: 24px 20px 26px;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background:
     radial-gradient(circle at 15% 15%, rgba(38, 66, 126, 0.2), transparent 45%),
     linear-gradient(180deg, transparent 0%, rgba(16, 42, 92, 0.06) 100%);

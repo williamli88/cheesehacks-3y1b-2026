@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DataSeederService {
@@ -56,6 +57,9 @@ public class DataSeederService {
 
     // Curated demo bank. Edit these entries to define your own default demo inventory.
     private static final List<DemoItemTemplate> DEMO_ITEM_BANK = buildDemoItemBank();
+        private static final Set<String> DEMO_ITEM_KEYS = DEMO_ITEM_BANK.stream()
+            .map(DataSeederService::templateKey)
+            .collect(Collectors.toUnmodifiableSet());
 
     private final UserRepository userRepo;
     private final ClothingItemRepository itemRepo;
@@ -70,6 +74,10 @@ public class DataSeederService {
         boolean hasExistingUsers = userRepo.count() > 0;
         Random userRng = new Random(42);
         Random itemRng = new Random(2026);
+        int deactivated = deactivateItemsOutsideDemoBank();
+        if (deactivated > 0) {
+            log.info("Deactivated {} item(s) outside the demo item bank.", deactivated);
+        }
 
         if (hasExistingUsers) {
             List<User> demos = ensureDemoUsers();
@@ -105,6 +113,13 @@ public class DataSeederService {
         int demoItemsCreated = ensureDemoInventory(demos, demoItemPool);
         int remainingTarget = Math.max(0, TARGET_SEED_ITEM_COUNT - demoItemsCreated);
         seedRemainingItems(users, demoItemPool, remainingTarget, userRng);
+    }
+
+    public static boolean isDemoBankItem(ClothingItem item) {
+        if (item == null) {
+            return false;
+        }
+        return DEMO_ITEM_KEYS.contains(itemKey(item));
     }
 
     private List<User> ensureDemoUsers() {
@@ -199,6 +214,22 @@ public class DataSeederService {
         return created;
     }
 
+    private int deactivateItemsOutsideDemoBank() {
+        int updated = 0;
+        for (ClothingItem item : itemRepo.findAll()) {
+            if (isDemoBankItem(item)) {
+                continue;
+            }
+            if (!item.isActive()) {
+                continue;
+            }
+            item.setActive(false);
+            itemRepo.save(item);
+            updated++;
+        }
+        return updated;
+    }
+
     private DemoItemPool createDemoItemPool(Random rng) {
         Set<String> usedKeys = new HashSet<>();
         for (ClothingItem existing : itemRepo.findAll()) {
@@ -270,61 +301,57 @@ public class DataSeederService {
     private static List<DemoItemTemplate> buildDemoItemBank() {
         List<DemoItemTemplate> bank = new ArrayList<>();
 
-        addBankVariants(bank, "Campus Vintage Tee", "Soft cotton tee with a faded campus crest.",
-                "TSHIRT", "MEN", "VINTAGE", "vintage,street", "navy", "navy,white", DEMO_IMAGE_URLS[0]);
-        addBankVariants(bank, "Graphic Street Tee", "Boxy street tee with bold front art.",
-                "TSHIRT", "MEN", "STREET", "street,active", "black", "black,red", DEMO_IMAGE_URLS[0]);
-        addBankVariants(bank, "Varsity Stripe Tee", "Breathable tee with athletic shoulder stripes.",
-                "TSHIRT", "MEN", "ACTIVE", "active,street", "white", "white,blue", DEMO_IMAGE_URLS[0]);
-        addBankVariants(bank, "Ribbed Everyday Tee", "Soft rib-knit tee for daily wear.",
-                "TSHIRT", "WOMEN", "STREET", "street,formal", "cream", "cream,brown", DEMO_IMAGE_URLS[0]);
-        addBankVariants(bank, "Cropped Box Tee", "Relaxed cropped tee with clean hem.",
-                "TSHIRT", "WOMEN", "STREET", "street,active", "pink", "pink,white", DEMO_IMAGE_URLS[0]);
+        addBankVariants(bank, "Carpenter Jeans", "Dickies carpenter denim",
+            "Jeans", "MEN", "VINTAGE", "vintage,street", "navy", "navy, blue", "/P6%20(1).jpg");
+        addBankVariants(bank, "Red Basketball Shorts", "red shorts with white stripes",
+            "SHORTS", "MEN", "STREET", "street,active", "red", "red,white", "/P6%20(2).jpg");
+        addBankVariants(bank, "Light wash jeans", "Vintage Levis straight fit",
+            "JEANS", "MEN", "VINTAGE", "vintage,street", "blue", "white,blue", "/P6%20(3).jpg");
+        addBankVariants(bank, "Black Sweatpants", "soft sweatpants for daily wear.",
+            "PANTS", "WOMEN", "STREET", "street,active", "black", "black,black", "/P6%20(4).jpg");
+        addBankVariants(bank, "Gold Necklace", "Gold pendant necklace.",
+            "ACCESSORY", "WOMEN", "STREET", "street,formal", "gold", "gold,white", "/P6%20(5).jpg");
         addBankVariants(bank, "Relaxed Weekend Tee", "Lightweight tee cut for comfort.",
-                "TSHIRT", "WOMEN", "ACTIVE", "active,street", "grey", "grey,white", DEMO_IMAGE_URLS[0]);
+            "TSHIRT", "WOMEN", "ACTIVE", "active,street", "white", "grey,white", "/P6%20(6).jpg");
 
-        addBankVariants(bank, "Mid-Rise Straight Jeans", "Classic straight-leg denim with slight fade.",
-                "JEANS", "MEN", "STREET", "street,vintage", "indigo", "indigo,blue", DEMO_IMAGE_URLS[1]);
-        addBankVariants(bank, "Loose Carpenter Jeans", "Utility denim with relaxed fit and tool pocket.",
-                "JEANS", "MEN", "VINTAGE", "vintage,street", "blue", "blue,brown", DEMO_IMAGE_URLS[1]);
+        addBankVariants(bank, "Blue button-up", "Classic button-up with slight fade.",
+            "Shirts", "MEN", "STREET", "street,vintage", "indigo", "indigo,blue", "/P6%20(7).jpg");
+        addBankVariants(bank, "Navy blue crewneck", "cozy sweater for everyday wear.",
+            "SWEATER", "MEN", "STREET", "street,casual", "blue", "blue,navy", "/P6%20(8).jpg");
+        addBankVariants(bank, "Ripped Denim Jeans", "Structured high-rise denim for clean silhouettes.",
+            "JEANS", "MEN", "STREET", "vintage,street", "blue", "lightblue,white", "/P6%20(9).jpg");
+        addBankVariants(bank, "Black windbreaker", "Lightweight jacket.",
+            "JACKET", "MEN", "ACTIVE", "active,street", "black", "black,red", "/P6%20(10).jpg");
+                
+        addBankVariants(bank, "Military Pants", "Green vintage cargo pants",
+            "Pants", "MEN", "VINTAGE", "vintage,street", "green", "green, brown", "/P6%20(11).jpg")   ;
+        addBankVariants(bank, "ribbed tee", "ribbed cotton tee for everyday wear.",
+            "TSHIRT", "WOMEN", "STREET", "street,active", "white", "cream,white", "/P6%20(12).jpg");
+        addBankVariants(bank, "Long Sleeve Shirt", "Striped long sleeve shirt.",
+            "SHIRT", "MEN", "VINTAGE", "vintage,street", "red", "white,red", "/P6%20(13).jpg");
+        addBankVariants(bank, "Jean shorts", "Black jean shorts with frayed hem.",
+            "SHORTS", "WOMEN", "STREET", "street,formal", "black", "black,brown", "/P6%20(14).jpg");
+        addBankVariants(bank, "Nike tee", "Yellow just doit print tee.",
+            "TSHIRT", "MEN", "STREET", "street,active", "Yellow", "Yellow,black", "/P6%20(15).jpg");
+        addBankVariants(bank, "Iowa tee", "Iowa football graphic tee",
+            "TSHIRT", "MEN", "ACTIVE", "active,street", "Black", "Black,yellow", "/P6%20(16).jpg");
+
+        
+
+        addBankVariants(bank, "Red zip-up", "faded hollister zip-up.",
+            "SWEATSHIRT", "MEN", "STREET", "street,vintage", "red", "orange,red", "/P6%20(17).jpg");
+        addBankVariants(bank, "hanes vintage tee", "navy blue oversized tee",
+            "TSHIRT", "MEN", "VINTAGE", "vintage,street", "blue", "blue,navy", "/P6%20(18).jpg");
+        addBankVariants(bank, "crop top", "Structured high-rise denim for clean silhouettes.",
+            "TSHIRT", "WOMEN", "FORMAL", "formal,street", "brown", "brown,black", "/P6%20(19).jpg");
+        addBankVariants(bank, "Dickies shirt", "Oversized pocket tee",
+            "TSHIRT", "MEN", "VINTAGE", "vintage,street", "green", "green,black", "/P6%20(20).jpg");
+        addBankVariants(bank, "Brown tee", "nice brown tee.",
+            "TSHIRT", "MEN", "STREET", "street,vintage", "brown", "brown,chocolate", "/P6.jpg");
+        addBankVariants(bank, "Dickies cargo pants", "Utility pants with tool pocket.",   
+            "PANTS", "MEN", "VINTAGE", "vintage,street", "green", "green,black", "/P6%20(22).jpg");
         addBankVariants(bank, "High-Rise Denim Jeans", "Structured high-rise denim for clean silhouettes.",
-                "JEANS", "WOMEN", "FORMAL", "formal,street", "darkblue", "darkblue,black", DEMO_IMAGE_URLS[1]);
-        addBankVariants(bank, "Wide-Leg Blue Jeans", "Wide-leg denim with soft drape.",
-                "JEANS", "WOMEN", "VINTAGE", "vintage,street", "lightblue", "lightblue,white", DEMO_IMAGE_URLS[1]);
-
-        addBankVariants(bank, "Utility Bomber Jacket", "Light bomber with zip pockets and rib cuffs.",
-                "JACKET", "MEN", "STREET", "street,active", "olive", "olive,black", DEMO_IMAGE_URLS[2]);
-        addBankVariants(bank, "Lightweight Wind Jacket", "Packable shell built for windy days.",
-                "JACKET", "MEN", "ACTIVE", "active,street", "teal", "teal,grey", DEMO_IMAGE_URLS[2]);
-        addBankVariants(bank, "Cropped Moto Jacket", "Faux-leather moto with asymmetrical zip.",
-                "JACKET", "WOMEN", "STREET", "street,formal", "black", "black,silver", DEMO_IMAGE_URLS[2]);
-        addBankVariants(bank, "Quilted Puffer Jacket", "Warm quilted puffer for colder weather.",
-                "JACKET", "WOMEN", "ACTIVE", "active,street", "tan", "tan,cream", DEMO_IMAGE_URLS[2]);
-
-        addBankVariants(bank, "A-Line Midi Dress", "Flowing midi dress with a simple waist seam.",
-                "DRESS", "WOMEN", "FORMAL", "formal,vintage", "emerald", "emerald,black", DEMO_IMAGE_URLS[3]);
-        addBankVariants(bank, "Wrap Floral Dress", "Wrap-fit floral dress with soft movement.",
-                "DRESS", "WOMEN", "VINTAGE", "vintage,formal", "rose", "rose,cream", DEMO_IMAGE_URLS[3]);
-
-        addBankVariants(bank, "Classic Canvas Sneakers", "Low-top canvas sneakers with cushioned sole.",
-                "SHOES", "MEN", "ACTIVE", "active,street", "white", "white,grey", DEMO_IMAGE_URLS[4]);
-        addBankVariants(bank, "Retro Court Sneakers", "Retro-inspired court sneakers.",
-                "SHOES", "WOMEN", "STREET", "street,active", "offwhite", "offwhite,green", DEMO_IMAGE_URLS[4]);
-
-        addBankVariants(bank, "Knit Sweater Crew", "Soft crewneck sweater with textured knit.",
-                "SWEATER", "MEN", "FORMAL", "formal,vintage", "charcoal", "charcoal,grey", DEMO_IMAGE_URLS[5]);
-        addBankVariants(bank, "Soft Cable Sweater", "Cable-knit sweater with relaxed shoulder.",
-                "SWEATER", "WOMEN", "FORMAL", "formal,vintage", "ivory", "ivory,beige", DEMO_IMAGE_URLS[5]);
-
-        addBankVariants(bank, "Tennis Pleated Skirt", "Pleated skirt with crisp sporty lines.",
-                "SKIRT", "WOMEN", "FORMAL", "formal,active", "white", "white,navy", DEMO_IMAGE_URLS[6]);
-        addBankVariants(bank, "Denim Mini Skirt", "Structured mini skirt in washed denim.",
-                "SKIRT", "WOMEN", "STREET", "street,vintage", "indigo", "indigo,black", DEMO_IMAGE_URLS[6]);
-
-        addBankVariants(bank, "Athletic Mesh Shorts", "Breathable mesh shorts with drawstring waist.",
-                "SHORTS", "MEN", "ACTIVE", "active,street", "black", "black,white", DEMO_IMAGE_URLS[7]);
-        addBankVariants(bank, "Tailored Linen Shorts", "Tailored linen-blend shorts for warm days.",
-                "SHORTS", "WOMEN", "FORMAL", "formal,street", "sand", "sand,white", DEMO_IMAGE_URLS[7]);
+            "JEANS", "WOMEN", "FORMAL", "formal,street", "darkblue", "darkblue,black", "/P6.jpg");
 
         return List.copyOf(bank);
     }

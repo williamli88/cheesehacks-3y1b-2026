@@ -58,6 +58,14 @@ const FILTER_COLOR_OPTIONS = [
 ];
 const CARD_ENTER_MS = 360;
 
+const normalizeImageSrc = (src) => {
+  if (typeof src !== 'string') return null;
+  const trimmed = src.trim();
+  if (!trimmed) return null;
+
+  return trimmed.replace(/^\/P6\((\d+)\)\.jpg$/i, '/P6%20($1).jpg');
+};
+
 const displayGender = (item) => {
   if (item?.gender === 'MEN') return 'Men';
   if (item?.gender === 'WOMEN') return 'Women';
@@ -210,7 +218,7 @@ export default function SwipeCard({ user, onGoToMatches }) {
   }, [handleSwipe]);
 
   const closeMatch = () => setMatchNotif(null);
-  const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
+  const imageSrc = (src) => normalizeImageSrc(src);
   const hasAnyFilter = Object.values(filters).some(v => typeof v === 'string' && v.trim().length > 0);
 
   const handleFilterChange = (key, value) => {
