@@ -27,7 +27,7 @@ public class DataSeederService {
         if (userRepo.count() > 0) return;
 
         Random rng = new Random(42);
-        String[] domains = {"mit.edu", "harvard.edu", "stanford.edu", "wisc.edu"};
+        String[] domains = {"mit.edu", "harvard.edu", "stanford.edu"};
         String[] categories = {"TSHIRT", "JEANS", "JACKET", "DRESS", "SHOES", "SWEATER", "SKIRT", "SHORTS"};
         String[] sizes = {"XS", "S", "M", "L", "XL"};
         String[] conditions = {"NEW", "GOOD", "FAIR"};
