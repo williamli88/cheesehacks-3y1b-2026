@@ -116,6 +116,17 @@
       font-size: clamp(16px, 1.8vw, 22px);
       color: #365a43;
     }
+    .formula-strip {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cddcc9;
+      background: #f8fcf6;
+      color: #375543;
+      font-size: clamp(11px, 1.1vw, 13px);
+      line-height: 1.3;
+      font-family: "Menlo", "Consolas", monospace;
+    }
 
   </style>
 </head>
@@ -176,6 +187,11 @@
         <li>Milestone badges for carbon, water, and miles saved.</li>
         <li>Campus-focused trust + direct contact options.</li>
       </ul>
+      <div class="formula-strip">
+        CO2_saved = max(0, 0.5 * category_CO2 - 0.2)<br>
+        Water_saved = max(0, 0.5 * category_water - 50)<br>
+        Driving_saved_miles = total_CO2_saved / 0.404
+      </div>
       <div class="callout">Gamified sustainability: dopamine, but biodegradable.</div>
     </section>
 
