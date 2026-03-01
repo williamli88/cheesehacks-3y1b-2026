@@ -80,16 +80,13 @@ export default function Profile({ user, viewer }) {
             >
               Liked
             </button>
+            <button className="tab impact-tab" onClick={() => setShowImpact(true)}>
+              View Impact
+            </button>
           </div>
         </div>
       )}
 
-      <div className="impact-summary">
-        <h3>Impact</h3>
-        <button className="impact-btn" onClick={() => setShowImpact(true)}>
-          View Impact
-        </button>
-      </div>
       {showImpact && (
         <div className="impact-modal" onClick={() => setShowImpact(false)}>
           <div className="impact-modal-content" onClick={e => e.stopPropagation()}>

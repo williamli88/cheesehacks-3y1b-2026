@@ -7,8 +7,8 @@ const api = axios.create({ baseURL: API_BASE });
 export const login = (username, password) =>
   api.post('/auth/login', { username, password });
 
-export const register = (username, email, password, campus) =>
-  api.post('/auth/register', { username, email, password, campus });
+export const register = (username, email, password, campus, phoneNumber) =>
+  api.post('/auth/register', { username, email, password, campus, phoneNumber });
 
 export const getUsers = () =>
   api.get('/auth/users');

@@ -12,6 +12,7 @@ public class User {
     private String username;
     private String email;
     private String password;
+    private String phoneNumber;
     private String campus;
 
     // optional contact link (mailto: or social URL)
@@ -34,6 +35,9 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
+
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public String getCampus() { return campus; }
     public void setCampus(String campus) { this.campus = campus; }

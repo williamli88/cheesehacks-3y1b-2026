@@ -51,6 +51,30 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
         String username = request.get("username");
         String email = request.get("email");
+        String password = request.get("password");
+        String phoneNumber = request.get("phoneNumber");
+
+        if (username == null || username.isBlank()
+                || email == null || email.isBlank()
+                || password == null || password.isBlank()
+                || phoneNumber == null || phoneNumber.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Username, password, university email, and phone number are required"
+            ));
+        }
+
+        if (!email.toLowerCase().endsWith(".edu")) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "You must register with a valid university (.edu) email"
+            ));
+        }
+
+        String normalizedPhone = phoneNumber.replaceAll("\\s+", "");
+        if (!normalizedPhone.matches("^\\+[1-9]\\d{5,18}$")) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Phone number must include country code and contain only digits"
+            ));
+        }
 
         if (userRepo.findByUsername(username).isPresent()) {
             return ResponseEntity.status(409).body(Map.of("error", "Username already exists"));
@@ -59,8 +83,9 @@ public class AuthController {
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
+        user.setPhoneNumber(normalizedPhone);
         user.setContactUrl(request.getOrDefault("contactUrl", "mailto:" + email));
-        user.setPassword(passwordEncoder.encode(request.get("password")));
+        user.setPassword(passwordEncoder.encode(password));
         
         // This MUST be the only place the campus is set
         user.setCampusFromEmail(email); 
@@ -89,4 +114,3 @@ public class AuthController {
             .toList());
     }
 }
-
