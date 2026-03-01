@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import Hammer from 'hammerjs';
 import { getFeed, postSwipe } from '../api';
+import CustomDropdown from './CustomDropdown';
 import './SwipeCard.css';
 
 const CATEGORY_ICONS = {
@@ -10,11 +11,51 @@ const CATEGORY_ICONS = {
 };
 
 const CONDITION_COLORS = { NEW: '#102a5c', GOOD: '#1c4388', FAIR: '#45567a' };
-const FILTER_GENDERS = ['', 'MEN', 'WOMEN'];
-const FILTER_TYPES = ['', 'TOPS', 'BOTTOMS', 'OUTERWEAR', 'FOOTWEAR', 'ACCESSORIES'];
-const FILTER_SIZES = ['', 'XS', 'S', 'M', 'L', 'XL'];
-const FILTER_STYLES = ['', 'ACTIVE', 'STREET', 'FORMAL', 'VINTAGE'];
-const FILTER_COLORS = ['', 'black', 'white', 'blue', 'red', 'green', 'grey', 'brown', 'yellow', 'purple', 'pink'];
+const FILTER_GENDER_OPTIONS = [
+  { value: '', label: 'Gender (All)' },
+  { value: 'MEN', label: 'Men' },
+  { value: 'WOMEN', label: 'Women' }
+];
+
+const FILTER_TYPE_OPTIONS = [
+  { value: '', label: 'Type (All)' },
+  { value: 'TOPS', label: 'Tops' },
+  { value: 'BOTTOMS', label: 'Bottoms' },
+  { value: 'OUTERWEAR', label: 'Outerwear' },
+  { value: 'FOOTWEAR', label: 'Footwear' },
+  { value: 'ACCESSORIES', label: 'Accessories' }
+];
+
+const FILTER_SIZE_OPTIONS = [
+  { value: '', label: 'Size (All)' },
+  { value: 'XS', label: 'XS' },
+  { value: 'S', label: 'S' },
+  { value: 'M', label: 'M' },
+  { value: 'L', label: 'L' },
+  { value: 'XL', label: 'XL' }
+];
+
+const FILTER_STYLE_OPTIONS = [
+  { value: '', label: 'Style (All)' },
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'STREET', label: 'Street' },
+  { value: 'FORMAL', label: 'Formal' },
+  { value: 'VINTAGE', label: 'Vintage' }
+];
+
+const FILTER_COLOR_OPTIONS = [
+  { value: '', label: 'Color (All)' },
+  { value: 'black', label: 'Black' },
+  { value: 'white', label: 'White' },
+  { value: 'blue', label: 'Blue' },
+  { value: 'red', label: 'Red' },
+  { value: 'green', label: 'Green' },
+  { value: 'grey', label: 'Grey' },
+  { value: 'brown', label: 'Brown' },
+  { value: 'yellow', label: 'Yellow' },
+  { value: 'purple', label: 'Purple' },
+  { value: 'pink', label: 'Pink' }
+];
 const CARD_ENTER_MS = 360;
 
 const displayGender = (item) => {
@@ -37,6 +78,7 @@ export default function SwipeCard({ user, onMatch }) {
   const [matchNotif, setMatchNotif] = useState(null);
   const [feedError, setFeedError] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [openFilterDropdown, setOpenFilterDropdown] = useState(null);
   const [filters, setFilters] = useState({
     gender: '',
     type: '',
@@ -184,6 +226,7 @@ export default function SwipeCard({ user, onMatch }) {
       color: '',
       style: '',
     });
+    setOpenFilterDropdown(null);
   };
 
   if (loading) {
@@ -227,7 +270,13 @@ export default function SwipeCard({ user, onMatch }) {
           <button
             type="button"
             className={`filter-toggle ${filtersOpen ? 'open' : ''}`}
-            onClick={() => setFiltersOpen(open => !open)}
+            onClick={() => {
+              setFiltersOpen((open) => {
+                const next = !open;
+                if (!next) setOpenFilterDropdown(null);
+                return next;
+              });
+            }}
           >
             Filters
           </button>
@@ -240,25 +289,51 @@ export default function SwipeCard({ user, onMatch }) {
 
         {filtersOpen && (
           <div className="filter-grid">
-            <select value={filters.gender} onChange={e => handleFilterChange('gender', e.target.value)}>
-              {FILTER_GENDERS.map(v => <option key={`gender-${v || 'all'}`} value={v}>{v || 'Gender (All)'}</option>)}
-            </select>
-            <select value={filters.type} onChange={e => handleFilterChange('type', e.target.value)}>
-              {FILTER_TYPES.map(v => <option key={`type-${v || 'all'}`} value={v}>{v || 'Type (All)'}</option>)}
-            </select>
-            <select value={filters.size} onChange={e => handleFilterChange('size', e.target.value)}>
-              {FILTER_SIZES.map(v => <option key={`size-${v || 'all'}`} value={v}>{v || 'Size (All)'}</option>)}
-            </select>
-            <select value={filters.style} onChange={e => handleFilterChange('style', e.target.value)}>
-              {FILTER_STYLES.map(v => <option key={`style-${v || 'all'}`} value={v}>{v || 'Style (All)'}</option>)}
-            </select>
-            <select value={filters.color} onChange={e => handleFilterChange('color', e.target.value)}>
-              {FILTER_COLORS.map(v => (
-                <option key={`color-${v || 'all'}`} value={v}>
-                  {v ? `${v.charAt(0).toUpperCase()}${v.slice(1)}` : 'Color (All)'}
-                </option>
-              ))}
-            </select>
+            <CustomDropdown
+              id="filter-gender"
+              value={filters.gender}
+              options={FILTER_GENDER_OPTIONS}
+              placeholder="Gender (All)"
+              openDropdown={openFilterDropdown}
+              setOpenDropdown={setOpenFilterDropdown}
+              onChange={(value) => handleFilterChange('gender', value)}
+            />
+            <CustomDropdown
+              id="filter-type"
+              value={filters.type}
+              options={FILTER_TYPE_OPTIONS}
+              placeholder="Type (All)"
+              openDropdown={openFilterDropdown}
+              setOpenDropdown={setOpenFilterDropdown}
+              onChange={(value) => handleFilterChange('type', value)}
+            />
+            <CustomDropdown
+              id="filter-size"
+              value={filters.size}
+              options={FILTER_SIZE_OPTIONS}
+              placeholder="Size (All)"
+              openDropdown={openFilterDropdown}
+              setOpenDropdown={setOpenFilterDropdown}
+              onChange={(value) => handleFilterChange('size', value)}
+            />
+            <CustomDropdown
+              id="filter-style"
+              value={filters.style}
+              options={FILTER_STYLE_OPTIONS}
+              placeholder="Style (All)"
+              openDropdown={openFilterDropdown}
+              setOpenDropdown={setOpenFilterDropdown}
+              onChange={(value) => handleFilterChange('style', value)}
+            />
+            <CustomDropdown
+              id="filter-color"
+              value={filters.color}
+              options={FILTER_COLOR_OPTIONS}
+              placeholder="Color (All)"
+              openDropdown={openFilterDropdown}
+              setOpenDropdown={setOpenFilterDropdown}
+              onChange={(value) => handleFilterChange('color', value)}
+            />
           </div>
         )}
       </div>

@@ -212,18 +212,17 @@
   transform: translateX(-50%);
   z-index: 30;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 14px;
+  border-radius: 999px;
   background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
   color: var(--text-inverse);
-  padding: 8px 14px;
+  width: 58px;
+  height: 58px;
+  padding: 0;
   cursor: pointer;
-  display: inline-flex;
-  flex-direction: column;
+  display: flex;
   align-items: center;
+  justify-content: center;
   line-height: 1.05;
-  gap: 2px;
-  font-size: 0.84rem;
-  font-weight: 700;
   box-shadow: var(--shadow-strong);
   transition: transform 0.2s ease, filter 0.2s ease;
 }
@@ -244,8 +243,9 @@
 }
 
 .add-listing-fab-icon {
-  font-size: 1.08rem;
+  font-size: 2rem;
   font-weight: 800;
+  line-height: 1;
 }
 
 @keyframes tutorial-nav-pulse {
