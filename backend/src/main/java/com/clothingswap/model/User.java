@@ -14,6 +14,9 @@ public class User {
     private String password;
     private String campus;
 
+    // optional contact link (mailto: or social URL)
+    private String contactUrl;
+
     private double totalWaterSaved = 0.0;
     private double totalCo2Saved = 0.0;
     private int totalSwapsCompleted = 0;
@@ -34,6 +37,9 @@ public class User {
 
     public String getCampus() { return campus; }
     public void setCampus(String campus) { this.campus = campus; }
+
+    public String getContactUrl() { return contactUrl; }
+    public void setContactUrl(String contactUrl) { this.contactUrl = contactUrl; }
 
     public double getTotalWaterSaved() { return totalWaterSaved; }
     public void setTotalWaterSaved(double totalWaterSaved) { this.totalWaterSaved = totalWaterSaved; }

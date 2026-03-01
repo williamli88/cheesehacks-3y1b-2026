@@ -1,0 +1,16 @@
+.upload-container {
+  padding: 16px;
+}
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.upload-form input, .upload-form textarea, .upload-form select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+.row { display:flex; gap:8px; }
+.preview { max-width: 200px; border-radius:8px; margin-top:8px; }
+.upload-status { margin-top:8px; color: #333; }
