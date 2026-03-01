@@ -9,7 +9,16 @@ export default function Profile({ user, viewer }) {
   const [showImpact, setShowImpact] = useState(false);
   const [viewMode, setViewMode] = useState('listings'); // 'listings' | 'liked'
 
+  // Determine if the profile being viewed is the current logged-in user
+  const viewerId = viewer ? (viewer.userId || viewer.id) : null;
+  const profileId = user ? (user.userId || user.id) : null;
+  const isOwn = !viewerId || viewerId === profileId;
+
   useEffect(() => {
+    if (!isOwn) {
+      setLoadingItems(false);
+      return;
+    }
     setLoadingItems(true);
     const id = user.userId || user.id;
     const fetcher = viewMode === 'liked' ? getLikedItems : getUserItems;
@@ -39,25 +48,24 @@ export default function Profile({ user, viewer }) {
         setLoadingItems(false);
       })
       .catch(() => setLoadingItems(false));
-  }, [user, viewMode]);
+  }, [user, viewMode, isOwn]);
 
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
   const profileImageSrc = imageSrc(user.profileImageUrl || user.avatarUrl);
   const profileInitial = (user.username || 'U').trim().charAt(0).toUpperCase();
 
-  // Determine if the profile being viewed is the current logged-in user
-  const viewerId = viewer ? (viewer.userId || viewer.id) : null;
-  const profileId = user ? (user.userId || user.id) : null;
-  const isOwn = !viewerId || viewerId === profileId;
   const canEmail = !isOwn && typeof user?.email === 'string' && user.email.trim().length > 0;
+  const phoneNumber = !isOwn && typeof user?.phoneNumber === 'string' ? user.phoneNumber.trim() : '';
 
   const openEmailComposer = () => {
     if (!canEmail) return;
     const email = encodeURIComponent(user.email.trim());
     const isApplePlatform = /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const href = isApplePlatform
-      ? `mailto:${user.email.trim()}`
-      : `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+    if (isApplePlatform) {
+      window.location.href = `mailto:${user.email.trim()}`;
+      return;
+    }
+    const href = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
     window.open(href, '_blank', 'noopener,noreferrer');
   };
 
@@ -74,10 +82,15 @@ export default function Profile({ user, viewer }) {
             {profileInitial}
           </div>
         )}
-        {canEmail && (
-          <button className="profile-email-btn" onClick={openEmailComposer}>
-            Email
-          </button>
+        {!isOwn && (
+          <div className="profile-contact">
+            {canEmail && (
+              <button className="profile-email-btn" onClick={openEmailComposer}>
+                Email
+              </button>
+            )}
+            {phoneNumber && <div className="profile-phone">Phone: {phoneNumber}</div>}
+          </div>
         )}
       </div>
 
@@ -113,30 +126,32 @@ export default function Profile({ user, viewer }) {
         </div>
       )}
 
-      <div className="profile-items">
-        <h3>{viewMode === 'liked' ? 'Liked Items' : 'Your Listings'}</h3>
-        {loadingItems ? (
-          <div className="small-loading">Loading items…</div>
-        ) : items.length === 0 ? (
-          <p>No items listed yet.</p>
-        ) : (
-          <div className="item-list gallery">
-            {items.map(i => (
-              <div key={i.id} className="item-card">
-                {imageSrc(i.imageUrl) ? (
-                  <img src={imageSrc(i.imageUrl)} alt={i.title} />
-                ) : (
-                  <div className="item-image-placeholder">No image</div>
-                )}
-                <div className="item-info">
-                  <strong>{i.title}</strong>
-                  <small>{i.category} • {i.condition}</small>
+      {isOwn && (
+        <div className="profile-items">
+          <h3>{viewMode === 'liked' ? 'Liked Items' : 'Your Listings'}</h3>
+          {loadingItems ? (
+            <div className="small-loading">Loading items…</div>
+          ) : items.length === 0 ? (
+            <p>No items listed yet.</p>
+          ) : (
+            <div className="item-list gallery">
+              {items.map(i => (
+                <div key={i.id} className="item-card">
+                  {imageSrc(i.imageUrl) ? (
+                    <img src={imageSrc(i.imageUrl)} alt={i.title} />
+                  ) : (
+                    <div className="item-image-placeholder">No image</div>
+                  )}
+                  <div className="item-info">
+                    <strong>{i.title}</strong>
+                    <small>{i.category} • {i.condition}</small>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

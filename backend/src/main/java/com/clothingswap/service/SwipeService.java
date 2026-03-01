@@ -178,6 +178,7 @@ public class SwipeService {
                 userRepo.findById(targetUserId).ifPresent(u -> {
                     match.put("matchedWithUsername", u.getUsername());
                     match.put("matchedWithEmail", u.getEmail());
+                    match.put("matchedWithPhoneNumber", u.getPhoneNumber());
                     match.put("matchedWithContactUrl", u.getContactUrl());
                 });
                 

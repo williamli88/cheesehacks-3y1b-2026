@@ -92,7 +92,7 @@ export default function Matches({ user, openProfile }) {
                       ✖️ Reject swap
                     </button>
                     <button className="match-menu-item" onClick={() => { viewProfile(match); setOpenMenuFor(null); }}>
-                      👤 View profile
+                      📇 Contact
                     </button>
                   </div>
                   <div className="menu-overlay" onClick={() => setOpenMenuFor(null)} />
@@ -158,6 +158,7 @@ export default function Matches({ user, openProfile }) {
         userId: match.matchedWithUserId,
         username: match.matchedWithUsername,
         email: match.matchedWithEmail,
+        phoneNumber: match.matchedWithPhoneNumber,
         contactUrl: match.matchedWithContactUrl
       });
     } else {
