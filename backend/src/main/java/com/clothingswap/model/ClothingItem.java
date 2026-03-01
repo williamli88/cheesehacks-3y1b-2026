@@ -25,6 +25,7 @@ public class ClothingItem {
     private String styleTags; 
 
     private String campus;
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
     private String title;
     private String description;
