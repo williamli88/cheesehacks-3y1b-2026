@@ -1,31 +1,199 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './Upload.css';
 import { postItem } from '../api';
 
-const COLOR_OPTIONS = ['black', 'white', 'blue', 'red', 'green', 'grey', 'brown', 'yellow', 'purple', 'pink'];
+const GENDER_OPTIONS = [
+  { value: 'MEN', label: 'Men' },
+  { value: 'WOMEN', label: 'Women' }
+];
+
+const TYPE_OPTIONS = [
+  { value: 'TOPS', label: 'Tops' },
+  { value: 'BOTTOMS', label: 'Bottoms' },
+  { value: 'OUTERWEAR', label: 'Outerwear' },
+  { value: 'FOOTWEAR', label: 'Footwear' },
+  { value: 'ACCESSORIES', label: 'Accessories' }
+];
+
+const SIZE_OPTIONS = [
+  { value: 'XS', label: 'XS' },
+  { value: 'S', label: 'S' },
+  { value: 'M', label: 'M' },
+  { value: 'L', label: 'L' },
+  { value: 'XL', label: 'XL' }
+];
+
+const STYLE_OPTIONS = [
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'STREET', label: 'Street' },
+  { value: 'FORMAL', label: 'Formal' },
+  { value: 'VINTAGE', label: 'Vintage' }
+];
+
+const CONDITION_OPTIONS = [
+  { value: 'NEW', label: 'New' },
+  { value: 'GOOD', label: 'Good' },
+  { value: 'FAIR', label: 'Fair' }
+];
+
+const COLOR_OPTIONS = ['black', 'white', 'blue', 'red', 'green', 'grey', 'brown', 'yellow', 'purple', 'pink']
+  .map((c) => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1) }));
+
+function CustomDropdown({ id, value, options, placeholder, openDropdown, setOpenDropdown, onChange, multiple = false }) {
+  const isOpen = openDropdown === id;
+  const rootRef = useRef(null);
+  const selectedOption = multiple ? null : options.find((option) => option.value === value);
+  const selectedValues = multiple && Array.isArray(value) ? value : [];
+  const selectedLabels = multiple
+    ? options.filter((option) => selectedValues.includes(option.value)).map((option) => option.label)
+    : [];
+  const displayValue = multiple
+    ? (selectedLabels.length > 0 ? selectedLabels.join(', ') : placeholder)
+    : (selectedOption?.label || placeholder);
+  const hasSelectedValue = multiple ? selectedLabels.length > 0 : Boolean(selectedOption);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const handleOutsideClick = (event) => {
+      if (!rootRef.current || rootRef.current.contains(event.target)) return;
+      setOpenDropdown(null);
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, setOpenDropdown]);
+
+  return (
+    <div className={`custom-select ${isOpen ? 'open' : ''}`} ref={rootRef}>
+      <button
+        type="button"
+        className="custom-select-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={() => setOpenDropdown(isOpen ? null : id)}
+      >
+        <span className={`custom-select-value ${hasSelectedValue ? '' : 'placeholder'}`}>
+          {displayValue}
+        </span>
+        <span className="custom-select-chevron" aria-hidden="true">▾</span>
+      </button>
+
+      {isOpen && (
+        <div className="custom-select-menu" role="listbox" aria-label={id}>
+          {options.map((option) => {
+            const isSelected = multiple ? selectedValues.includes(option.value) : option.value === value;
+            return (
+              <button
+                key={`${id}-${option.value}`}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                className={`custom-select-option ${isSelected ? 'selected' : ''}`}
+                onClick={() => {
+                  if (multiple) {
+                    const next = selectedValues.includes(option.value)
+                      ? selectedValues.filter((v) => v !== option.value)
+                      : [...selectedValues, option.value];
+                    onChange(next);
+                    return;
+                  }
+                  onChange(option.value);
+                  setOpenDropdown(null);
+                }}
+              >
+                <span>{option.label}</span>
+                {multiple && isSelected && <span aria-hidden="true">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Upload({ user, onBack }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [gender, setGender] = useState('MEN');
-  const [clothingType, setClothingType] = useState('TOPS');
-  const [size, setSize] = useState('M');
-  const [condition, setCondition] = useState('GOOD');
-  const [color, setColor] = useState('');
-  const [style, setStyle] = useState('ACTIVE');
+  const [gender, setGender] = useState('');
+  const [clothingType, setClothingType] = useState('');
+  const [size, setSize] = useState('');
+  const [condition, setCondition] = useState('');
+  const [colors, setColors] = useState([]);
+  const [style, setStyle] = useState('');
   const [imageData, setImageData] = useState('');
+  const [isDragActive, setIsDragActive] = useState(false);
   const [status, setStatus] = useState('');
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const fileInputRef = useRef(null);
 
-  const handleFile = async (e) => {
-    const file = e.target.files[0];
+  const applyFile = (file) => {
     if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setStatus('Please upload an image file');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setImageData(reader.result);
     reader.readAsDataURL(file);
+    setStatus('');
+  };
+
+  const handleFileInput = (e) => {
+    const file = e.target.files[0];
+    applyFile(file);
+    e.target.value = '';
+  };
+
+  const openFilePicker = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    const file = e.dataTransfer?.files?.[0];
+    applyFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragActive) {
+      setIsDragActive(true);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const hasMissingCategory = !gender || !clothingType || !size || !condition || !style || colors.length === 0;
+    if (hasMissingCategory) {
+      setStatus('Please select all category fields');
+      return;
+    }
     setStatus('Uploading...');
 
     const item = {
@@ -37,9 +205,9 @@ export default function Upload({ user, onBack }) {
       clothingType,
       size,
       condition,
-      color,
+      color: colors[0],
       style,
-      colorTags: color,
+      colorTags: colors.join(','),
       styleTags: style.toLowerCase(),
       campus: user.campus,
       imageUrl: imageData
@@ -50,13 +218,14 @@ export default function Upload({ user, onBack }) {
       setStatus('Uploaded');
       setTitle('');
       setDescription('');
-      setColor('');
+      setColors([]);
       setImageData('');
-      setStyle('ACTIVE');
-      setGender('MEN');
-      setClothingType('TOPS');
-      setSize('M');
-      setCondition('GOOD');
+      setStyle('');
+      setGender('');
+      setClothingType('');
+      setSize('');
+      setCondition('');
+      setOpenDropdown(null);
     } catch (err) {
       console.error(err);
       setStatus('Upload failed');
@@ -93,61 +262,116 @@ export default function Upload({ user, onBack }) {
         </button>
         <h2 style={{ margin: 0 }}>List an Item</h2>
       </div>
+
+      <div
+        className={`upload-dropzone ${isDragActive ? 'drag-active' : ''}`}
+        role="button"
+        tabIndex={0}
+        aria-label="Drag and drop image or click to upload"
+        onClick={openFilePicker}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openFilePicker();
+          }
+        }}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="upload-file-input"
+          onChange={handleFileInput}
+        />
+
+        {imageData ? (
+          <>
+            <img src={imageData} alt="Upload preview" className="upload-drop-preview" />
+            <div className="upload-drop-overlay">Drop or tap to replace image</div>
+          </>
+        ) : (
+          <div className="upload-drop-content">
+            <div className="upload-drop-plus" aria-hidden="true">+</div>
+            <p className="upload-drop-title">Drag & Drop Image</p>
+            <p className="upload-drop-sub">or tap to browse files</p>
+          </div>
+        )}
+      </div>
+
       <form className="upload-form" onSubmit={handleSubmit}>
         <input placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} required />
         <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
 
         <div className="row">
-          <select value={gender} onChange={e => setGender(e.target.value)} required>
-            <option value="MEN">Men</option>
-            <option value="WOMEN">Women</option>
-          </select>
-          <select value={clothingType} onChange={e => setClothingType(e.target.value)} required>
-            <option value="TOPS">Tops</option>
-            <option value="BOTTOMS">Bottoms</option>
-            <option value="OUTERWEAR">Outerwear</option>
-            <option value="FOOTWEAR">Footwear</option>
-            <option value="ACCESSORIES">Accessories</option>
-          </select>
+          <CustomDropdown
+            id="gender"
+            value={gender}
+            options={GENDER_OPTIONS}
+            placeholder="Gender"
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            onChange={setGender}
+          />
+          <CustomDropdown
+            id="type"
+            value={clothingType}
+            options={TYPE_OPTIONS}
+            placeholder="Type"
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            onChange={setClothingType}
+          />
         </div>
 
         <div className="row">
-          <select value={size} onChange={e => setSize(e.target.value)} required>
-            <option>XS</option>
-            <option>S</option>
-            <option>M</option>
-            <option>L</option>
-            <option>XL</option>
-          </select>
-          <select value={style} onChange={e => setStyle(e.target.value)} required>
-            <option value="ACTIVE">active</option>
-            <option value="STREET">street</option>
-            <option value="FORMAL">formal</option>
-            <option value="VINTAGE">vintage</option>
-          </select>
-          <select value={condition} onChange={e => setCondition(e.target.value)} required>
-            <option>NEW</option>
-            <option>GOOD</option>
-            <option>FAIR</option>
-          </select>
+          <CustomDropdown
+            id="size"
+            value={size}
+            options={SIZE_OPTIONS}
+            placeholder="Size"
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            onChange={setSize}
+          />
+          <CustomDropdown
+            id="style"
+            value={style}
+            options={STYLE_OPTIONS}
+            placeholder="Style"
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            onChange={setStyle}
+          />
+          <CustomDropdown
+            id="condition"
+            value={condition}
+            options={CONDITION_OPTIONS}
+            placeholder="Condition"
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            onChange={setCondition}
+          />
         </div>
 
-        <select value={color} onChange={e => setColor(e.target.value)} required>
-          <option value="" disabled>Select color</option>
-          {COLOR_OPTIONS.map((c) => (
-            <option key={c} value={c}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </option>
-          ))}
-        </select>
-
-        <input type="file" accept="image/*" onChange={handleFile} />
-        {imageData && <img src={imageData} alt="preview" className="preview" />}
+        <CustomDropdown
+          id="color"
+          value={colors}
+          options={COLOR_OPTIONS}
+          placeholder="Color(s)"
+          openDropdown={openDropdown}
+          setOpenDropdown={setOpenDropdown}
+          onChange={setColors}
+          multiple
+        />
 
         <button type="submit">Upload</button>
       </form>
       <div
-        className={`upload-status ${status === 'Uploaded' ? 'success' : ''} ${status === 'Upload failed' ? 'error' : ''}`}
+        className={`upload-status ${status === 'Uploaded' ? 'success' : ''} ${(status === 'Upload failed' || status.startsWith('Please select')) ? 'error' : ''}`}
       >
         {status}
       </div>
