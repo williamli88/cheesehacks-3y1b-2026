@@ -29,10 +29,11 @@ public class DataSeederService {
         Random rng = new Random(42);
         String[] domains = {"mit.edu", "harvard.edu", "stanford.edu"};
         String[] categories = {"TSHIRT", "JEANS", "JACKET", "DRESS", "SHOES", "SWEATER", "SKIRT", "SHORTS"};
+        String[] genders = {"MEN", "WOMEN"};
         String[] sizes = {"XS", "S", "M", "L", "XL"};
         String[] conditions = {"NEW", "GOOD", "FAIR"};
         String[] colors = {"red", "blue", "green", "black", "white", "grey", "purple", "yellow", "pink", "brown"};
-        String[] styles = {"casual", "formal", "sporty", "vintage", "streetwear", "minimalist", "bohemian", "preppy"};
+        String[] styles = {"ACTIVE", "STREET", "FORMAL", "VINTAGE"};
         String[] firstNames = {"Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Avery", "Parker",
                                "Quinn", "Sage", "Blake", "Drew", "Hayden", "Jamie", "Kendall",
                                "Lesley", "Mika", "Nico", "Peyton", "Robin"};
@@ -74,16 +75,20 @@ public class DataSeederService {
 
             String category = categories[rng.nextInt(categories.length)];
             item.setCategory(category);
+            item.setGender(genders[rng.nextInt(genders.length)]);
+            item.setClothingType(mapCategoryToType(category));
             item.setSize(sizes[rng.nextInt(sizes.length)]);
             item.setCondition(conditions[rng.nextInt(conditions.length)]);
 
             String color1 = colors[rng.nextInt(colors.length)];
             String color2 = colors[rng.nextInt(colors.length)];
+            item.setColor(color1);
             item.setColorTags(color1 + "," + color2);
 
             String style1 = styles[rng.nextInt(styles.length)];
             String style2 = styles[rng.nextInt(styles.length)];
-            item.setStyleTags(style1 + "," + style2);
+            item.setStyle(style1);
+            item.setStyleTags(style1.toLowerCase() + "," + style2.toLowerCase());
 
             item.setTitle(capitalize(style1) + " " + capitalize(category.toLowerCase()));
             item.setDescription("A " + item.getCondition().toLowerCase() + " condition " +
@@ -97,5 +102,15 @@ public class DataSeederService {
     private String capitalize(String s) {
         if (s == null || s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    private String mapCategoryToType(String category) {
+        return switch (category) {
+            case "TSHIRT", "DRESS", "SWEATER" -> "TOPS";
+            case "JEANS", "SKIRT", "SHORTS" -> "BOTTOMS";
+            case "JACKET" -> "OUTERWEAR";
+            case "SHOES" -> "FOOTWEAR";
+            default -> "ACCESSORIES";
+        };
     }
 }

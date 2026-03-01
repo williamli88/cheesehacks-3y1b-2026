@@ -2,14 +2,17 @@ import { useState } from 'react';
 import './Upload.css';
 import { postItem } from '../api';
 
+const COLOR_OPTIONS = ['black', 'white', 'blue', 'red', 'green', 'grey', 'brown', 'yellow', 'purple', 'pink'];
+
 export default function Upload({ user, onBack }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('T-SHIRT');
+  const [gender, setGender] = useState('MEN');
+  const [clothingType, setClothingType] = useState('TOPS');
   const [size, setSize] = useState('M');
   const [condition, setCondition] = useState('GOOD');
-  const [colorTags, setColorTags] = useState('');
-  const [styleTags, setStyleTags] = useState('');
+  const [color, setColor] = useState('');
+  const [style, setStyle] = useState('ACTIVE');
   const [imageData, setImageData] = useState('');
   const [status, setStatus] = useState('');
 
@@ -29,11 +32,15 @@ export default function Upload({ user, onBack }) {
       userId: user.userId || user.id,
       title,
       description,
-      category,
+      category: clothingType,
+      gender,
+      clothingType,
       size,
       condition,
-      colorTags,
-      styleTags,
+      color,
+      style,
+      colorTags: color,
+      styleTags: style.toLowerCase(),
       campus: user.campus,
       imageUrl: imageData
     };
@@ -41,7 +48,15 @@ export default function Upload({ user, onBack }) {
     try {
       const res = await postItem(item);
       setStatus('Uploaded');
-      setTitle(''); setDescription(''); setImageData(''); setColorTags(''); setStyleTags('');
+      setTitle('');
+      setDescription('');
+      setColor('');
+      setImageData('');
+      setStyle('ACTIVE');
+      setGender('MEN');
+      setClothingType('TOPS');
+      setSize('M');
+      setCondition('GOOD');
     } catch (err) {
       console.error(err);
       setStatus('Upload failed');
@@ -83,30 +98,48 @@ export default function Upload({ user, onBack }) {
         <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
 
         <div className="row">
-          <select value={category} onChange={e => setCategory(e.target.value)}>
-            <option>T-SHIRT</option>
-            <option>JEANS</option>
-            <option>JACKET</option>
-            <option>DRESS</option>
-            <option>SHOES</option>
-            <option>SWEATER</option>
+          <select value={gender} onChange={e => setGender(e.target.value)} required>
+            <option value="MEN">Men</option>
+            <option value="WOMEN">Women</option>
           </select>
-          <select value={size} onChange={e => setSize(e.target.value)}>
+          <select value={clothingType} onChange={e => setClothingType(e.target.value)} required>
+            <option value="TOPS">Tops</option>
+            <option value="BOTTOMS">Bottoms</option>
+            <option value="OUTERWEAR">Outerwear</option>
+            <option value="FOOTWEAR">Footwear</option>
+            <option value="ACCESSORIES">Accessories</option>
+          </select>
+        </div>
+
+        <div className="row">
+          <select value={size} onChange={e => setSize(e.target.value)} required>
             <option>XS</option>
             <option>S</option>
             <option>M</option>
             <option>L</option>
             <option>XL</option>
           </select>
-          <select value={condition} onChange={e => setCondition(e.target.value)}>
+          <select value={style} onChange={e => setStyle(e.target.value)} required>
+            <option value="ACTIVE">active</option>
+            <option value="STREET">street</option>
+            <option value="FORMAL">formal</option>
+            <option value="VINTAGE">vintage</option>
+          </select>
+          <select value={condition} onChange={e => setCondition(e.target.value)} required>
             <option>NEW</option>
             <option>GOOD</option>
             <option>FAIR</option>
           </select>
         </div>
 
-        <input placeholder="Colors (comma separated)" value={colorTags} onChange={e => setColorTags(e.target.value)} />
-        <input placeholder="Styles (comma separated)" value={styleTags} onChange={e => setStyleTags(e.target.value)} />
+        <select value={color} onChange={e => setColor(e.target.value)} required>
+          <option value="" disabled>Select color</option>
+          {COLOR_OPTIONS.map((c) => (
+            <option key={c} value={c}>
+              {c.charAt(0).toUpperCase() + c.slice(1)}
+            </option>
+          ))}
+        </select>
 
         <input type="file" accept="image/*" onChange={handleFile} />
         {imageData && <img src={imageData} alt="preview" className="preview" />}

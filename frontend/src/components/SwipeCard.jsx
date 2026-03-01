@@ -1,14 +1,30 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Hammer from 'hammerjs';
-import { getFeed, postSwipe, confirmMatch } from '../api';
+import { getFeed, postSwipe } from '../api';
 import './SwipeCard.css';
 
 const CATEGORY_ICONS = {
   TSHIRT: '👕', JEANS: '👖', JACKET: '🧥', DRESS: '👗',
-  SHOES: '👟', SWEATER: '🧶', SKIRT: '👗', SHORTS: '🩳'
+  SHOES: '👟', SWEATER: '🧶', SKIRT: '👗', SHORTS: '🩳',
+  TOPS: '👕', BOTTOMS: '👖', OUTERWEAR: '🧥', FOOTWEAR: '👟', ACCESSORIES: '👜'
 };
 
 const CONDITION_COLORS = { NEW: '#102a5c', GOOD: '#1c4388', FAIR: '#45567a' };
+const FILTER_GENDERS = ['', 'MEN', 'WOMEN'];
+const FILTER_TYPES = ['', 'TOPS', 'BOTTOMS', 'OUTERWEAR', 'FOOTWEAR', 'ACCESSORIES'];
+const FILTER_SIZES = ['', 'XS', 'S', 'M', 'L', 'XL'];
+const FILTER_STYLES = ['', 'ACTIVE', 'STREET', 'FORMAL', 'VINTAGE'];
+const FILTER_COLORS = ['', 'black', 'white', 'blue', 'red', 'green', 'grey', 'brown', 'yellow', 'purple', 'pink'];
+
+const displayGender = (item) => {
+  if (item?.gender === 'MEN') return 'Men';
+  if (item?.gender === 'WOMEN') return 'Women';
+
+  // Legacy fallback when gender was not saved on older items.
+  const legacyCategory = String(item?.category || '').toUpperCase();
+  if (legacyCategory === 'DRESS' || legacyCategory === 'SKIRT') return 'Women';
+  return 'Men';
+};
 
 export default function SwipeCard({ user, onMatch }) {
   const [items, setItems] = useState([]);
@@ -17,18 +33,34 @@ export default function SwipeCard({ user, onMatch }) {
   const [swiping, setSwiping] = useState(null); // 'left' | 'right' | null
   const [matchNotif, setMatchNotif] = useState(null);
   const [feedError, setFeedError] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    gender: '',
+    type: '',
+    size: '',
+    color: '',
+    style: '',
+  });
   const cardRef = useRef(null);
   const hammerRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
-    getFeed(user.userId)
+    setFeedError(false);
+    const requestFilters = Object.fromEntries(
+      Object.entries(filters)
+        .map(([k, v]) => [k, typeof v === 'string' ? v.trim() : v])
+        .filter(([, v]) => Boolean(v))
+    );
+
+    getFeed(user.userId, requestFilters)
       .then(res => {
         setItems(res.data);
+        setCurrentIdx(0);
         setLoading(false);
       })
       .catch(() => { setFeedError(true); setLoading(false); });
-  }, [user.userId]);
+  }, [user.userId, filters]);
 
   const handleSwipe = useCallback(async (action) => {
     if (!items[currentIdx]) return;
@@ -103,6 +135,21 @@ export default function SwipeCard({ user, onMatch }) {
 
   const closeMatch = () => setMatchNotif(null);
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
+  const hasAnyFilter = Object.values(filters).some(v => typeof v === 'string' && v.trim().length > 0);
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      gender: '',
+      type: '',
+      size: '',
+      color: '',
+      style: '',
+    });
+  };
 
   if (loading) {
     return (
@@ -124,16 +171,7 @@ export default function SwipeCard({ user, onMatch }) {
   }
 
   const current = items[currentIdx];
-
-  if (!current) {
-    return (
-      <div className="swipe-empty">
-        <div style={{ fontSize: '3rem' }}>🎉</div>
-        <h3>You've seen everything!</h3>
-        <p>Check back later for new items from your campus.</p>
-      </div>
-    );
-  }
+  const noFilteredResults = items.length === 0 && hasAnyFilter;
 
   return (
     <div className="swipe-container">
@@ -149,67 +187,123 @@ export default function SwipeCard({ user, onMatch }) {
         </div>
       )}
 
-      <div className="card-stack">
-        {/* Preview of next card */}
-        {items[currentIdx + 1] && (
-          <div className="card card-behind">
-            {imageSrc(items[currentIdx + 1].imageUrl) ? (
-              <img src={imageSrc(items[currentIdx + 1].imageUrl)} alt="next item" />
-            ) : (
-              <div className="card-image-placeholder">No image</div>
-            )}
+      <div className="discover-filters">
+        <div className="discover-filters-header">
+          <button
+            type="button"
+            className={`filter-toggle ${filtersOpen ? 'open' : ''}`}
+            onClick={() => setFiltersOpen(open => !open)}
+          >
+            Filters
+          </button>
+          {hasAnyFilter && (
+            <button type="button" className="filter-clear" onClick={clearFilters}>
+              Clear
+            </button>
+          )}
+        </div>
+
+        {filtersOpen && (
+          <div className="filter-grid">
+            <select value={filters.gender} onChange={e => handleFilterChange('gender', e.target.value)}>
+              {FILTER_GENDERS.map(v => <option key={`gender-${v || 'all'}`} value={v}>{v || 'Gender (All)'}</option>)}
+            </select>
+            <select value={filters.type} onChange={e => handleFilterChange('type', e.target.value)}>
+              {FILTER_TYPES.map(v => <option key={`type-${v || 'all'}`} value={v}>{v || 'Type (All)'}</option>)}
+            </select>
+            <select value={filters.size} onChange={e => handleFilterChange('size', e.target.value)}>
+              {FILTER_SIZES.map(v => <option key={`size-${v || 'all'}`} value={v}>{v || 'Size (All)'}</option>)}
+            </select>
+            <select value={filters.style} onChange={e => handleFilterChange('style', e.target.value)}>
+              {FILTER_STYLES.map(v => <option key={`style-${v || 'all'}`} value={v}>{v || 'Style (All)'}</option>)}
+            </select>
+            <select value={filters.color} onChange={e => handleFilterChange('color', e.target.value)}>
+              {FILTER_COLORS.map(v => (
+                <option key={`color-${v || 'all'}`} value={v}>
+                  {v ? `${v.charAt(0).toUpperCase()}${v.slice(1)}` : 'Color (All)'}
+                </option>
+              ))}
+            </select>
           </div>
         )}
+      </div>
 
-        {/* Current card */}
-        <div
-          ref={cardRef}
-          className={`card card-front ${swiping ? `swiping-${swiping}` : ''}`}
-        >
-          <div className="card-image-wrap">
-            {imageSrc(current.imageUrl) ? (
-              <img src={imageSrc(current.imageUrl)} alt={current.title} />
-            ) : (
-              <div className="card-image-placeholder">No image</div>
+      {!current ? (
+        <div className="swipe-empty">
+          <div style={{ fontSize: '3rem' }}>{noFilteredResults ? '🔎' : '🎉'}</div>
+          <h3>{noFilteredResults ? 'No results found for this filter' : "You've seen everything!"}</h3>
+          <p>
+            {noFilteredResults
+              ? 'Try removing one or more filters.'
+              : 'Check back later for new items from your campus.'}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="card-stack">
+            {/* Preview of next card */}
+            {items[currentIdx + 1] && (
+              <div className="card card-behind">
+                {imageSrc(items[currentIdx + 1].imageUrl) ? (
+                  <img src={imageSrc(items[currentIdx + 1].imageUrl)} alt="next item" />
+                ) : (
+                  <div className="card-image-placeholder">No image</div>
+                )}
+              </div>
             )}
-            <div className="card-condition" style={{ background: CONDITION_COLORS[current.condition] || '#aaa' }}>
-              {current.condition}
-            </div>
-          </div>
-          <div className="card-info">
-            <div className="card-header-row">
-              <h2>{CATEGORY_ICONS[current.category] || '👚'} {current.title}</h2>
-              <span className="card-size">Size {current.size}</span>
-            </div>
+
+            {/* Current card */}
+            <div
+              ref={cardRef}
+              className={`card card-front ${swiping ? `swiping-${swiping}` : ''}`}
+            >
+              <div className="card-image-wrap">
+                {imageSrc(current.imageUrl) ? (
+                  <img src={imageSrc(current.imageUrl)} alt={current.title} />
+                ) : (
+                  <div className="card-image-placeholder">No image</div>
+                )}
+                <div className="card-condition" style={{ background: CONDITION_COLORS[current.condition] || '#aaa' }}>
+                  {current.condition}
+                </div>
+              </div>
+              <div className="card-info">
+                <div className="card-header-row">
+                  <h2>{CATEGORY_ICONS[current.category] || '👚'} {current.title}</h2>
+                  <span className="card-size">Size {current.size}</span>
+                </div>
             <p className="card-desc">{current.description}</p>
             <div className="card-tags">
+              <span className="tag tag-gender">{displayGender(current)}</span>
               {current.colorTags?.split(',').map((t, idx) => (
                 <span key={`color-${t.trim()}-${idx}`} className="tag tag-color">{t.trim()}</span>
               ))}
-              {current.styleTags?.split(',').map((t, idx) => (
-                <span key={`style-${t.trim()}-${idx}`} className="tag tag-style">{t.trim()}</span>
-              ))}
+                  {current.styleTags?.split(',').map((t, idx) => (
+                    <span key={`style-${t.trim()}-${idx}`} className="tag tag-style">{t.trim()}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="swipe-actions">
-        <button className="btn-nope" onClick={() => handleSwipe('LEFT')}>
-          ✕
-        </button>
-        <div className="swipe-hint">
-          <small>Swipe or tap buttons</small>
-        </div>
-        <button className="btn-like" onClick={() => handleSwipe('RIGHT')}>
-          ♥
-        </button>
-      </div>
+          {/* Action Buttons */}
+          <div className="swipe-actions">
+            <button className="btn-nope" onClick={() => handleSwipe('LEFT')}>
+              ✕
+            </button>
+            <div className="swipe-hint">
+              <small>Swipe or tap buttons</small>
+            </div>
+            <button className="btn-like" onClick={() => handleSwipe('RIGHT')}>
+              ♥
+            </button>
+          </div>
 
-      <div className="swipe-counter">
-        {currentIdx + 1} / {items.length}
-      </div>
+          <div className="swipe-counter">
+            {currentIdx + 1} / {items.length}
+          </div>
+        </>
+      )}
     </div>
   );
 }

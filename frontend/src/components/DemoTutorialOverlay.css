@@ -1,0 +1,128 @@
+.demo-tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 75% 8%, rgba(31, 71, 145, 0.2), transparent 35%),
+    rgba(3, 8, 20, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.demo-tutorial-card {
+  width: min(100%, 360px);
+  border-radius: 18px;
+  border: 1px solid var(--border-color);
+  background: linear-gradient(160deg, var(--surface-strong), var(--surface));
+  box-shadow: var(--shadow-strong);
+  padding: 22px 18px;
+  text-align: center;
+  color: var(--text-surface);
+  animation: tutorialStepIn 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.demo-tutorial-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.demo-tutorial-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.demo-tutorial-kicker {
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  margin-bottom: 10px;
+}
+
+.demo-tutorial-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.demo-tutorial-hint {
+  margin-top: 10px !important;
+}
+
+.demo-tutorial-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 16px 0 14px;
+}
+
+.demo-tutorial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border-color);
+}
+
+.demo-tutorial-dot.active {
+  width: 18px;
+  background: var(--accent-strong);
+}
+
+.demo-tutorial-card button {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 11px 14px;
+  background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
+  color: var(--text-inverse);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.2s ease;
+}
+
+.demo-tutorial-card button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.demo-tutorial-card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.demo-tutorial-lock {
+  margin-top: 8px !important;
+  font-size: 0.75rem !important;
+}
+
+.demo-tutorial-card.is-animating .demo-tutorial-icon {
+  animation: tutorialIconPulse 0.85s ease;
+}
+
+@keyframes tutorialStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tutorialIconPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

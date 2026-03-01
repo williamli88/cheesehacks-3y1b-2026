@@ -6,6 +6,7 @@ import Matches from './components/Matches';
 import SettingsModal from './components/SettingsModal';
 import Profile from './components/Profile';
 import Upload from './components/Upload';
+import DemoTutorialOverlay, { DEMO_TUTORIAL_STEPS } from './components/DemoTutorialOverlay';
 import './App.css';
 
 function ExploreIcon() {
@@ -51,16 +52,90 @@ export default function App() {
   const [authView, setAuthView] = useState('login'); // login | register
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [demoTutorialOpen, setDemoTutorialOpen] = useState(false);
+  const [demoTutorialStep, setDemoTutorialStep] = useState(0);
+  const [demoTutorialLocked, setDemoTutorialLocked] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark-mode', theme === 'dark');
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (!demoTutorialOpen) {
+      setDemoTutorialLocked(false);
+      return;
+    }
+
+    setDemoTutorialLocked(true);
+    const unlockTimer = window.setTimeout(() => {
+      setDemoTutorialLocked(false);
+    }, 950);
+
+    return () => window.clearTimeout(unlockTimer);
+  }, [demoTutorialOpen, demoTutorialStep]);
+
+  useEffect(() => {
+    if (!demoTutorialOpen) return;
+
+    const targetPage = DEMO_TUTORIAL_STEPS[demoTutorialStep]?.page || 'swipe';
+    if (targetPage === 'profile') {
+      setProfileUser(null);
+      setProfileSource('self');
+    }
+    setPage(targetPage);
+  }, [demoTutorialOpen, demoTutorialStep]);
+
+  useEffect(() => {
+    if (!demoTutorialOpen) return;
+
+    const preventSwipeKeys = (event) => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+
+    window.addEventListener('keydown', preventSwipeKeys, true);
+    return () => window.removeEventListener('keydown', preventSwipeKeys, true);
+  }, [demoTutorialOpen]);
+
+  const tutorialTargetPage = demoTutorialOpen ? (DEMO_TUTORIAL_STEPS[demoTutorialStep]?.page || null) : null;
+  const navClassName = (targetPage) => {
+    const classNames = [];
+    if (page === targetPage) classNames.push('active');
+    if (tutorialTargetPage === targetPage) classNames.push('tutorial-focus');
+    return classNames.join(' ');
+  };
+
+  const handleLoginSuccess = (authUser, options = {}) => {
+    setUser(authUser);
+    setPage('swipe');
+    setProfileUser(null);
+    setProfileSource('self');
+
+    const fromDemoButton = Boolean(options?.isDemo);
+    setDemoTutorialOpen(fromDemoButton);
+    setDemoTutorialStep(0);
+  };
+
+  const goToNextTutorialStep = () => {
+    if (demoTutorialLocked) return;
+
+    setDemoTutorialStep((currentStep) => {
+      const finalStepIndex = DEMO_TUTORIAL_STEPS.length - 1;
+      if (currentStep >= finalStepIndex) {
+        setDemoTutorialOpen(false);
+        return 0;
+      }
+      return currentStep + 1;
+    });
+  };
+
   if (!user) {
     return (
       <div className="app-container">
-        {authView === 'login' && <Login onLogin={setUser} onShowRegister={() => setAuthView('register')} />}
+        {authView === 'login' && <Login onLogin={handleLoginSuccess} onShowRegister={() => setAuthView('register')} />}
         {authView === 'register' && (
           <Register onRegister={(data) => { setUser(data); setAuthView('login'); }} onCancel={() => setAuthView('login')} />
         )}
@@ -73,7 +148,7 @@ export default function App() {
       <header className="app-header">
         <div className="header-center"><span className="logo">STYLR</span></div>
         <div className="header-right">
-          <button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings">
+          <button className="settings-btn" onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings" disabled={demoTutorialOpen}>
             <span className="settings-btn-icon"><SettingsIcon /></span>
           </button>
         </div>
@@ -97,6 +172,11 @@ export default function App() {
               user={profileUser || user}
               viewer={user}
               profileSource={profileSource}
+              onBack={() => {
+                setProfileUser(null);
+                setProfileSource('self');
+                setPage('matches');
+              }}
               isOwnProfile={
                 profileSource !== 'matches' &&
                 (!profileUser ||
@@ -111,29 +191,44 @@ export default function App() {
       </main>
 
       {page === 'profile' && !profileUser && (
-        <button className="add-listing-fab" onClick={() => setPage('upload')} aria-label="Add Listing">
+        <button className="add-listing-fab" onClick={() => setPage('upload')} aria-label="Add Listing" disabled={demoTutorialOpen}>
           <span className="add-listing-fab-icon" aria-hidden="true">+</span>
           <span>Add Listing</span>
         </button>
       )}
 
       <nav className="app-nav">
-        <button className={page === 'swipe' ? 'active' : ''} onClick={() => setPage('swipe')}>
+        <button className={navClassName('swipe')} onClick={() => setPage('swipe')} disabled={demoTutorialOpen}>
           <span className="nav-icon"><ExploreIcon /></span><small>Discover</small>
         </button>
-        <button className={page === 'matches' ? 'active' : ''} onClick={() => setPage('matches')}>
+        <button className={navClassName('matches')} onClick={() => setPage('matches')} disabled={demoTutorialOpen}>
           <span className="nav-icon"><HeartIcon /></span><small>Matches</small>
         </button>
-        <button className={page === 'profile' ? 'active' : ''} onClick={() => { setProfileUser(null); setProfileSource('self'); setPage('profile'); }}>
+        <button className={navClassName('profile')} onClick={() => { setProfileUser(null); setProfileSource('self'); setPage('profile'); }} disabled={demoTutorialOpen}>
           <span className="nav-icon"><UserIcon /></span><small>Profile</small>
         </button>
       </nav>
+
+      {demoTutorialOpen && (
+        <DemoTutorialOverlay
+          stepIndex={demoTutorialStep}
+          isLocked={demoTutorialLocked}
+          onNext={goToNextTutorialStep}
+        />
+      )}
 
       <SettingsModal
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         user={user}
-        onSignOut={() => { setUser(null); setAuthView('login'); setSettingsOpen(false); }}
+        onSignOut={() => {
+          setUser(null);
+          setAuthView('login');
+          setSettingsOpen(false);
+          setDemoTutorialOpen(false);
+          setDemoTutorialStep(0);
+          setDemoTutorialLocked(false);
+        }}
         onSave={(updated) => { setUser(prev => ({ ...prev, ...updated })); setSettingsOpen(false); }}
         theme={theme}
         toggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}

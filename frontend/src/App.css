@@ -110,6 +110,11 @@
   transform: scale(0.95);
 }
 
+.settings-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .app-main {
   flex: 1;
   overflow-y: auto;
@@ -177,12 +182,27 @@
   color: var(--accent-strong);
 }
 
+.app-nav button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.app-nav button:disabled:hover {
+  transform: none;
+}
+
 .app-nav button.active {
   color: var(--accent-strong);
 }
 
 .app-nav button.active .nav-icon {
   transform: scale(1.08);
+}
+
+.app-nav button.tutorial-focus {
+  color: var(--accent-strong);
+  text-shadow: 0 0 10px rgba(16, 42, 92, 0.3);
+  animation: tutorial-nav-pulse 1s ease-in-out infinite;
 }
 
 .add-listing-fab {
@@ -217,7 +237,22 @@
   transform: translateX(-50%) scale(0.98);
 }
 
+.add-listing-fab:disabled {
+  opacity: 0.66;
+  cursor: not-allowed;
+  transform: translateX(-50%);
+}
+
 .add-listing-fab-icon {
   font-size: 1.08rem;
   font-weight: 800;
+}
+
+@keyframes tutorial-nav-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
 }

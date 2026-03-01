@@ -23,14 +23,21 @@ public class FeedController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getFeed(@PathVariable Long userId) {
+    public ResponseEntity<?> getFeed(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String size,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) String style
+    ) {
         Optional<User> userOpt = userRepo.findById(userId);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).body("User not found");
         }
 
         User user = userOpt.get();
-        List<ClothingItem> feed = recService.getRankedFeed(userId, user.getCampus(), null);
+        List<ClothingItem> feed = recService.getRankedFeed(userId, user.getCampus(), size, gender, type, color, style);
 
         return ResponseEntity.ok(feed);
     }

@@ -11,8 +11,12 @@ public class ClothingItem {
 
     private Long userId;
     private String category;  
+    private String gender; // MEN, WOMEN
+    private String clothingType; // TOPS, BOTTOMS, OUTERWEAR, FOOTWEAR, ACCESSORIES
     private String size;      
     private String condition; 
+    private String color; // primary color
+    private String style; // ACTIVE, STREET, FORMAL, VINTAGE
 
     @Column(length = 500)
     private String colorTags; 
@@ -40,11 +44,23 @@ public class ClothingItem {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public String getClothingType() { return clothingType; }
+    public void setClothingType(String clothingType) { this.clothingType = clothingType; }
+
     public String getSize() { return size; }
     public void setSize(String size) { this.size = size; }
 
     public String getCondition() { return condition; }
     public void setCondition(String condition) { this.condition = condition; }
+
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+
+    public String getStyle() { return style; }
+    public void setStyle(String style) { this.style = style; }
 
     public String getColorTags() { return colorTags; }
     public void setColorTags(String colorTags) { this.colorTags = colorTags; }

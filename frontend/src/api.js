@@ -13,8 +13,8 @@ export const register = (username, email, password, campus, phoneNumber) =>
 export const getUsers = () =>
   api.get('/auth/users');
 
-export const getFeed = (userId) =>
-  api.get(`/feed/${userId}`);
+export const getFeed = (userId, filters = {}) =>
+  api.get(`/feed/${userId}`, { params: filters });
 
 export const postSwipe = (userIdFrom, itemIdTo, action) =>
   api.post('/swipe', { userIdFrom, itemIdTo, action });

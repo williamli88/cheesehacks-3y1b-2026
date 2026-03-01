@@ -13,12 +13,12 @@ export default function Login({ onLogin, onShowRegister }) {
     getUsers().then(res => setDemoUsers(res.data.slice(0, 6))).catch(() => {});
   }, []);
 
-  const handleLogin = async (u, p) => {
+  const handleLogin = async (u, p, options = {}) => {
     setLoading(true);
     setError('');
     try {
       const res = await login(u, p);
-      onLogin(res.data);
+      onLogin(res.data, options);
     } catch {
       setError('Invalid credentials. Try a demo account below.');
     } finally {
@@ -28,7 +28,7 @@ export default function Login({ onLogin, onShowRegister }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleLogin(username, password);
+    handleLogin(username, password, { isDemo: false });
   };
 
   return (
@@ -66,9 +66,10 @@ export default function Login({ onLogin, onShowRegister }) {
           <div className="demo-users">
             {demoUsers.map(u => (
               <button
+                type="button"
                 key={u.id}
                 className="demo-user-btn"
-                onClick={() => handleLogin(u.username, 'password123')}
+                onClick={() => handleLogin(u.username, 'password123', { isDemo: true })}
               >
                 {/* Demo accounts use a fixed password for quick access — not for production */}
                 <span>👤</span>

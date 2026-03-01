@@ -3,7 +3,7 @@ import { getUserItems, getLikedItems } from '../api';
 import Dashboard from './Dashboard';
 import './Profile.css';
 
-export default function Profile({ user, viewer }) {
+export default function Profile({ user, viewer, profileSource, onBack }) {
   const [items, setItems] = useState([]);
   const [loadingItems, setLoadingItems] = useState(true);
   const [showImpact, setShowImpact] = useState(false);
@@ -53,6 +53,7 @@ export default function Profile({ user, viewer }) {
   const imageSrc = (src) => (typeof src === 'string' && src.trim().length > 0 ? src : null);
   const profileImageSrc = imageSrc(user.profileImageUrl || user.avatarUrl);
   const profileInitial = (user.username || 'U').trim().charAt(0).toUpperCase();
+  const showBackToMatches = !isOwn && profileSource === 'matches' && typeof onBack === 'function';
 
   const canEmail = !isOwn && typeof user?.email === 'string' && user.email.trim().length > 0;
   const phoneNumber = !isOwn && typeof user?.phoneNumber === 'string' ? user.phoneNumber.trim() : '';
@@ -74,6 +75,13 @@ export default function Profile({ user, viewer }) {
   return (
     <div className="profile-page">
       <div className="profile-header">
+        {showBackToMatches && (
+          <div className="profile-back-row">
+            <button type="button" className="profile-back-btn" onClick={onBack}>
+              ← Back to Matches
+            </button>
+          </div>
+        )}
         <h2>{user.username}</h2>
         {profileImageSrc ? (
           <img className="profile-avatar" src={profileImageSrc} alt={`${user.username} profile`} />
