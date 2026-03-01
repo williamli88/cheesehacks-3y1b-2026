@@ -38,9 +38,7 @@ export default function Profile({ user, onUpload }) {
     );
   };
 
-  const co2 = impact?.totalCo2Saved || 0;
-  const water = impact?.totalWaterSaved || 0;
-  const swaps = impact?.totalSwapsCompleted || 0;
+  // Impact data is shown in the embedded Dashboard modal; no local impact state here.
 
   return (
     <div className="profile-page">
