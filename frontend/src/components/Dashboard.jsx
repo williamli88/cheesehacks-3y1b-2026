@@ -61,9 +61,9 @@ export default function Dashboard({ user }) {
   const swapsToNextRank = nextRank
     ? Math.max(1, Math.ceil(remainingCo2ForNextRank / Math.max(avgCo2PerSwap, 0.5)))
     : 0;
-  const carbonMilestones = [5, 15, 30, 50, 75, 100, 150, 200];
-  const waterMilestones = [5000, 15000, 30000, 50000, 75000, 100000, 150000, 200000];
-  const milesMilestones = [10, 40, 100, 200, 350, 500, 750, 1000];
+  const carbonMilestones = [4, 12, 24, 40, 60, 90];
+  const waterMilestones = [4000, 10000, 18000, 30000, 45000, 65000];
+  const milesMilestones = [8, 25, 60, 120, 220, 350];
 
   const milestoneLabel = (value, unit) => `${value}${unit}`;
   const estimateSwapsForRank = (rank) => {

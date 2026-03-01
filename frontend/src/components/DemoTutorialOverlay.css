@@ -3,23 +3,23 @@
   inset: 0;
   z-index: 280;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 20px;
-  background:
-    radial-gradient(circle at 75% 8%, rgba(31, 71, 145, 0.2), transparent 35%),
-    rgba(3, 8, 20, 0.72);
-  backdrop-filter: blur(2px);
+  padding: 20px 14px 86px;
+  background: transparent;
+  backdrop-filter: none;
 }
 
 .demo-tutorial-card {
   position: relative;
-  width: min(100%, 360px);
+  width: min(100%, 350px);
   border-radius: 18px;
   border: 1px solid var(--border-color);
   background: linear-gradient(160deg, var(--surface-strong), var(--surface));
   box-shadow: var(--shadow-strong);
-  padding: 22px 18px;
+  padding: 14px 14px 12px;
+  max-height: 250px;
+  overflow-y: auto;
   text-align: center;
   color: var(--text-surface);
   animation: tutorialStepIn 0.75s cubic-bezier(0.22, 1, 0.36, 1);
@@ -49,29 +49,29 @@
 }
 
 .demo-tutorial-card h3 {
-  margin: 0 0 8px;
-  font-size: 1.15rem;
+  margin: 0 0 6px;
+  font-size: 1.03rem;
 }
 
 .demo-tutorial-card p {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: 0.82rem;
+  line-height: 1.32;
 }
 
 .demo-tutorial-kicker {
-  font-size: 0.73rem;
+  font-size: 0.67rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--accent-strong);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .demo-tutorial-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
+  font-size: 1.45rem;
+  margin-bottom: 6px;
 }
 
 .demo-tutorial-hint {
@@ -83,7 +83,7 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
-  margin: 16px 0 14px;
+  margin: 10px 0 10px;
 }
 
 .demo-tutorial-dot {
@@ -102,10 +102,10 @@
   width: 100%;
   border: 1px solid transparent;
   border-radius: 12px;
-  padding: 11px 14px;
+  padding: 9px 12px;
   background: linear-gradient(130deg, #081a3a 0%, #173f83 100%);
   color: var(--text-inverse);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.18s ease, opacity 0.2s ease;
